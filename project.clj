@@ -5,4 +5,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [mount "0.1.11"]
-                 [cprop "0.1.10"]])
+                 [cprop "0.1.10"]
+                 [conman "0.6.7"]
+                 [org.postgresql/postgresql "42.1.3"]])
