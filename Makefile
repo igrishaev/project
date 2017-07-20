@@ -2,12 +2,18 @@
 project := project
 res_dir := $(CURDIR)/resources
 
-.phony: config
-config:
-	cp $(res_dir)/config.edn.example $(res_dir)/config.edn
-
 db-user:
 	createuser -s -P $(project)
 
 db-database:
 	createdb -O $(project) $(project)
+
+db-create-migration:
+	@read -p "Enter migration name: " migration \
+	&& lein migratus create $$migration
+
+db-migrate:
+	lein migratus migrate
+
+db-rollback:
+	lein migratus rollback
