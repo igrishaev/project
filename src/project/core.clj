@@ -1,6 +1,6 @@
-(ns project.core)
+(ns project.core
+  (:require [mount.core :as mount]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+
+(defn main []
+  (mount/start))
