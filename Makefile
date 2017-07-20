@@ -2,11 +2,14 @@
 project := project
 res_dir := $(CURDIR)/resources
 
-db-user:
+db-create-user:
 	createuser -s -P $(project)
 
-db-database:
+db-create-db:
 	createdb -O $(project) $(project)
+
+db-drop-db:
+	dropdb $(project)
 
 db-create-migration:
 	@read -p "Enter migration name: " migration \
