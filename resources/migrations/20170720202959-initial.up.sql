@@ -1,7 +1,9 @@
 begin;
 
 create table users (
-    id serial primary key
+    id              serial primary key,
+    date_created_at timestamp not null default current_timestamp,
+    date_updated_at timestamp not null default current_timestamp
 );
 
 create table sources (
@@ -60,7 +62,7 @@ create table notifications (
     date_updated_at timestamp not null default current_timestamp,
     is_read         boolean not null default false,
     date_read_at    timestamp null,
-    unique (user_id, message_id)
+    unique          (user_id, message_id)
 );
 
 commit;
