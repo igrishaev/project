@@ -8,9 +8,10 @@
             [lein-environ "1.1.0"]]
 
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [ch.qos.logback/logback-classic "1.2.3"]
                  [mount "0.1.11"]
                  [environ "1.1.0"]
-                 [conman "0.6.7"]
+                 [conman "0.6.7" :exclusions [org.slf4j/slf4j-api]]
                  [migratus "0.9.8"]
                  [org.postgresql/postgresql "42.1.3"]]
 
