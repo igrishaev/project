@@ -2,8 +2,7 @@
   (:require [project.db :as db]
             [project.http :as http]
             [project.feed :refer [parse-payload]]
-            [clj-time.core :as t]
-            [environ.core :refer [env]]))
+            [clj-time.core :as t]))
 
 
 (defn update-source [source]

@@ -1,12 +1,12 @@
 (ns project.db
-  (:require [environ.core :refer [env]]
+  (:require [project.conf :refer [conf]]
             [clojure.java.jdbc :as jdbc]
             [conman.core :as conman]
             clj-time.jdbc
             [mount.core :as mount]))
 
 (defn ^:private get-pool-spec []
-  {:jdbc-url (env :database-url)})
+  {:jdbc-url (conf :database-url)})
 
 (mount/defstate ^:dynamic *db*
   :start (conman/connect! (get-pool-spec))
