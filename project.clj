@@ -17,6 +17,7 @@
                  [clj-http "3.6.1"]
                  [compojure "1.6.0"]
                  [ring/ring-jetty-adapter "1.6.2"]
+                 [ring/ring-json "0.4.0"]
                  [org.postgresql/postgresql "42.1.3"]]
 
   :migratus {:store :database
