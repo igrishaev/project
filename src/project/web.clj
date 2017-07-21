@@ -1,5 +1,6 @@
 (ns project.web
   (:require [project.conf :refer [conf]]
+            [project.api :refer [api-handler]]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [mount.core :as mount]
@@ -7,7 +8,7 @@
 
 (defroutes app-routes
   (GET "/" [] "<h1>index</h1>")
-  (POST "/api" request "api")
+  (POST "/api" request (api-handler request))
   (route/not-found "<h1>Page not found</h1>"))
 
 (def jetty-params
