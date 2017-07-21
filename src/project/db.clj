@@ -2,16 +2,17 @@
   (:require [environ.core :refer [env]]
             [clojure.java.jdbc :as jdbc]
             [conman.core :as conman]
+            clj-time.jdbc
             [mount.core :as mount]))
 
 (defn ^:private get-pool-spec []
   {:jdbc-url (env :database-url)})
 
-(mount/defstate ^:private ^:dynamic *db*
-  :start (do
-           (conman/bind-connection *db* "queries.sql")
-           (conman/connect! (get-pool-spec)))
+(mount/defstate ^:dynamic *db*
+  :start (conman/connect! (get-pool-spec))
   :stop (conman/disconnect! *db*))
+
+(conman/bind-connection *db* "queries.sql")
 
 (defn start! []
   (mount/start #'*db*))
