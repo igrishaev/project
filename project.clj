@@ -7,7 +7,7 @@
   :plugins [[migratus-lein "0.5.0"]
             [lein-environ "1.1.0"]]
 
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [mount "0.1.11"]
                  [environ "1.1.0"]
