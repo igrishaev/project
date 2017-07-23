@@ -3,6 +3,8 @@
   (:require [project.xml :as xml]
             [project.http :as http]
             [project.rss :as rss]
+            [project.db :as db]
+            [project.uri :as uri]
             [clj-time.core :as time]
             [clj-time.format :as format]
             [clojure.java.io :as io])
@@ -124,3 +126,10 @@
         payload  (:body response)
         ctype    (-> response :headers (get "Content-Type"))]
     (parse-payload ctype payload)))
+
+(defn save-feed [url feed]
+
+  (db/transact [{:feed/url-source (uri/make-uri url)
+                 }])
+
+  )

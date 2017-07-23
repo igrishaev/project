@@ -43,7 +43,7 @@
     (transact-edn file)))
 
 (defn get-feed-by-url [feed_url]
-  (q '[:find (pull ?feed [*]) .
+  (q '[:find (pull ?feed [* {:message/_feed [*]}]) .
        :in $ ?url
        :where [?feed :feed/url-source ?url]]
      (uri/make-uri feed_url)))

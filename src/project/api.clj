@@ -14,10 +14,8 @@
   (if-let [feed (db/get-feed-by-url feed_url)]
     feed
     (let [data (feed/fetch-feed feed_url)]
-      data
-      ;; (:feed/save-feed data)
-      ;; (db/get-feed-by-url feed_url)
-      )))
+      (feed/save-feed feed_url data)
+      (db/get-feed-by-url feed_url))))
 
 (defn action-dispatcher
   [{action :action}]
