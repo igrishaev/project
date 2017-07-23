@@ -31,13 +31,6 @@
           Exception.
           throw))))
 
-(defn parse-payload-cond [content-type payload]
-  (case content-type
-    ("text/xml; charset=utf-8"
-     "application/xml"
-     "application/rss+xml; charset=utf-8")
-    (parse-xml payload)))
-
 (defmacro safe [& body]
   `(try
      ~@body
@@ -119,12 +112,15 @@
    :messages (map normalize-item (:items feed))})
 
 (defn parse-payload [content-type payload]
-  (let [feed (parse-payload-cond content-type payload)]
+  (let [feed (case content-type
+               ("text/xml; charset=utf-8"
+                "application/xml"
+                "application/rss+xml; charset=utf-8")
+               (parse-xml payload))]
     (normalize-feed feed)))
 
-(defn fetch-feed [source]
-  (let [url      (:url_src source)
-        response (http/get url)
+(defn fetch-feed [url]
+  (let [response (http/get url)
         payload  (:body response)
         ctype    (-> response :headers (get "Content-Type"))]
     (parse-payload ctype payload)))

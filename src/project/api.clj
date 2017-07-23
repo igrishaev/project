@@ -1,8 +1,23 @@
 (ns project.api
-  (:require [ring.middleware.json :refer
+  (:require [project.db :as db]
+            [project.feed :as feed]
+            [ring.middleware.json :refer
              [wrap-json-response wrap-json-body]]
             [clojure.spec.alpha :as s]
-            [ring.util.response :refer [response]]))
+            [ring.util.response :refer [response]]
+            project.json))
+
+;; todo
+
+(defn preview-feed
+  [{:keys [feed_url]}]
+  (if-let [feed (db/get-feed-by-url feed_url)]
+    feed
+    (let [data (feed/fetch-feed feed_url)]
+      data
+      ;; (:feed/save-feed data)
+      ;; (db/get-feed-by-url feed_url)
+      )))
 
 (defn action-dispatcher
   [{action :action}]
@@ -23,10 +38,13 @@
 (defn ^:private api-handler*
   [request]
 
-  (let [params (:body request)
-        data (api params)]
+  (response (preview-feed (:body request)))
 
-    (response data)))
+  ;; (let [params (:body request)
+  ;;       data (api params)]
+
+  ;;   (response data))
+  )
 
 (def api-handler
   (-> api-handler*
