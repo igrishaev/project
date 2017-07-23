@@ -1,0 +1,27 @@
+[
+ {:db/id "user-ivan"
+  :user/name "ivan"}
+
+ {:db/id "lenta-ru"
+  :feed/url-source #uri "http://lenta.ru"}
+
+ {:db/id "msg-1"
+  :message/feed "lenta-ru"
+  :message/body-html "<h1>test1</h1>"
+  :message/body-text "test2"
+  :message/guid "123456"}
+
+ {:db/id "msg-2"
+  :message/feed "lenta-ru"
+  :message/body-html "<h1>test2</h1>"
+  :message/body-text "test2"
+  :message/guid "654321"}
+
+ {:notification/user "user-ivan"
+  :notification/message "msg-1"
+  :notification/is-read false}
+
+ {:notification/user "user-ivan"
+  :notification/message "msg-2"
+  :notification/is-read true}
+ ]

@@ -1,0 +1,82 @@
+[
+ ;; user
+
+ {:db/ident       :user/name
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ ;; feed
+
+ {:db/ident       :feed/url-source
+  :db/valueType   :db.type/uri
+  :db/cardinality :db.cardinality/one
+  :db/unique      :db.unique/identity}
+
+ {:db/ident       :feed/url-site
+  :db/valueType   :db.type/uri
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :feed/url-icon
+  :db/valueType   :db.type/uri
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :feed/date-last-sync
+  :db/valueType   :db.type/instant
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :feed/date-next-sync
+  :db/valueType   :db.type/instant
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :feed/tags
+  :db/valueType   :db.type/ref
+  :db/cardinality :db.cardinality/many}
+
+ ;; message
+
+ {:db/ident       :message/feed
+  :db/valueType   :db.type/ref
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/guid
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/title
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/body-html
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/body-text
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/tags
+  :db/valueType   :db.type/ref
+  :db/cardinality :db.cardinality/many}
+
+ ;; notification
+
+ {:db/ident       :notification/message
+  :db/valueType   :db.type/ref
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :notification/user
+  :db/valueType   :db.type/ref
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :notification/is-read
+  :db/valueType   :db.type/boolean
+  :db/cardinality :db.cardinality/one}
+
+ ;; tags
+
+ {:db/ident       :tag/name
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique      :db.unique/identity}
+
+ ]
