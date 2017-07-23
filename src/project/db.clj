@@ -1,48 +1,43 @@
 (ns project.db
-  (:require [project.conf :refer [conf]]
-            [clojure.java.jdbc :as jdbc]
-            [conman.core :as conman]
-            clj-time.jdbc
+  (:require [clojure.java.io :as io]
+            [project.conf :refer [conf]]
+            [datomic.api :as d]
+            [project.uri]
             [mount.core :as mount]))
 
-(defn ^:private get-pool-spec []
-  {:jdbc-url (conf :database-url)})
+(def db-uri "datomic:mem://foobar-3") ;; todo
 
-(mount/defstate ^:dynamic *db*
-  :start (conman/connect! (get-pool-spec))
-  :stop (conman/disconnect! *db*))
+(mount/defstate ^:dynamic *DB*
+  :start (do
+           (d/create-database db-uri)
+           (d/connect db-uri))
+  :stop (d/release *DB*))
 
-(conman/bind-connection *db* "queries.sql")
+(defn start []
+  (mount/start #'*DB*))
 
-(defn start! []
-  (mount/start #'*db*))
+(defn stop []
+  (mount/stop #'*DB*))
 
-(defn stop! []
-  (mount/stop #'*db*))
+(defn query [q & args]
+  (apply d/q q (d/db *DB*) args))
 
-(defn query [& args]
-  (apply jdbc/query *db* args))
+(defn transact
+  [data]
+  @(d/transact *DB* data))
 
-(defn execute! [& args]
-  (apply jdbc/execute! *db* args))
+(defn read-edn
+  [filename]
+  (-> filename
+      io/resource
+      slurp
+      read-string))
 
-(defn insert! [& args]
-  (apply jdbc/insert! *db* args))
+(defn transact-edn
+  [filename]
+  (transact (read-edn filename)))
 
-(defn insert-multi! [& args]
-  (apply jdbc/insert-multi! *db* args))
-
-(defn update! [& args]
-  (apply jdbc/update! *db* args))
-
-(defn delete! [& args]
-  (apply jdbc/delete! *db* args))
-
-(defmacro with-trx [& body]
-  `(conman/with-transaction [*db*]
-     ~@body))
-
-(defmacro with-trx-test [& body]
-  `(conman/with-transaction [*db*]
-     (jdbc/db-set-rollback-only! *db*)
-     ~@body))
+(defn prepare []
+  (doseq [file ["scheme/01-initial.edn"
+                "scheme/fixtures.edn"]]
+    (transact-edn file)))

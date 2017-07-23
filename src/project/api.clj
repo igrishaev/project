@@ -1,6 +1,7 @@
 (ns project.api
   (:require [ring.middleware.json :refer
              [wrap-json-response wrap-json-body]]
+            [clojure.spec.alpha :as s]
             [ring.util.response :refer [response]]))
 
 (defn action-dispatcher
