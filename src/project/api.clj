@@ -1,13 +1,12 @@
 (ns project.api
   (:require [project.db :as db]
+            [project.spec :as spec]
             [project.feed :as feed]
             [ring.middleware.json :refer
              [wrap-json-response wrap-json-body]]
-            [clojure.spec.alpha :as s]
+            ;; [clojure.spec.alpha :as s]
             [ring.util.response :refer [response]]
             project.json))
-
-;; todo
 
 (defn preview-feed
   [{:keys [feed_url]}]
@@ -17,32 +16,59 @@
       (feed/save-feed feed_url data)
       (db/get-feed-by-url feed_url))))
 
-(defn action-dispatcher
-  [{action :action}]
-  (cond
-    (keyword? action) action
-    (string? action) (-> action keyword)))
+(def actions
+  {"preview-feed" preview-feed})
 
-(defmulti api action-dispatcher)
+(defn error [& args]
+  (throw (Exception. (clojure.string/join \space args))))
 
-(defmethod api :test
+(defn call-action
   [params]
-  {:test true})
+  (let [spec-base :project.spec/base-api.in
+        [ok result] (spec/validate spec-base params)]
+    (if ok
+      (let [action (:action params)
+            schema-in (keyword action "in")
+            schema-out (keyword action "out")
+            func (get actions action)
+            ;; result (func params)
+            ]
+        (if func
+          (let [])
+          1
+          (error "wrong action" action)
 
-(defmethod api :default
-  [params]
-  params)
+          )
+        )
+      (error "wrong data structure" result)))
+
+
+  ;; (let [spec-in (keyword action )]
+
+  ;;   )
+
+  ;; (if-let [func (get actions action)
+  ;;          ;; spec-in ::foo
+  ;;          ]
+  ;;   #_(if (s/valid? spec-in params)
+  ;;     (let [result (func params)
+  ;;           spec-out ::foo2]
+  ;;       (if (s/valid? spec-out result)
+  ;;         result
+  ;;         (let [reason (s/explain-str spec-out result)]
+  ;;           (error "wrong out data" reason))))
+  ;;     (let [reason (s/explain-str spec-in params)]
+  ;;       (error "wrong in data" reason)))
+  ;;   (error "wrong action" action))
+  )
 
 (defn ^:private api-handler*
-  [request]
-
-  (response (preview-feed (:body request)))
-
-  ;; (let [params (:body request)
-  ;;       data (api params)]
-
-  ;;   (response data))
-  )
+  [{:keys [body]}]
+  (try
+    (response (call-action body))
+    (catch Exception e
+      {:status 500
+       :body (.getMessage e)})))
 
 (def api-handler
   (-> api-handler*

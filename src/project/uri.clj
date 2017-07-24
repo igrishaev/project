@@ -2,4 +2,7 @@
   (:import java.net.URI))
 
 (defn read-uri [value]
-  (java.net.URI. value))
+  (URI. value))
+
+(defn is-uri? [value]
+  (instance? URI value))

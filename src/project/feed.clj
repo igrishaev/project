@@ -129,7 +129,7 @@
 
 (defn save-feed [url feed]
 
-  (db/transact [{:feed/url-source (uri/make-uri url)
+  (db/transact [{:feed/url-source (uri/read-uri url)
                  }])
 
   )

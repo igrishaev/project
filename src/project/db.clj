@@ -46,4 +46,4 @@
   (q '[:find (pull ?feed [* {:message/_feed [*]}]) .
        :in $ ?url
        :where [?feed :feed/url-source ?url]]
-     (uri/make-uri feed_url)))
+     (uri/read-uri feed_url)))

@@ -1,47 +1,52 @@
 (ns project.spec
-  (:require [clojure.spec.alpha :as s]))
+  (:require [project.uri :refer [is-uri?]]
+            [clojure.spec.alpha :as s]))
 
-(defn is-uri?
-  [val]
-  (try
-    (let [url (java.net.URI. val)]
-      ;; has at least scheme and host specified
-      (and (-> url .getScheme not-empty)
-           (-> url .getHost not-empty)))
-    (catch Exception e)))
+;; (defn is-uri?
+;;   [val]
+;;   (try
+;;     (let [url (java.net.URI. val)]
+;;       ;; has at least scheme and host specified
+;;       (and (-> url .getScheme not-empty)
+;;            (-> url .getHost not-empty)))
+;;     (catch Exception e)))
 
-(s/def ::url
-    (s/and string? is-uri?))
+;; user input
 
-(s/def ::id int?)
-(s/def ::date_created_at inst?)
-(s/def ::date_updated_at inst?)
+(defn validate [spec data]
+  (if-let [err (s/explain-data spec data)]
+    [false err]
+    [true data]))
 
-(s/def ::date_last_sync inst?)
-(s/def ::date_next_sync inst?)
+(s/def ::feed_url string?)
 
-(s/def ::title string?)
-(s/def ::description string?)
+;; db.feed
 
-(s/def ::description string?)
+(s/def :feed/url-source is-uri?)
+(s/def :feed/url-site is-uri?)
+(s/def :feed/url-icon is-uri?)
+(s/def :feed/date-last-sync inst?)
+(s/def :feed/date-next-sync inst?)
+(s/def :feed/tags (s/coll-of string?))
 
-    ;; url_src         text not null default '' unique,
-    ;; url_site        text not null default '',
-    ;; url_favicon     text not null default '',
-    ;; url_banner      text not null default '',
-    ;; last_update_ok  boolean not null default false,
-    ;; last_update_msg text not null default '',
-    ;; update_count    integer not null default 0,
-    ;; message_count   integer not null default 0,
-    ;; active          boolean not null default true
+;; api
 
+;; (s/def ::action
+;;   (s/or :string string?
+;;         :keyword keyword?))
 
-(s/def ::preview-source-in
-  (s/keys :req-un [::url]))
+(s/def ::action string?)
 
+(s/def ::base-api.in
+  (s/keys :req-un [::action]))
 
-;; (defn ^{:tr :ui/message}
-;;   foo
-;;   [x]
-;;   (= x 42)
-;;   )
+(s/def :preview-feed/in
+  (s/keys :req-un [::feed_url]))
+
+(s/def :preview-feed/out
+  (s/keys :req [:feed/url-source
+                :feed/url-site
+                :feed/url-icon
+                :feed/date-last-sync
+                :feed/date-next-sync
+                :feed/tags]))
