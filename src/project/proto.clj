@@ -24,3 +24,6 @@
   (get-media-url [this])
   (get-media-type [this])
   (get-media-size [this]))
+
+(defprotocol Tag
+  (get-tag-name [this]))

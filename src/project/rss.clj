@@ -1,7 +1,14 @@
 (ns project.rss
   "RSS parser."
   (:require [project.xml :as xml])
-  (:use [project.proto :only [Feed Entity Media]]))
+  (:use [project.proto :only [Feed Entity Media Tag]]))
+
+(deftype RSSTag [node]
+
+  Tag
+
+  (get-tag-name [this]
+    (-> node xml/first-content)))
 
 (deftype RSSMedia [node]
 
@@ -49,8 +56,7 @@
   (get-entity-author [this]
     (-> node
         xml/find-author
-        (or (-> node
-                xml/find-dc-creator))
+        (or (-> node xml/find-dc-creator))
         xml/first-content))
 
   (get-entity-pub-date [this]
@@ -61,7 +67,7 @@
   (get-entity-tags [this]
     (->> node
          xml/find-categories
-         (mapv xml/first-content)))
+         (mapv ->RSSTag)))
 
   (get-entity-media [this]
     (->> node
@@ -110,7 +116,7 @@
     (->> node
          xml/find-channel
          xml/find-categories
-         (mapv xml/first-content)))
+         (mapv (mapv ->RSSTag))))
 
   (get-feed-entities [this]
     (->> node

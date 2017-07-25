@@ -11,7 +11,8 @@
             [clj-time.format :as format]
             [clojure.java.io :as io])
   (:import java.net.URI
-           project.rss.RSSFeed))
+           project.rss.RSSFeed
+           project.atom.AtomFeed))
 
 (defn discover-favicon [feed]
   (let [url (-> feed :link URI.)
@@ -149,14 +150,19 @@
 ;; https://habrahabr.ru/rss/best/
 ;; https://meduza.io/rss/all
 
+;; http://blog.case.edu/news/feed.atom
+;; https://golem.ph.utexas.edu/~distler/blog/atom10.xml
+
 (defn get-feed [url]
   (let [feed (-> url
                  http/get
                  :body
                  xml/parse
-                 RSSFeed.)]
+                 RSSFeed.
+                 ;; AtomFeed.
+                 )]
 
-    {:feed/lang (proto/get-feed-lang feed)
+    #_{:feed/lang (proto/get-feed-lang feed)
      :feed/title (proto/get-feed-title feed)
      :feed/pub-date (proto/get-feed-pub-date feed)
      :feed/description (proto/get-feed-description feed)
@@ -167,11 +173,15 @@
     (for [entity (proto/get-feed-entities feed)]
       {:entity/title (proto/get-entity-title entity)
        :entity/link (proto/get-entity-link entity)
-       :entity/description (proto/get-entity-description entity)
+       ;; :entity/description (proto/get-entity-description entity)
        :entity/guid (proto/get-entity-guid entity)
        :entity/author (proto/get-entity-author entity)
        :entity/pub-date (proto/get-entity-pub-date entity)
-       :entity/tags (proto/get-entity-tags entity)
+
+       :entity/tags
+       (for [tag (proto/get-entity-tags entity)]
+         (proto/get-tag-name tag))
+
        :entity/media
        (for [media (proto/get-entity-media entity)]
          {:media/url (proto/get-media-url media)
