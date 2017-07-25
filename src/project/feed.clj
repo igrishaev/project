@@ -6,6 +6,7 @@
             [project.atom :as atom]
             [project.db :as db]
             [project.uri :as uri]
+            [project.raise :refer [raise]]
             [project.proto :as proto]
             [clj-time.core :as time]
             [clj-time.format :as format])
@@ -23,23 +24,23 @@
         _ (http/head url-fav)]
     url-fav))
 
-(defn parse-xml [payload]
-  (let [node (xml/parse payload)
-        tag (:tag node)]
-    (cond
-      (= tag :rss)
-      (rss/parse node)
+;; (defn parse-xml [payload]
+;;   (let [node (xml/parse payload)
+;;         tag (:tag node)]
+;;     (cond
+;;       (= tag :rss)
+;;       (rss/parse node)
 
-      (and (= tag :feed)
-           (= (-> node :attrs :xmlns)
-              "http://www.w3.org/2005/Atom"))
-      (atom/parse node)
+;;       (and (= tag :feed)
+;;            (= (-> node :attrs :xmlns)
+;;               "http://www.w3.org/2005/Atom"))
+;;       (atom/parse node)
 
-      :else
-      (-> "wrong XML tag: %s"
-          (format tag)
-          Exception.
-          throw))))
+;;       :else
+;;       (-> "wrong XML tag: %s"
+;;           (format tag)
+;;           Exception.
+;;           throw))))
 
 (defmacro safe [& body] ;; todo move
   `(try
@@ -105,19 +106,64 @@
     (some-> item :pubDate parse-rfc822))
    (time/now)))
 
-(defn parse-payload [content-type payload]
-  (let [feed (case content-type
-               ("text/xml; charset=utf-8"
-                "application/xml"
-                "application/rss+xml; charset=utf-8"
-                "application/atom+xml; charset=UTF-8"))]
-    (parse-xml payload)))
+;; (defn parse-payload [content-type payload]
+;;   (let [feed (case content-type
+;;                ("text/xml; charset=utf-8"
+;;                 "application/xml"
+;;                 "application/rss+xml; charset=utf-8"
+;;                 "application/atom+xml; charset=UTF-8"))]
+;;     (parse-xml payload)))
 
-(defn fetch-feed [url]
-  (let [response (http/get url)
-        payload  (:body response)
-        ctype    (-> response :headers (get "Content-Type"))]
-    (parse-payload ctype payload)))
+;; (defn )
+
+(defn parse-xml
+  [payload]
+  (-> payload
+      xml/parse
+      RSSFeed.))
+
+(defn parse-atom
+  [payload]
+  (-> payload
+      xml/parse
+      AtomFeed.))
+
+(defn parse-json
+  [payload]
+  #_(-> payload
+      json/parse
+      JsonFeed.))
+
+(defn parse-feed
+  [feed-type payload]
+  (case feed-type
+    :feed/rss (parse-xml payload)
+    :feed/atom (parse-atom payload)
+    :feed/json (parse-json payload)))
+
+(defn normalize-feed
+  [feed]
+  {:feed/lang (proto/get-feed-lang feed)
+   :feed/title (proto/get-feed-title feed)
+   :feed/pub-date (proto/get-feed-pub-date feed)
+   :feed/description (proto/get-feed-description feed)
+   :feed/tags (for [tag (proto/get-feed-tags feed)]
+                (proto/get-tag-name tag))
+   :feed/image (proto/get-feed-image feed)
+   :feed/icon (proto/get-feed-icon feed)
+   :feed/items (for [entity (proto/get-feed-entities feed)]
+                 {:entity/title (proto/get-entity-title entity)
+                  :entity/link (proto/get-entity-link entity)
+                  :entity/description (proto/get-entity-description entity)
+                  :entity/guid (proto/get-entity-guid entity)
+                  :entity/author (proto/get-entity-author entity)
+                  :entity/pub-date (proto/get-entity-pub-date entity)
+                  :entity/tags (for [tag (proto/get-entity-tags entity)]
+                                 (proto/get-tag-name tag))
+                  :entity/media (for [media (proto/get-entity-media entity)]
+                                  {:media/url (proto/get-media-url media)
+                                   :media/type (proto/get-media-type media)
+                                   :media/size (proto/get-media-size media)})})})
 
 (defn save-feed [url feed]
 
@@ -126,6 +172,22 @@
 
   )
 
+(defn guess-feed-type
+  [url response]
+  (let [content-type (-> response
+                         :headers
+                         (get "Content-Type")
+                         (or ""))]
+
+    )
+  ;;
+  :feed/rss
+  ;; :feed/atom
+  ;; :feed/json
+
+  ;; (raise "unknown feed type")
+)
+
 ;; https://lenta.ru/rss
 ;; https://habrahabr.ru/rss/best/
 ;; https://meduza.io/rss/all
@@ -133,37 +195,10 @@
 ;; http://blog.case.edu/news/feed.atom
 ;; https://golem.ph.utexas.edu/~distler/blog/atom10.xml
 
-(defn get-feed [url]
-  (let [feed (-> url
-                 http/get
-                 :body
-                 xml/parse
-                 RSSFeed.
-                 ;; AtomFeed.
-                 )]
 
-    #_{:feed/lang (proto/get-feed-lang feed)
-     :feed/title (proto/get-feed-title feed)
-     :feed/pub-date (proto/get-feed-pub-date feed)
-     :feed/description (proto/get-feed-description feed)
-     :feed/tags (proto/get-feed-tags feed)
-     :feed/image (proto/get-feed-image feed)
-     :feed/icon (proto/get-feed-icon feed)}
-
-    (for [entity (proto/get-feed-entities feed)]
-      {:entity/title (proto/get-entity-title entity)
-       :entity/link (proto/get-entity-link entity)
-       ;; :entity/description (proto/get-entity-description entity)
-       :entity/guid (proto/get-entity-guid entity)
-       :entity/author (proto/get-entity-author entity)
-       :entity/pub-date (proto/get-entity-pub-date entity)
-
-       :entity/tags
-       (for [tag (proto/get-entity-tags entity)]
-         (proto/get-tag-name tag))
-
-       :entity/media
-       (for [media (proto/get-entity-media entity)]
-         {:media/url (proto/get-media-url media)
-          :media/type (proto/get-media-type media)
-          :media/size (proto/get-media-size media)})})))
+(defn fetch-feed [url]
+  (let [response (http/get url)
+        payload (:body response)
+        feed-type (guess-feed-type url response)
+        feed (parse-feed feed-type payload)]
+    (normalize-feed feed)))

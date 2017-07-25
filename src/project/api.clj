@@ -21,10 +21,13 @@
 
 (defn call-action
   [params]
+  ;; (when-not (and (map? params)
+  ;;                (-> params :action string?))
+  ;;   (raise "wrong input" error))
   (let [spec :project.spec/base-api.in
         error (spec-error spec params)]
     (when error
-      (raise "wrong input" error)))
+      ))
   (let [action (:action params)
         func (get actions action)
         schema-in (keyword action "in")

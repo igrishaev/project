@@ -116,7 +116,7 @@
     (->> node
          xml/find-channel
          xml/find-categories
-         (mapv (mapv ->RSSTag))))
+         (mapv ->RSSTag)))
 
   (get-feed-entities [this]
     (->> node
