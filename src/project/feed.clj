@@ -8,9 +8,8 @@
             [project.uri :as uri]
             [project.proto :as proto]
             [clj-time.core :as time]
-            [clj-time.format :as format]
-            [clojure.java.io :as io])
-  (:import java.net.URI
+            [clj-time.format :as format])
+  (:import java.net.URI ;; todo
            project.rss.RSSFeed
            project.atom.AtomFeed))
 
@@ -106,32 +105,13 @@
     (some-> item :pubDate parse-rfc822))
    (time/now)))
 
-(defn normalize-item [item]
-  {:title (get-title item)
-   :body_html (get-body-html item)
-   :body_text (get-body-text item)
-   :guid (get-guid item)
-   :url_link (get-item-link item)
-   :date_published_at (get-item-pub-date item)})
-
-(defn normalize-feed [feed]
-  feed
-  ;; {:title (get-title feed)
-  ;;  :description (get-description feed) ;; clear html
-  ;;  :url_site (get-url-site feed)
-  ;;  ;; :url_favicon ??
-  ;;  ;; :url_banner ??
-  ;;  :messages (map normalize-item (:items feed))}
-  )
-
 (defn parse-payload [content-type payload]
   (let [feed (case content-type
                ("text/xml; charset=utf-8"
                 "application/xml"
                 "application/rss+xml; charset=utf-8"
-                "application/atom+xml; charset=UTF-8")
-               (parse-xml payload))]
-    (normalize-feed feed)))
+                "application/atom+xml; charset=UTF-8"))]
+    (parse-xml payload)))
 
 (defn fetch-feed [url]
   (let [response (http/get url)
