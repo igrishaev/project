@@ -1,142 +1,119 @@
 (ns project.rss
   "RSS parser."
-  (:require [project.xml :as xml]))
+  (:require [project.xml :as xml])
+  (:use [project.proto :only [Feed Entity Media]]))
 
-(defn parse-2-0-enclosure [node]
-  (:attrs node))
+(deftype RSSMedia [node]
 
-(defn parse-2-0-category [node]
-  (-> node
-      xml/first-content))
+  Media
 
-(defn parse-2-0-item [node]
-  (let [item-nodes (:content node)
+  (get-media-url [this]
+    (-> node
+        :attrs
+        :url))
 
-        title (-> item-nodes
-                  xml/find-title
-                  xml/first-content)
+  (get-media-type [this]
+    (-> node
+        :attrs
+        :type))
 
-        description (-> item-nodes
-                        xml/find-description
-                        xml/first-content)
+  (get-media-size [this]
+    (-> node
+        :attrs
+        :length)))
 
-        author (-> item-nodes
-                   xml/find-author
-                   xml/first-content)
+(deftype RSSItem [node]
 
+  Entity
 
-        link (-> item-nodes
-                 xml/find-link
-                 xml/first-content)
+  (get-entity-title [this]
+    (-> node
+        xml/find-title
+        xml/first-content))
 
-        language (-> item-nodes
-                     xml/find-language
-                     xml/first-content)
+  (get-entity-link [this]
+    (-> node
+        xml/find-link
+        xml/first-content))
 
-        guid (-> item-nodes
-                 xml/find-guid
-                 xml/first-content)
+  (get-entity-description [this]
+    (-> node
+        xml/find-description
+        xml/first-content))
 
-        category-nodes (-> item-nodes
-                           xml/find-categories)
+  (get-entity-guid [this]
+    (-> node
+        xml/find-guid
+        xml/first-content))
 
-        enclosure-nodes (-> item-nodes
-                            xml/find-enclosures)
+  (get-entity-author [this]
+    (-> node
+        xml/find-author
+        (or (-> node
+                xml/find-dc-creator))
+        xml/first-content))
 
-        pub-date (-> item-nodes
-                    xml/find-pub-date
-                    xml/first-content)
+  (get-entity-pub-date [this]
+    (-> node
+        xml/find-pub-date
+        xml/first-content))
 
+  (get-entity-tags [this]
+    (->> node
+         xml/find-categories
+         (mapv xml/first-content)))
 
-        ]
-    {:title title
-     :description description
-     :author author
-     :link link
-     :language language
-     :guid guid
-     :pubDate pub-date
-     :enclosures (map parse-2-0-enclosure enclosure-nodes)
-     :categories (map parse-2-0-category category-nodes)}))
+  (get-entity-media [this]
+    (->> node
+         xml/find-enclosures
+         (mapv ->RSSMedia))))
 
-(defn parse-2-0 [node]
-  (let [channel-nodes (-> node
-                          :content
-                          xml/find-channel
-                          :content)
+(deftype RSSFeed [node]
 
-        title (-> channel-nodes
-                  xml/find-title
-                  xml/first-content)
+  Feed
 
-        description (-> channel-nodes
-                        xml/find-description
-                        xml/first-content)
+  (get-feed-lang [this]
+    (-> node
+        xml/find-channel
+        xml/find-language
+        xml/first-content))
 
-        link (-> channel-nodes
-                 xml/find-link
-                 xml/first-content)
+  (get-feed-title [this]
+    (-> node
+        xml/find-channel
+        xml/find-title
+        xml/first-content))
 
-        image-nodes (-> channel-nodes
-                        xml/find-image
-                        :content)
+  (get-feed-pub-date [this]
+    (-> node
+        xml/find-channel
+        xml/find-pub-date
+        xml/first-content))
 
-        image-url (-> image-nodes
-                      xml/find-url
-                      xml/first-content)
+  (get-feed-icon [this]
+    )
 
-        image-title (-> image-nodes
-                        xml/find-title
-                        xml/first-content)
+  (get-feed-image [this]
+    (-> node
+        xml/find-channel
+        xml/find-image
+        xml/find-url
+        xml/first-content))
 
-        image-link (-> image-nodes
-                       xml/find-link
-                       xml/first-content)
+  (get-feed-description [this]
+    (-> node
+        xml/find-channel
+        xml/find-description
+        xml/first-content))
 
-        language (-> channel-nodes
-                     xml/find-language
-                     xml/first-content)
+  (get-feed-tags [this]
+    (->> node
+         xml/find-channel
+         xml/find-categories
+         (mapv xml/first-content)))
 
-        category-nodes (-> channel-nodes
-                           xml/find-categories)
-
-        item-nodes (-> channel-nodes
-                       xml/find-items)
-
-        pub-date (-> item-nodes
-                     xml/find-pub-date
-                     xml/first-content)
-
-
-        last-build-date (-> item-nodes
-                            xml/find-last-build-date
-                            xml/first-content)
-
-        ttl (-> item-nodes
-                xml/find-ttl
-                xml/first-content)]
-
-    {:title title
-     :description description
-     :link link
-     :ttl ttl
-     :pubDate pub-date
-     :lastBuildDate last-build-date
-     :image {:url image-url
-             :title image-title
-             :link image-link}
-     :language language
-     :categories (map parse-2-0-category category-nodes)
-     :items (map parse-2-0-item item-nodes)}))
-
-(defn parse [node]
-  (let [version (-> node :attrs :version)]
-    (cond
-      (= version "2.0")
-      (parse-2-0 node)
-
-      :else
-      (-> "wrong RSS version: %s"
-          (format version)
-          Exception.
-          throw))))
+  (get-feed-entities [this]
+    (->> node
+         xml/find-channel
+         xml/find-items
+         (mapv ->RSSItem))))

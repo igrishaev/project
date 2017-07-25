@@ -3,12 +3,15 @@
   (:require [project.xml :as xml]
             [project.http :as http]
             [project.rss :as rss]
+            [project.atom :as atom]
             [project.db :as db]
             [project.uri :as uri]
+            [project.proto :as proto]
             [clj-time.core :as time]
             [clj-time.format :as format]
             [clojure.java.io :as io])
-  (:import java.net.URI))
+  (:import java.net.URI
+           project.rss.RSSFeed))
 
 (defn discover-favicon [feed]
   (let [url (-> feed :link URI.)
@@ -27,13 +30,18 @@
       (= tag :rss)
       (rss/parse node)
 
+      (and (= tag :feed)
+           (= (-> node :attrs :xmlns)
+              "http://www.w3.org/2005/Atom"))
+      (atom/parse node)
+
       :else
       (-> "wrong XML tag: %s"
           (format tag)
           Exception.
           throw))))
 
-(defmacro safe [& body]
+(defmacro safe [& body] ;; todo move
   `(try
      ~@body
      (catch Exception e#
@@ -106,18 +114,21 @@
    :date_published_at (get-item-pub-date item)})
 
 (defn normalize-feed [feed]
-  {:title (get-title feed)
-   :description (get-description feed) ;; clear html
-   :url_site (get-url-site feed)
-   ;; :url_favicon ??
-   ;; :url_banner ??
-   :messages (map normalize-item (:items feed))})
+  feed
+  ;; {:title (get-title feed)
+  ;;  :description (get-description feed) ;; clear html
+  ;;  :url_site (get-url-site feed)
+  ;;  ;; :url_favicon ??
+  ;;  ;; :url_banner ??
+  ;;  :messages (map normalize-item (:items feed))}
+  )
 
 (defn parse-payload [content-type payload]
   (let [feed (case content-type
                ("text/xml; charset=utf-8"
                 "application/xml"
-                "application/rss+xml; charset=utf-8")
+                "application/rss+xml; charset=utf-8"
+                "application/atom+xml; charset=UTF-8")
                (parse-xml payload))]
     (normalize-feed feed)))
 
@@ -133,3 +144,36 @@
                  }])
 
   )
+
+;; https://lenta.ru/rss
+;; https://habrahabr.ru/rss/best/
+;; https://meduza.io/rss/all
+
+(defn get-feed [url]
+  (let [feed (-> url
+                 http/get
+                 :body
+                 xml/parse
+                 RSSFeed.)]
+
+    {:feed/lang (proto/get-feed-lang feed)
+     :feed/title (proto/get-feed-title feed)
+     :feed/pub-date (proto/get-feed-pub-date feed)
+     :feed/description (proto/get-feed-description feed)
+     :feed/tags (proto/get-feed-tags feed)
+     :feed/image (proto/get-feed-image feed)
+     :feed/icon (proto/get-feed-icon feed)}
+
+    (for [entity (proto/get-feed-entities feed)]
+      {:entity/title (proto/get-entity-title entity)
+       :entity/link (proto/get-entity-link entity)
+       :entity/description (proto/get-entity-description entity)
+       :entity/guid (proto/get-entity-guid entity)
+       :entity/author (proto/get-entity-author entity)
+       :entity/pub-date (proto/get-entity-pub-date entity)
+       :entity/tags (proto/get-entity-tags entity)
+       :entity/media
+       (for [media (proto/get-entity-media entity)]
+         {:media/url (proto/get-media-url media)
+          :media/type (proto/get-media-type media)
+          :media/size (proto/get-media-size media)})})))

@@ -11,44 +11,77 @@
   (fn [node]
     (-> node :tag (= tag))))
 
-(defn find-nodes [tag nodes]
-  (filter (tag-selector tag) nodes))
+(defn find-nodes [tag node]
+  (filter (tag-selector tag) (:content node)))
 
-(defn find-node [tag nodes]
-  (first (find-nodes tag nodes)))
-
-(defn first-content [node]
-  (-> node :content first))
+(defn find-node [tag node]
+  (first (find-nodes tag node)))
 
 (def find-channel (partial find-node :channel))
 
 (def find-title (partial find-node :title))
 
-(def find-link (partial find-node :link))
+(def find-language (partial find-node :language))
+
+(def find-pub-date (partial find-node :pubDate))
+
+(def find-description (partial find-node :description))
 
 (def find-image (partial find-node :image))
 
 (def find-url (partial find-node :url))
 
-(def find-pub-date (partial find-node :pubDate))
-
-(def find-last-build-date (partial find-node :lastBuildDate))
-
-(def find-language (partial find-node :language))
-
-(def find-guid (partial find-node :guid))
-
-(def find-ttl (partial find-node :ttl))
-
-(def find-author (partial find-node :author))
-
-(def find-items (partial find-nodes :item))
+(def find-link (partial find-node :link))
 
 (def find-categories (partial find-nodes :category))
 
+(def find-items (partial find-nodes :item))
+
+(def find-author (partial find-node :author))
+
+(def find-dc-creator (partial find-node :dc:creator))
+
+(def find-guid (partial find-node :guid))
+
 (def find-enclosures (partial find-nodes :enclosure))
 
-(def find-description (partial find-node :description))
+
+
+(defn first-content [node]
+  (-> node :content first))
+
+;; (defn get-node [tag node]
+;;   (->> node
+;;        :content
+;;        (filter (tag-selector tag))))
+
+;; (def find-channel (partial find-node :channel))
+
+;;
+
+
+
+;; (def find-url (partial find-node :url))
+
+
+
+;; (def find-last-build-date (partial find-node :lastBuildDate))
+
+
+
+;;
+
+;; (def find-ttl (partial find-node :ttl))
+
+;;
+
+;; (def find-items (partial find-nodes :item))
+
+
+
+;;
+
+
 
 ;; (defn get-feed-title [nodes]
 ;;   (some-> nodes
