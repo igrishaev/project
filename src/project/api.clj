@@ -2,6 +2,7 @@
   (:require [project.db :as db]
             [project.spec :as spec :refer [spec-error]]
             [project.feed :as feed]
+            [project.raise :refer [raise]]
             [ring.middleware.json :refer
              [wrap-json-response wrap-json-body]]
             [ring.util.response :refer [response]]
@@ -17,9 +18,6 @@
 
 (def actions
   {"preview-feed" preview-feed})
-
-(defn raise [& args]
-  (throw (Exception. (clojure.string/join \space args))))
 
 (defn call-action
   [params]
