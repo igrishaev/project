@@ -13,10 +13,8 @@
 
 ;; user input
 
-(defn validate [spec data]
-  (if-let [err (s/explain-data spec data)]
-    [false err]
-    [true data]))
+(defn spec-error [spec data]
+  (s/explain-data spec data))
 
 (s/def ::feed_url string?)
 

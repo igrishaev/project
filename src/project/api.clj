@@ -1,10 +1,9 @@
 (ns project.api
   (:require [project.db :as db]
-            [project.spec :as spec]
+            [project.spec :as spec :refer [spec-error]]
             [project.feed :as feed]
             [ring.middleware.json :refer
              [wrap-json-response wrap-json-body]]
-            ;; [clojure.spec.alpha :as s]
             [ring.util.response :refer [response]]
             project.json))
 
@@ -19,48 +18,27 @@
 (def actions
   {"preview-feed" preview-feed})
 
-(defn error [& args]
+(defn raise [& args]
   (throw (Exception. (clojure.string/join \space args))))
 
 (defn call-action
   [params]
-  (let [spec-base :project.spec/base-api.in
-        [ok result] (spec/validate spec-base params)]
-    (if ok
-      (let [action (:action params)
-            schema-in (keyword action "in")
-            schema-out (keyword action "out")
-            func (get actions action)
-            ;; result (func params)
-            ]
-        (if func
-          (let [])
-          1
-          (error "wrong action" action)
-
-          )
-        )
-      (error "wrong data structure" result)))
-
-
-  ;; (let [spec-in (keyword action )]
-
-  ;;   )
-
-  ;; (if-let [func (get actions action)
-  ;;          ;; spec-in ::foo
-  ;;          ]
-  ;;   #_(if (s/valid? spec-in params)
-  ;;     (let [result (func params)
-  ;;           spec-out ::foo2]
-  ;;       (if (s/valid? spec-out result)
-  ;;         result
-  ;;         (let [reason (s/explain-str spec-out result)]
-  ;;           (error "wrong out data" reason))))
-  ;;     (let [reason (s/explain-str spec-in params)]
-  ;;       (error "wrong in data" reason)))
-  ;;   (error "wrong action" action))
-  )
+  (let [spec :project.spec/base-api.in
+        error (spec-error spec params)]
+    (when error
+      (raise "wrong input" error)))
+  (let [action (:action params)
+        func (get actions action)
+        schema-in (keyword action "in")
+        schema-out (keyword action "out")]
+    (when-not func
+      (raise "wrong action" action))
+    (when-let [error (spec-error schema-in params)]
+      (raise "wrong input" error))
+    (let [result (func params)]
+      (when-let [error (spec-error schema-out result)]
+        (raise "wrong output" error))
+      result)))
 
 (defn ^:private api-handler*
   [{:keys [body]}]
