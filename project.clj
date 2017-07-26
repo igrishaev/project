@@ -22,4 +22,4 @@
 
   :migratus {:store :database
              :migration-dir "migrations"
-             :db ~(get (System/getenv) "DATABASE_URL")}))
+             :db ~(get (System/getenv) "DATABASE_URL")})
