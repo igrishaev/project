@@ -20,6 +20,18 @@
   :db/valueType   :db.type/uri
   :db/cardinality :db.cardinality/one}
 
+ {:db/ident       :feed/language
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :feed/date-published
+  :db/valueType   :db.type/instant
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :feed/description
+  :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
  {:db/ident       :feed/date-last-sync
   :db/valueType   :db.type/instant
   :db/cardinality :db.cardinality/one}
@@ -46,12 +58,20 @@
   :db/valueType   :db.type/string
   :db/cardinality :db.cardinality/one}
 
- {:db/ident       :message/body-html
+ {:db/ident       :message/description
   :db/valueType   :db.type/string
   :db/cardinality :db.cardinality/one}
 
- {:db/ident       :message/body-text
+ {:db/ident       :message/link
+  :db/valueType   :db.type/uri
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/author
   :db/valueType   :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident       :message/date-published
+  :db/valueType   :db.type/instant
   :db/cardinality :db.cardinality/one}
 
  {:db/ident       :message/tags

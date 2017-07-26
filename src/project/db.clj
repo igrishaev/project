@@ -5,7 +5,7 @@
             [project.uri :as uri]
             [mount.core :as mount]))
 
-(def db-uri "datomic:mem://foobar-3") ;; todo
+(def db-uri "datomic:dev://localhost:4334/hello") ;; todo
 
 (mount/defstate ^:dynamic *DB*
   :start (do

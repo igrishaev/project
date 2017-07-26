@@ -7,14 +7,12 @@
 
  {:db/id "msg-1"
   :message/feed "lenta-ru"
-  :message/body-html "<h1>test1</h1>"
-  :message/body-text "test2"
+  :message/description "<h1>test1</h1>"
   :message/guid "123456"}
 
  {:db/id "msg-2"
   :message/feed "lenta-ru"
-  :message/body-html "<h1>test2</h1>"
-  :message/body-text "test2"
+  :message/description "<h1>test2</h1>"
   :message/guid "654321"}
 
  {:notification/user "user-ivan"

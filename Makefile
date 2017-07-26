@@ -1,22 +1,9 @@
 
 project := project
-res_dir := $(CURDIR)/resources
+datomic_dir := $(CURDIR)/datomic
 
-db-create-user:
-	createuser -s -P $(project)
+db-transactor:
+	$(datomic_dir)/bin/transactor $(CURDIR)/conf/datomic-dev.properties
 
-db-create-db:
-	createdb -O $(project) $(project)
-
-db-drop-db:
-	dropdb $(project)
-
-db-create-migration:
-	@read -p "Enter migration name: " migration \
-	&& lein migratus create $$migration
-
-db-migrate:
-	lein migratus migrate
-
-db-rollback:
-	lein migratus rollback
+db-console:
+	$(datomic_dir)/bin/console -p 8081 datomic "datomic:dev://localhost:4334"
