@@ -14,15 +14,15 @@ create table sources (
     date_next_sync  timestamp not null default current_timestamp,
     title           text not null default '',
     description     text not null default '',
-    url_src         text not null default '' unique,
+    url_source      text not null default '',
     url_site        text not null default '',
     url_favicon     text not null default '',
-    url_banner      text not null default '',
     last_update_ok  boolean not null default false,
     last_update_msg text not null default '',
     update_count    integer not null default 0,
     message_count   integer not null default 0,
-    active          boolean not null default true
+    active          boolean not null default true,
+    unique          (url_source)
 );
 
 create table messages (
@@ -35,9 +35,8 @@ create table messages (
     date_published_at timestamp not null default current_timestamp,
     url_link          text not null default '',
     url_cover         text not null default '',
-    body_html         text not null default '',
-    body_text         text not null default '',
-    unique            (guid, source_id)
+    body              text not null default '',
+    unique            (source_id, guid)
 );
 
 create table subscriptions (
@@ -58,11 +57,34 @@ create table notifications (
     id              serial primary key,
     user_id         integer not null references users(id),
     message_id      integer not null references messages(id),
+    subscription_id integer not null references subscriptions(id),
     date_created_at timestamp not null default current_timestamp,
     date_updated_at timestamp not null default current_timestamp,
     is_read         boolean not null default false,
-    date_read_at    timestamp null,
     unique          (user_id, message_id)
+);
+
+create table tags (
+    id              serial primary key,
+    date_created_at timestamp not null default current_timestamp,
+    name            text not null,
+    unique          (name)
+);
+
+create table source_tags (
+    id              serial primary key,
+    date_created_at timestamp not null default current_timestamp,
+    source_id       integer not null references sources(id),
+    tag_id          integer not null references tags(id),
+    unique          (source_id, tag_id)
+);
+
+create table message_tags (
+    id              serial primary key,
+    date_created_at timestamp not null default current_timestamp,
+    message_id      integer not null references messages(id),
+    tag_id          integer not null references tags(id),
+    unique          (message_id, tag_id)
 );
 
 commit;

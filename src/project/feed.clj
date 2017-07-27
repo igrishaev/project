@@ -215,7 +215,6 @@
         items-trx (for [item items]
                     (entry-to-transaction feed-id item))
 
-
         ]
 
     (concat [feed-node]
