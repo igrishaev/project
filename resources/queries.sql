@@ -1,4 +1,9 @@
 
+-- :name source-exists? :? :1
+select 1
+from sources
+where url_source = :url
+
 -- :name insert-messages :<!
 insert into messages
        (source_id, guid, title, url_link, body_html, date_published_at)

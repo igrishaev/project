@@ -12,6 +12,7 @@
             [clj-time.format :as format])
   (:import java.net.URI ;; todo
            project.rss.RSSFeed
+           org.joda.time.DateTime
            project.atom.AtomFeed))
 
 (defn discover-favicon [feed]
@@ -53,11 +54,7 @@
     val
     (str val)))
 
-(defn get-title [feed]
-  (to-str
-   (or (-> :title feed)
-       (safe
-        (some-> feed :link URI. .getHost)))))
+
 
 (defn get-description [feed]
   (to-str
@@ -81,7 +78,9 @@
    (or (:guid item)
        (:link item)
        (:pubDate item)
-       (time/now))))
+       (time/now)))) ;; guid
+;; (-> (java.util.UUID/randomUUID) str)
+
 
 (defn get-item-link [item]
   (to-str
@@ -99,12 +98,6 @@
 
 (defn parse-rfc822 [val]
   (format/parse rfc822 val))
-
-(defn get-item-pub-date [item]
-  (or
-   (safe
-    (some-> item :pubDate parse-rfc822))
-   (time/now)))
 
 ;; (defn parse-payload [content-type payload]
 ;;   (let [feed (case content-type
@@ -141,6 +134,28 @@
     :feed/atom (parse-atom payload)
     :feed/json (parse-json payload)))
 
+#_(defn get-title [feed]
+  (to-str
+   (or (-> :title feed)
+       (safe
+        (some-> feed :link URI. .getHost)))))
+
+(defn coerce-title [val]
+  (if (instance? DateTime val)
+    val
+    (or
+     (safe
+      (parse-rfc822 val))
+     (time/now))))
+
+(defn coerce-date [val]
+  (if (instance? DateTime val)
+    val
+    (or
+     (safe
+      (parse-rfc822 val))
+     (time/now))))
+
 (defn normalize-feed
   [feed]
   {:title (proto/get-feed-title feed)
@@ -150,19 +165,34 @@
    ;; :url_source
    :url_favicon (proto/get-feed-icon feed)
    :url_image (proto/get-feed-image feed)
-   :date_published (proto/get-feed-pub-date feed)
+
+   :date_published (-> feed
+                       proto/get-feed-pub-date
+                       coerce-date)
+
    :tags (for [tag (proto/get-feed-tags feed)]
            (proto/get-tag-name tag))
+
    :items
    (for [entity (proto/get-feed-entities feed)]
      {:title (proto/get-entity-title entity)
+
       :link (proto/get-entity-link entity)
+
       :description (proto/get-entity-description entity)
+
       :guid (proto/get-entity-guid entity)
-      :author (proto/get-entity-author entity)
-      :date_published (proto/get-entity-pub-date entity)
+
+      :author (-> entity
+                  proto/get-entity-author)
+
+      :date_published (-> entity
+                          proto/get-entity-pub-date
+                          coerce-date)
+
       :tags (for [tag (proto/get-entity-tags entity)]
               (proto/get-tag-name tag))
+
       :media (for [media (proto/get-entity-media entity)]
                {:url (proto/get-media-url media)
                 :type (proto/get-media-type media)
@@ -203,3 +233,23 @@
     data
 
     ))
+
+
+#_(defn save-feed [url data]
+  (db/with-trx
+    (let [src-params {:title (get-title data)
+                      ;; :url_site
+
+                      }
+
+
+          src (if (db/source-exists? {:url url})
+            1
+            2)
+
+          src (first (db/insert! :sources src-params))
+          items (:items data)]
+      #_(doseq [item items]
+        (let [msg-params {}
+              msg (first (db/insert! :messages msg-params))]
+          msg)))))
