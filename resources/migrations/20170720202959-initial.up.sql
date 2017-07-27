@@ -7,22 +7,25 @@ create table users (
 );
 
 create table sources (
-    id              serial primary key,
-    date_created_at timestamp not null default current_timestamp,
-    date_updated_at timestamp not null default current_timestamp,
-    date_last_sync  timestamp not null default current_timestamp,
-    date_next_sync  timestamp not null default current_timestamp,
-    title           text not null default '',
-    description     text not null default '',
-    url_source      text not null default '',
-    url_site        text not null default '',
-    url_favicon     text not null default '',
-    last_update_ok  boolean not null default false,
-    last_update_msg text not null default '',
-    update_count    integer not null default 0,
-    message_count   integer not null default 0,
-    active          boolean not null default true,
-    unique          (url_source)
+    id                serial primary key,
+    date_created_at   timestamp not null default current_timestamp,
+    date_updated_at   timestamp not null default current_timestamp,
+    date_last_sync    timestamp not null default current_timestamp,
+    date_next_sync    timestamp not null default current_timestamp,
+    title             text not null default '',
+    language          text not null default '',
+    description       text not null default '',
+    url_source        text not null default '',
+    url_site          text not null default '',
+    url_favicon       text not null default '',
+    url_image         text not null default '',
+    date_published_at timestamp not null default current_timestamp,
+    last_update_ok    boolean not null default false,
+    last_update_msg   text not null default '',
+    update_count      integer not null default 0,
+    message_count     integer not null default 0,
+    active            boolean not null default true,
+    unique            (url_source)
 );
 
 create table messages (
@@ -32,6 +35,7 @@ create table messages (
     source_id         integer not null references sources(id),
     title             text not null default '',
     guid              text not null default '',
+    author            text not null default '',
     date_published_at timestamp not null default current_timestamp,
     url_link          text not null default '',
     url_cover         text not null default '',

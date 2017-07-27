@@ -3,6 +3,7 @@
 (defprotocol Feed
   (get-feed-lang [this])
   (get-feed-title [this])
+  (get-feed-link [this])
   (get-feed-pub-date [this])
   (get-feed-tags [this])
   (get-feed-icon [this])

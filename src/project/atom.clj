@@ -77,6 +77,11 @@
         xml/find-title
         xml/first-content))
 
+  (get-feed-link [this]
+    (-> node
+        xml/find-id
+        xml/first-content))
+
   (get-feed-pub-date [this]
     (-> node
         xml/find-updated

@@ -143,103 +143,31 @@
 
 (defn normalize-feed
   [feed]
-  {:feed/language (proto/get-feed-lang feed)
-   :feed/title (proto/get-feed-title feed)
-   :feed/date-published (proto/get-feed-pub-date feed)
-   :feed/description (proto/get-feed-description feed)
-   :feed/tags (for [tag (proto/get-feed-tags feed)]
-                (proto/get-tag-name tag))
-   :feed/image (proto/get-feed-image feed)
-   :feed/icon (proto/get-feed-icon feed)
-   :feed/items (for [entity (proto/get-feed-entities feed)]
-                 {:entity/title (proto/get-entity-title entity)
-                  :entity/link (proto/get-entity-link entity)
-                  :entity/description (proto/get-entity-description entity)
-                  :entity/guid (proto/get-entity-guid entity)
-                  :entity/author (proto/get-entity-author entity)
-                  :entity/pub-date (proto/get-entity-pub-date entity)
-                  :entity/tags (for [tag (proto/get-entity-tags entity)]
-                                 (proto/get-tag-name tag))
-                  :entity/media (for [media (proto/get-entity-media entity)]
-                                  {:media/url (proto/get-media-url media)
-                                   :media/type (proto/get-media-type media)
-                                   :media/size (proto/get-media-size media)})})})
+  {:title (proto/get-feed-title feed)
+   :language (proto/get-feed-lang feed)
+   :description (proto/get-feed-description feed)
+   :url_site (proto/get-feed-link feed)
+   ;; :url_source
+   :url_favicon (proto/get-feed-icon feed)
+   :url_image (proto/get-feed-image feed)
+   :date_published (proto/get-feed-pub-date feed)
+   :tags (for [tag (proto/get-feed-tags feed)]
+           (proto/get-tag-name tag))
+   :items
+   (for [entity (proto/get-feed-entities feed)]
+     {:title (proto/get-entity-title entity)
+      :link (proto/get-entity-link entity)
+      :description (proto/get-entity-description entity)
+      :guid (proto/get-entity-guid entity)
+      :author (proto/get-entity-author entity)
+      :date_published (proto/get-entity-pub-date entity)
+      :tags (for [tag (proto/get-entity-tags entity)]
+              (proto/get-tag-name tag))
+      :media (for [media (proto/get-entity-media entity)]
+               {:url (proto/get-media-url media)
+                :type (proto/get-media-type media)
+                :size (proto/get-media-size media)})})})
 
-
-(defn tag-to-trx
-  [tag]
-  {:db/id tag
-   :tag/name tag})
-
-(defn entry-to-transaction
-  [feed-id entry]
-  {:message/feed feed-id
-   :message/title (:entity/title entry)
-   ;; :message/author (:entity/author entry)
-   :message/description (:entity/description entry)
-   :message/tags (:entity/tags entry)
-   })
-
-(defn feed-to-transaction
-  [url feed]
-
-  (let [feed-id "feed"
-        feed-node {:db/id feed-id
-                   :feed/url-source (uri/read-uri url)
-                   ;; :feed/url-site _
-                   ;; :feed/url-icon _
-                   :feed/language (:feed/language feed)
-                   ;; :feed/date-published (:feed/date-published feed)
-                   :feed/description (:feed/description feed)
-                   ;; :feed/date-last-sync _
-                   ;; :feed/date-next-sync _
-                   :feed/tags (:feed/tags feed)
-
-                   ;; (for [tag ]
-                   ;;   [:tag/name tag])
-
-
-                   }
-
-        ;; foo {:message/feed "feed"
-        ;;      :message/title
-        ;;      }
-
-
-        items (:feed/items feed)
-
-        ;; feed-tags (map tag-to-trx (:feed/tags feed))
-
-        tags-trx (map tag-to-trx (set (mapcat :entity/tags items)))
-
-        items-trx (for [item items]
-                    (entry-to-transaction feed-id item))
-
-        ]
-
-    (concat [feed-node]
-            ;;feed-tags
-            tags-trx
-            items-trx
-
-
-            )
-
-
-
-
-
-    )
-
-
-  )
-
-(defn save-feed [url feed]
-
-  (db/transact [{:feed/url-source (uri/read-uri url)
-                 }])
-
-  )
 
 (defn guess-feed-type
   [url response]
@@ -270,11 +198,8 @@
         payload (:body response)
         feed-type (guess-feed-type url response)
         feed (parse-feed feed-type payload)
-        data (normalize-feed feed)
-        trx (feed-to-transaction url data)]
+        data (normalize-feed feed)]
 
-    (db/transact trx)
+    data
 
-
-    trx
     ))
