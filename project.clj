@@ -20,6 +20,13 @@
                  [ring/ring-jetty-adapter "1.6.2"]
                  [ring/ring-json "0.4.0"]]
 
+  :resource-paths ["resources"]
+
+  :project/dev {:resource-paths ["env/dev/resources"]}
+
+  :project/test {:resource-paths ["env/dev/resources"
+                                  "env/test/resources"]}
+
   :migratus {:store :database
              :migration-dir "migrations"
              :db ~(get (System/getenv) "DATABASE_URL")})
