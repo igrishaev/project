@@ -19,11 +19,14 @@
 
 (defn preview-feed
   [{:keys [feed_url]}]
-  (if-let [feed (get-source-info feed_url)] ;; when exists
-    feed
-    (let [data (feed/fetch-feed feed_url)]
-      (feed/save-feed feed_url data)
-      (get-source-info feed_url))))
+  (feed/fetch-feed feed_url)
+
+  ;; (if-let [feed (get-source-info feed_url)] ;; when exists
+  ;;   feed
+  ;;   (let [data (feed/fetch-feed feed_url)]
+  ;;     (feed/save-feed feed_url data)
+  ;;     (get-source-info feed_url)))
+  )
 
 (def actions
   {"preview-feed" preview-feed})
@@ -46,7 +49,7 @@
     (when-let [error (spec-error schema-in params)]
       (raise "wrong input" error))
     (let [result (func params)]
-      (when-let [error (spec-error schema-out result)]
+      #_(when-let [error (spec-error schema-out result)]
         (raise "wrong output" error))
       result)))
 
