@@ -90,6 +90,12 @@
         xml/find-title
         xml/first-content))
 
+  (get-feed-link [this]
+    (-> node
+        xml/find-channel
+        xml/find-link
+        xml/first-content))
+
   (get-feed-pub-date [this]
     (-> node
         xml/find-channel

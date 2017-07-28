@@ -1,49 +1,48 @@
 (ns project.db
-  (:require [clojure.java.io :as io]
-            [project.conf :refer [conf]]
-            [datomic.api :as d]
-            [project.uri :as uri]
-            [mount.core :as mount]))
+  (:require [project.conf :refer [conf]]
+            [clojure.java.jdbc :as jdbc]
+            [conman.core :as conman]
+            [mount.core :as mount]
+            clj-time.jdbc))
 
-(def db-uri "datomic:dev://localhost:4334/hello") ;; todo
+(defn ^:private get-pool-spec []
+  {:jdbc-url (conf :database-url)})
 
-(mount/defstate ^:dynamic *DB*
-  :start (do
-           (d/create-database db-uri)
-           (d/connect db-uri))
-  :stop (d/release *DB*))
+(mount/defstate ^:dynamic *db*
+  :start (conman/connect! (get-pool-spec))
+  :stop (conman/disconnect! *db*))
 
-(defn start []
-  (mount/start #'*DB*))
+(conman/bind-connection *db* "queries.sql")
 
-(defn stop []
-  (mount/stop #'*DB*))
+(defn start! []
+  (mount/start #'*db*))
 
-(defn q [query & args]
-  (apply d/q query (d/db *DB*) args))
+(defn stop! []
+  (mount/stop #'*db*))
 
-(defn transact
-  [data]
-  @(d/transact *DB* data))
+(defn query [& args]
+  (apply jdbc/query *db* args))
 
-(defn read-edn
-  [filename]
-  (-> filename
-      io/resource
-      slurp
-      read-string))
+(defn execute! [& args]
+  (apply jdbc/execute! *db* args))
 
-(defn transact-edn
-  [filename]
-  (transact (read-edn filename)))
+(defn insert! [& args]
+  (apply jdbc/insert! *db* args))
 
-(defn prepare []
-  (doseq [file ["scheme/01-initial.edn"
-                "scheme/fixtures.edn"]]
-    (transact-edn file)))
+(defn insert-multi! [& args]
+  (apply jdbc/insert-multi! *db* args))
 
-(defn get-feed-by-url [feed_url]
-  (q '[:find (pull ?feed [* {:message/_feed [*]}]) .
-       :in $ ?url
-       :where [?feed :feed/url-source ?url]]
-     (uri/read-uri feed_url)))
+(defn update! [& args]
+  (apply jdbc/update! *db* args))
+
+(defn delete! [& args]
+  (apply jdbc/delete! *db* args))
+
+(defmacro with-trx [& body]
+  `(conman/with-transaction [*db*]
+     ~@body))
+
+(defmacro with-trx-test [& body]
+  `(conman/with-transaction [*db*]
+     (jdbc/db-set-rollback-only! *db*)
+     ~@body))

@@ -12,6 +12,7 @@
             [clj-time.format :as format])
   (:import java.net.URI ;; todo
            project.rss.RSSFeed
+           org.joda.time.DateTime
            project.atom.AtomFeed))
 
 (defn discover-favicon [feed]
@@ -53,11 +54,7 @@
     val
     (str val)))
 
-(defn get-title [feed]
-  (to-str
-   (or (-> :title feed)
-       (safe
-        (some-> feed :link URI. .getHost)))))
+
 
 (defn get-description [feed]
   (to-str
@@ -81,7 +78,9 @@
    (or (:guid item)
        (:link item)
        (:pubDate item)
-       (time/now))))
+       (time/now)))) ;; guid
+;; (-> (java.util.UUID/randomUUID) str)
+
 
 (defn get-item-link [item]
   (to-str
@@ -99,12 +98,6 @@
 
 (defn parse-rfc822 [val]
   (format/parse rfc822 val))
-
-(defn get-item-pub-date [item]
-  (or
-   (safe
-    (some-> item :pubDate parse-rfc822))
-   (time/now)))
 
 ;; (defn parse-payload [content-type payload]
 ;;   (let [feed (case content-type
@@ -141,106 +134,70 @@
     :feed/atom (parse-atom payload)
     :feed/json (parse-json payload)))
 
+#_(defn get-title [feed]
+  (to-str
+   (or (-> :title feed)
+       (safe
+        (some-> feed :link URI. .getHost)))))
+
+(defn coerce-title [val]
+  (if (instance? DateTime val)
+    val
+    (or
+     (safe
+      (parse-rfc822 val))
+     (time/now))))
+
+(defn coerce-date [val]
+  (if (instance? DateTime val)
+    val
+    (or
+     (safe
+      (parse-rfc822 val))
+     (time/now))))
+
 (defn normalize-feed
   [feed]
-  {:feed/language (proto/get-feed-lang feed)
-   :feed/title (proto/get-feed-title feed)
-   :feed/date-published (proto/get-feed-pub-date feed)
-   :feed/description (proto/get-feed-description feed)
-   :feed/tags (for [tag (proto/get-feed-tags feed)]
-                (proto/get-tag-name tag))
-   :feed/image (proto/get-feed-image feed)
-   :feed/icon (proto/get-feed-icon feed)
-   :feed/items (for [entity (proto/get-feed-entities feed)]
-                 {:entity/title (proto/get-entity-title entity)
-                  :entity/link (proto/get-entity-link entity)
-                  :entity/description (proto/get-entity-description entity)
-                  :entity/guid (proto/get-entity-guid entity)
-                  :entity/author (proto/get-entity-author entity)
-                  :entity/pub-date (proto/get-entity-pub-date entity)
-                  :entity/tags (for [tag (proto/get-entity-tags entity)]
-                                 (proto/get-tag-name tag))
-                  :entity/media (for [media (proto/get-entity-media entity)]
-                                  {:media/url (proto/get-media-url media)
-                                   :media/type (proto/get-media-type media)
-                                   :media/size (proto/get-media-size media)})})})
+  {:title (proto/get-feed-title feed)
+   :language (proto/get-feed-lang feed)
+   :description (proto/get-feed-description feed)
+   :url_site (proto/get-feed-link feed)
+   ;; :url_source
+   :url_favicon (proto/get-feed-icon feed)
+   :url_image (proto/get-feed-image feed)
 
+   :date_published (-> feed
+                       proto/get-feed-pub-date
+                       coerce-date)
 
-(defn tag-to-trx
-  [tag]
-  {:db/id tag
-   :tag/name tag})
+   :tags (for [tag (proto/get-feed-tags feed)]
+           (proto/get-tag-name tag))
 
-(defn entry-to-transaction
-  [feed-id entry]
-  {:message/feed feed-id
-   :message/title (:entity/title entry)
-   ;; :message/author (:entity/author entry)
-   :message/description (:entity/description entry)
-   :message/tags (:entity/tags entry)
-   })
+   :items
+   (for [entity (proto/get-feed-entities feed)]
+     {:title (proto/get-entity-title entity)
 
-(defn feed-to-transaction
-  [url feed]
+      :link (proto/get-entity-link entity)
 
-  (let [feed-id "feed"
-        feed-node {:db/id feed-id
-                   :feed/url-source (uri/read-uri url)
-                   ;; :feed/url-site _
-                   ;; :feed/url-icon _
-                   :feed/language (:feed/language feed)
-                   ;; :feed/date-published (:feed/date-published feed)
-                   :feed/description (:feed/description feed)
-                   ;; :feed/date-last-sync _
-                   ;; :feed/date-next-sync _
-                   :feed/tags (:feed/tags feed)
+      :description (proto/get-entity-description entity)
 
-                   ;; (for [tag ]
-                   ;;   [:tag/name tag])
+      :guid (proto/get-entity-guid entity)
 
+      :author (-> entity
+                  proto/get-entity-author)
 
-                   }
+      :date_published (-> entity
+                          proto/get-entity-pub-date
+                          coerce-date)
 
-        ;; foo {:message/feed "feed"
-        ;;      :message/title
-        ;;      }
+      :tags (for [tag (proto/get-entity-tags entity)]
+              (proto/get-tag-name tag))
 
+      :media (for [media (proto/get-entity-media entity)]
+               {:url (proto/get-media-url media)
+                :type (proto/get-media-type media)
+                :size (proto/get-media-size media)})})})
 
-        items (:feed/items feed)
-
-        ;; feed-tags (map tag-to-trx (:feed/tags feed))
-
-        tags-trx (map tag-to-trx (set (mapcat :entity/tags items)))
-
-        items-trx (for [item items]
-                    (entry-to-transaction feed-id item))
-
-
-        ]
-
-    (concat [feed-node]
-            ;;feed-tags
-            tags-trx
-            items-trx
-
-
-            )
-
-
-
-
-
-    )
-
-
-  )
-
-(defn save-feed [url feed]
-
-  (db/transact [{:feed/url-source (uri/read-uri url)
-                 }])
-
-  )
 
 (defn guess-feed-type
   [url response]
@@ -271,11 +228,28 @@
         payload (:body response)
         feed-type (guess-feed-type url response)
         feed (parse-feed feed-type payload)
-        data (normalize-feed feed)
-        trx (feed-to-transaction url data)]
+        data (normalize-feed feed)]
 
-    (db/transact trx)
+    data
 
-
-    trx
     ))
+
+
+#_(defn save-feed [url data]
+  (db/with-trx
+    (let [src-params {:title (get-title data)
+                      ;; :url_site
+
+                      }
+
+
+          src (if (db/source-exists? {:url url})
+            1
+            2)
+
+          src (first (db/insert! :sources src-params))
+          items (:items data)]
+      #_(doseq [item items]
+        (let [msg-params {}
+              msg (first (db/insert! :messages msg-params))]
+          msg)))))

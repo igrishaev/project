@@ -1,9 +1,25 @@
 
 project := project
-datomic_dir := $(CURDIR)/datomic
+res_dir := $(CURDIR)/resources
 
-db-transactor:
-	$(datomic_dir)/bin/transactor $(CURDIR)/conf/datomic-dev.properties
+db-create-user:
+	createuser -s -P $(project)
 
-db-console:
-	$(datomic_dir)/bin/console -p 8081 datomic "datomic:dev://localhost:4334"
+db-create-db:
+	createdb -O $(project) $(project)
+
+db-drop-db:
+	dropdb $(project)
+
+db-migrate:
+	lein migratus migrate
+
+db-create-migration:
+	@read -p "Enter migration name: " migration \
+	&& lein migratus create $$migration
+
+repl:
+	lein repl
+
+env-pull:
+	heroku config:pull --app flyerbee-staging
