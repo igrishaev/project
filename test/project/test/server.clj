@@ -1,4 +1,4 @@
-(ns project.server
+(ns project.test.server
   (:require [project.web :refer [app-routes]]
             [clojure.test :refer :all]
             [mount.core :as mount]
