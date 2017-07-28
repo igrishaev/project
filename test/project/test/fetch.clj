@@ -8,6 +8,11 @@
   :once
   server-fixture)
 
-(deftest fetch-test
-  (let [feed (fetch-feed "http://127.0.0.1:4000/lenta.ru.xml")]
+(deftest fetch-xml-rss
+  (let [feed (fetch-feed "http://127.0.0.1:4000/lenta.ru.rss.xml")]
+    (is feed)))
+
+(deftest fetch-xml-atom
+  (let [feed (fetch-feed "http://127.0.0.1:4000/blog.case.edu.atom.xml")]
+    (-> feed (dissoc :items) (= 1) is)
     (is feed)))

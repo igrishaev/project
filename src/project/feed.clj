@@ -25,24 +25,6 @@
         _ (http/head url-fav)]
     url-fav))
 
-;; (defn parse-xml [payload]
-;;   (let [node (xml/parse payload)
-;;         tag (:tag node)]
-;;     (cond
-;;       (= tag :rss)
-;;       (rss/parse node)
-
-;;       (and (= tag :feed)
-;;            (= (-> node :attrs :xmlns)
-;;               "http://www.w3.org/2005/Atom"))
-;;       (atom/parse node)
-
-;;       :else
-;;       (-> "wrong XML tag: %s"
-;;           (format tag)
-;;           Exception.
-;;           throw))))
-
 (defmacro safe [& body] ;; todo move
   `(try
      ~@body
@@ -53,8 +35,6 @@
   (if (string? val)
     val
     (str val)))
-
-
 
 (defn get-description [feed]
   (to-str
@@ -81,7 +61,6 @@
        (time/now)))) ;; guid
 ;; (-> (java.util.UUID/randomUUID) str)
 
-
 (defn get-item-link [item]
   (to-str
    (or
@@ -98,16 +77,6 @@
 
 (defn parse-rfc822 [val]
   (format/parse rfc822 val))
-
-;; (defn parse-payload [content-type payload]
-;;   (let [feed (case content-type
-;;                ("text/xml; charset=utf-8"
-;;                 "application/xml"
-;;                 "application/rss+xml; charset=utf-8"
-;;                 "application/atom+xml; charset=UTF-8"))]
-;;     (parse-xml payload)))
-
-;; (defn )
 
 (defn parse-xml
   [payload]
@@ -198,22 +167,29 @@
                 :type (proto/get-media-type media)
                 :size (proto/get-media-size media)})})})
 
-
 (defn guess-feed-type
-  [url response]
-  (let [content-type (-> response
-                         :headers
-                         (get "Content-Type")
-                         (or ""))]
+  [url content-type payload]
 
-    )
-  ;;
-  :feed/rss
-  ;; :feed/atom
-  ;; :feed/json
+  (let [size 64
+        chunk (->> payload
+                   (take size)
+                   (apply str))]
+    (cond
 
-  ;; (raise "unknown feed type")
-)
+      (re-find #"rss" content-type)
+      :feed/rss
+
+      (re-find #"atom" content-type)
+      :feed/atom
+
+      (re-find #"<rss\s+version=" chunk)
+      :feed/rss
+
+      (re-find #"<feed\s+xmlns=\"http://www.w3.org/2005/Atom\"" chunk)
+      :feed/atom
+
+      :else
+      (raise "unknown feed type" url))))
 
 ;; https://lenta.ru/rss
 ;; https://habrahabr.ru/rss/best/
@@ -222,34 +198,19 @@
 ;; http://blog.case.edu/news/feed.atom
 ;; https://golem.ph.utexas.edu/~distler/blog/atom10.xml
 
+(defn get-content-type
+  [response]
+  (-> response
+      :headers
+      (get "Content-Type")
+      (or "")
+      .trim
+      .toLowerCase))
 
 (defn fetch-feed [url]
   (let [response (http/get url)
         payload (:body response)
-        feed-type (guess-feed-type url response)
-        feed (parse-feed feed-type payload)
-        data (normalize-feed feed)]
-
-    data
-
-    ))
-
-
-#_(defn save-feed [url data]
-  (db/with-trx
-    (let [src-params {:title (get-title data)
-                      ;; :url_site
-
-                      }
-
-
-          src (if (db/source-exists? {:url url})
-            1
-            2)
-
-          src (first (db/insert! :sources src-params))
-          items (:items data)]
-      #_(doseq [item items]
-        (let [msg-params {}
-              msg (first (db/insert! :messages msg-params))]
-          msg)))))
+        content-type (get-content-type response)
+        feed-type (guess-feed-type url content-type payload)
+        feed (parse-feed feed-type payload)]
+    (normalize-feed feed)))
