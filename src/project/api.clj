@@ -8,13 +8,22 @@
             [ring.util.response :refer [response]]
             project.json))
 
+
+(defn get-source-info [url]
+  (let [source (db/get-source-by-url {:url url})
+        messages (db/get-source-last-messages {})]
+    {:source source ;; when let, nil
+     :messages messages}))
+
+(defn save-feed [])
+
 (defn preview-feed
   [{:keys [feed_url]}]
-  (if-let [feed (db/get-feed-by-url feed_url)]
+  (if-let [feed (get-source-info feed_url)] ;; when exists
     feed
     (let [data (feed/fetch-feed feed_url)]
       (feed/save-feed feed_url data)
-      (db/get-feed-by-url feed_url))))
+      (get-source-info feed_url))))
 
 (def actions
   {"preview-feed" preview-feed})
@@ -27,7 +36,7 @@
   (let [spec :project.spec/base-api.in
         error (spec-error spec params)]
     (when error
-      ))
+      (raise "aah shi" error)))
   (let [action (:action params)
         func (get actions action)
         schema-in (keyword action "in")
