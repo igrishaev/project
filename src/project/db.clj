@@ -1,6 +1,7 @@
 (ns project.db
   (:require [project.conf :refer [conf]]
             [clojure.java.jdbc :as jdbc]
+            [clojure.tools.logging :as log]
             [conman.core :as conman]
             [mount.core :as mount]
             clj-time.jdbc))
@@ -8,41 +9,55 @@
 (defn- get-pool-spec []
   {:jdbc-url (conf :database-url)})
 
-(mount/defstate ^:dynamic *db*
-  :start (conman/connect! (get-pool-spec))
-  :stop (conman/disconnect! *db*))
+(declare DB)
 
-(conman/bind-connection *db* "queries.sql")
+(defn- on-start []
+  (log/info "Starting database...")
+  (let [db (conman/connect! (get-pool-spec))]
+    (log/info "Started.")
+    db))
+
+(defn- on-stop []
+  (log/info "Stopping database...")
+  (conman/disconnect! DB)
+  (log/info "Database stopped.")
+  nil)
+
+(mount/defstate DB
+  :start (on-start)
+  :stop (on-stop))
+
+(conman/bind-connection DB "queries.sql")
 
 (defn start! []
-  (mount/start #'*db*))
+  (mount/start #'DB))
 
 (defn stop! []
-  (mount/stop #'*db*))
+  (mount/stop #'DB))
 
 (defn query [& args]
-  (apply jdbc/query *db* args))
+  (apply jdbc/query DB args))
 
 (defn execute! [& args]
-  (apply jdbc/execute! *db* args))
+  (apply jdbc/execute! DB args))
 
 (defn insert! [& args]
-  (apply jdbc/insert! *db* args))
+  (apply jdbc/insert! DB args))
 
 (defn insert-multi! [& args]
-  (apply jdbc/insert-multi! *db* args))
+  (apply jdbc/insert-multi! DB args))
 
 (defn update! [& args]
-  (apply jdbc/update! *db* args))
+  (apply jdbc/update! DB args))
 
 (defn delete! [& args]
-  (apply jdbc/delete! *db* args))
+  (apply jdbc/delete! DB args))
 
 (defmacro with-trx [& body]
-  `(conman/with-transaction [*db*]
+  `(conman/with-transaction [DB]
      ~@body))
 
 (defmacro with-trx-test [& body]
-  `(conman/with-transaction [*db*]
-     (jdbc/db-set-rollback-only! *db*)
+  `(conman/with-transaction [DB]
+     (jdbc/db-set-rollback-only! DB)
      ~@body))
