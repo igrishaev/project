@@ -1,3 +1,1 @@
-{
- uri project.uri/read-uri
- }
+{uri project.uri/reader}

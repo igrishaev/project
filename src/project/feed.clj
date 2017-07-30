@@ -5,6 +5,7 @@
             [project.rss :as rss]
             [project.atom :as atom]
             [project.db :as db]
+            [project.favicon :as icon]
             [project.uri :as uri]
             [project.raise :refer [raise]]
             [project.proto :as proto]
@@ -131,6 +132,9 @@
    :language (proto/get-feed-lang feed)
    :description (proto/get-feed-description feed)
    :url_site (proto/get-feed-link feed)
+
+   ;; :icon (icon/discover link)
+
    ;; :url_source
    :url_favicon (proto/get-feed-icon feed)
    :url_image (proto/get-feed-image feed)
