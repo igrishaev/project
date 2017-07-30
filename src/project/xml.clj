@@ -67,5 +67,15 @@
 
 (def find-enclosures (partial find-nodes :enclosure))
 
+(defn emit-element [node]
+  (with-out-str *out*
+    (xml/emit-element node)))
+
+(defn is-node? [val]
+  (and (map? val)
+       (=
+        (-> val keys set)
+        #{:tag :attrs :content})))
+
 (defn first-content [node]
   (-> node :content first))

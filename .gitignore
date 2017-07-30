@@ -12,3 +12,4 @@ pom.xml.asc
 profiles.clj
 datomic
 datomic-dev.properties
+.DS_Store
