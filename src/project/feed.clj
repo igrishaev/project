@@ -148,7 +148,18 @@
 
       :link (proto/get-entity-link entity)
 
-      :description (proto/get-entity-description entity)
+      :description
+      (let [node (proto/get-entity-description entity)]
+        (cond
+          (xml/is-node? node)
+          (xml/emit-element node)
+
+          (string? node) node
+
+          :else
+          (do
+            ;; todo log here
+            (str node))))
 
       :guid (proto/get-entity-guid entity)
 
@@ -167,10 +178,12 @@
                 :type (proto/get-media-type media)
                 :size (proto/get-media-size media)})})})
 
+;; todo use exact headers
+;; todo use lazy parser?
 (defn guess-feed-type
   [url content-type payload]
 
-  (let [size 64
+  (let [size 128
         chunk (->> payload
                    (take size)
                    (apply str))]
@@ -189,7 +202,7 @@
       :feed/atom
 
       :else
-      (raise "unknown feed type" url))))
+      (raise "unknown feed type" url content-type))))
 
 ;; https://lenta.ru/rss
 ;; https://habrahabr.ru/rss/best/
