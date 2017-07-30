@@ -1,6 +1,6 @@
 
 project := project
-res_dir := $(CURDIR)/resources
+resources := $(CURDIR)/resources
 
 db-create-user:
 	createuser -s -P $(project)
@@ -20,6 +20,3 @@ db-create-migration:
 
 repl:
 	lein repl
-
-env-pull:
-	heroku config:pull --app flyerbee-staging

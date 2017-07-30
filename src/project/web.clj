@@ -11,12 +11,12 @@
   (POST "/api" request (api-handler request))
   (route/not-found "<h1>Page not found</h1>"))
 
-(def jetty-params
-  {:port 3000
+(defn- get-jetty-params []
+  {:port (:jetty-port conf)
    :join? false})
 
 (mount/defstate ^:dynamic *app*
-  :start (run-jetty app-routes jetty-params)
+  :start (run-jetty app-routes (get-jetty-params))
   :stop (.stop *app*))
 
 (defn start! []

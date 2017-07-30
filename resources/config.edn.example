@@ -1,5 +1,0 @@
-{:db {:dbtype "postgresql"
-      :dbname "project"
-      :host "localhost"
-      :user "project"
-      :password "project"}}
