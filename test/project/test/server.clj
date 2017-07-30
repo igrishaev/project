@@ -1,5 +1,6 @@
 (ns project.test.server
   (:require [project.web :refer [app-routes]]
+            [project.conf :refer [conf]]
             [clojure.test :refer :all]
             [mount.core :as mount]
             [compojure.route :as route]
@@ -16,12 +17,12 @@
       wrap-not-modified
       wrap-content-type))
 
-(def jetty-params
-  {:port 4000
+(defn- get-jetty-params []
+  {:port (:jetty-port-test conf)
    :join? false})
 
 (mount/defstate ^:dynamic *feed-server*
-  :start (run-jetty feed-routes jetty-params)
+  :start (run-jetty feed-routes (get-jetty-params))
   :stop (.stop *feed-server*))
 
 (defn start! []

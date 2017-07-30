@@ -10,6 +10,5 @@ pom.xml.asc
 .hgignore
 .hg/
 profiles.clj
-datomic
-datomic-dev.properties
 .DS_Store
+config.edn

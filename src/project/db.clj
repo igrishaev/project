@@ -5,7 +5,7 @@
             [mount.core :as mount]
             clj-time.jdbc))
 
-(defn ^:private get-pool-spec []
+(defn- get-pool-spec []
   {:jdbc-url (conf :database-url)})
 
 (mount/defstate ^:dynamic *db*
