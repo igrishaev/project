@@ -9,6 +9,7 @@
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [mount "0.1.11"]
+                 [org.clojure/tools.logging "0.4.0"]
                  [conman "0.6.7" :exclusions [org.slf4j/slf4j-api]]
                  [org.postgresql/postgresql "42.1.3"]
                  [migratus "0.9.8"]

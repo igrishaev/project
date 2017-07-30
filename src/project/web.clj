@@ -4,6 +4,7 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [mount.core :as mount]
+            [clojure.tools.logging :as log]
             [ring.adapter.jetty :refer [run-jetty]]))
 
 (defroutes app-routes
@@ -15,12 +16,28 @@
   {:port (:jetty-port conf)
    :join? false})
 
-(mount/defstate ^:dynamic *app*
-  :start (run-jetty app-routes (get-jetty-params))
-  :stop (.stop *app*))
+(declare APP)
+
+(defn- on-start []
+  (let [params (get-jetty-params)
+        port (:port params)]
+    (log/infof "Starting web server on port %s..." port)
+    (let [server (run-jetty app-routes params)]
+      (log/info "Server started.")
+      server)))
+
+(defn- on-stop []
+  (log/info "Stopping web server...")
+  (.stop APP)
+  (log/info "Server stopped.")
+  nil)
+
+(mount/defstate APP
+  :start (on-start)
+  :stop (on-stop))
 
 (defn start! []
-  (mount/start #'*app*))
+  (mount/start #'APP))
 
 (defn stop! []
-  (mount/stop #'*app*))
+  (mount/stop #'APP))

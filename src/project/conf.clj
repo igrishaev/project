@@ -1,10 +1,12 @@
 (ns project.conf
-  (:require [cprop.source :refer [from-resource
-                                  from-file
-                                  from-env
-                                  from-system-props]]
+  (:require [clojure.tools.logging :as log]
+            [cprop.source :refer [from-resource
+                         from-file
+                         from-env
+                         from-system-props]]
             [mount.core :as mount])
   (:import java.util.MissingResourceException))
+
 
 (defn- on-start []
   (merge (try
