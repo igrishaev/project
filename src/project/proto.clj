@@ -1,5 +1,11 @@
 (ns project.proto)
 
+(defprotocol IFetcher
+  (fetch-feed [this])
+  (guess-feed-type [this])
+  (parse-payload [this])
+  (parse-feed [this]))
+
 (defprotocol Feed
   (get-feed-lang [this])
   (get-feed-title [this])
