@@ -6,7 +6,7 @@
 
   :plugins [[migratus-lein "0.5.0"]]
 
-  :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [mount "0.1.11"]
                  [org.clojure/tools.logging "0.4.0"]
@@ -18,7 +18,8 @@
                  [clj-http "3.6.1"]
                  [compojure "1.6.0"]
                  [ring/ring-jetty-adapter "1.6.2"]
-                 [ring/ring-json "0.4.0"]]
+                 [ring/ring-json "0.4.0"]
+                 [honeysql "0.9.3"]]
 
   :resource-paths ["resources"]
 

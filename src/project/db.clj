@@ -4,7 +4,50 @@
             [clojure.tools.logging :as log]
             [conman.core :as conman]
             [mount.core :as mount]
+            [honeysql.core :as sql]
+            [honeysql.format :refer [format-clause]]
             clj-time.jdbc))
+
+(defn map-entry [k v]
+  (clojure.lang.MapEntry/create k v))
+
+(defmethod format-clause :on-conflict
+  [[_ {:keys [constraint
+              do-update]}] bar]
+  (format
+   "ON CONFLICT %s DO %s"
+   (format-clause (map-entry :constraint constraint) bar)
+   (format-clause (map-entry :do-update do-update) bar)))
+
+(defmethod format-clause :constraint
+  [[_ foo] _]
+  (str foo))
+
+(defn get-fields
+  [values]
+  (cond
+    (map? values) (keys values)
+    (vector? values) (keys (first values))))
+
+(defmethod format-clause :do-update
+  [[_ foo] bar]
+  (format-clause (map-entry :set (for [field (-> bar :values get-fields)]
+                                   [field
+                                    (sql/raw (format "EXCLUDED.%s" (name field)))]))
+                 bar)
+
+  )
+
+#_
+(defmethod format-clause :insert-into [[_ table] _]
+  (if (and (sequential? table) (sequential? (first table)))
+    (str "INSERT INTO "
+         (to-sql (ffirst table))
+         " (" (comma-join (map to-sql (second (first table)))) ") "
+         (binding [*subquery?* false]
+           (to-sql (second table))))
+    (str "INSERT INTO " (to-sql table))))
+
 
 (defn- get-pool-spec []
   {:jdbc-url (conf :database-url)})
