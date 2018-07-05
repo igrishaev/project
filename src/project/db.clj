@@ -8,47 +8,6 @@
             [honeysql.format :refer [format-clause]]
             clj-time.jdbc))
 
-(defn map-entry [k v]
-  (clojure.lang.MapEntry/create k v))
-
-(defmethod format-clause :on-conflict
-  [[_ {:keys [constraint
-              do-update]}] bar]
-  (format
-   "ON CONFLICT %s DO %s"
-   (format-clause (map-entry :constraint constraint) bar)
-   (format-clause (map-entry :do-update do-update) bar)))
-
-(defmethod format-clause :constraint
-  [[_ foo] _]
-  (str foo))
-
-(defn get-fields
-  [values]
-  (cond
-    (map? values) (keys values)
-    (vector? values) (keys (first values))))
-
-(defmethod format-clause :do-update
-  [[_ foo] bar]
-  (format-clause (map-entry :set (for [field (-> bar :values get-fields)]
-                                   [field
-                                    (sql/raw (format "EXCLUDED.%s" (name field)))]))
-                 bar)
-
-  )
-
-#_
-(defmethod format-clause :insert-into [[_ table] _]
-  (if (and (sequential? table) (sequential? (first table)))
-    (str "INSERT INTO "
-         (to-sql (ffirst table))
-         " (" (comma-join (map to-sql (second (first table)))) ") "
-         (binding [*subquery?* false]
-           (to-sql (second table))))
-    (str "INSERT INTO " (to-sql table))))
-
-
 (defn- get-pool-spec []
   {:jdbc-url (conf :database-url)})
 
@@ -104,3 +63,37 @@
   `(conman/with-transaction [DB]
      (jdbc/db-set-rollback-only! DB)
      ~@body))
+
+;;
+;; Upsert
+;;
+
+(def into-map (partial into {}))
+
+(defn get-fields
+  [values]
+  (cond
+    (map? values) (keys values)
+    (vector? values) (keys (first values))
+    :else (throw (Exception. "todo"))))
+
+(defn values-excluded [fields]
+  (into-map
+   (for [field fields]
+     [field (sql/raw (format "EXCLUDED.%s" (name field)))])))
+
+(defn upsert!
+  [constraint table values]
+  (let [map-insert {:insert-into table :values values}
+        [query1 & params] (sql/format map-insert)
+        fields (get-fields values)
+        map-update {:set (values-excluded fields)}
+        [query2] (sql/format map-update)
+        q (format "%s ON CONFLICT ON constraint %s DO UPDATE %s"
+                  query1 constraint query2)
+        query (concat [q] params)]
+    (execute! query)))
+
+(def upsert-feed (partial upsert! "feeds_url_source_unique"))
+
+(def upsert-entry (partial upsert! "entries_feed_guid_unique"))

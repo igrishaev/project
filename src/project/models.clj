@@ -1,8 +1,17 @@
 (ns project.models
   (:require [project.fetch :as fetch]
-            #_
             [project.db :as db])
+  (:import java.net.URL)
   )
+
+(defn get-host
+  [url]
+  (-> url URL. .getHost))
+
+(defn get-google-favicon
+  [url]
+  (format "https://www.google.com/s2/favicons?domain=%s&alt=feed"
+          (get-host url)))
 
 (defn map-pred
   [params]
@@ -19,8 +28,8 @@
 (defn feed->model
   [url feed]
   {:url_source url
-   :url_host nil
-   :url_favicon nil
+   :url_host (get-host url)
+   :url_favicon (get-google-favicon url)
    :url_image (some-> feed :feed :image :href)
 
    :language (some-> feed :feed :language)
