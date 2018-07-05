@@ -41,9 +41,10 @@ create table feeds (
     http_modified  text null,
 
     constraint feeds_url_source_unique unique (url_source)
-)
+);
 
 
+drop table if exists entries;
 create table entries (
     id          serial primary key,
     created_at  timestamp with time zone not null default current_timestamp,
@@ -65,7 +66,7 @@ create table entries (
     date_updated_at     timestamp with time zone null,
 
     constraint entries_feed_guid_unique unique (feed_id, guid)
-)
+);
 
 
 drop table if exists subs;
@@ -79,7 +80,7 @@ create table subs (
     user_id     integer not null references users(id),
 
     title       text not null
-)
+);
 
 create unique index subs_feed_user_unique ON subs (feed_id, user_id) where not deleted;
 
@@ -96,8 +97,9 @@ create table messages (
 
     is_read     boolean not null default false,
     date_read   timestamp with time zone null
-)
+);
 
-create unique index messages_entry_user_unique ON subs (entry_id, user_id) where not deleted;
+create unique index messages_entry_user_unique ON messages (entry_id, user_id) where not deleted;
+
 
 commit;

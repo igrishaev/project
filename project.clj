@@ -27,5 +27,11 @@
              :test {:resource-paths ["env/dev/resources"
                                      "env/test/resources"]}}
   :migratus {:store :database
-             :migration-dir "migrations"
-             :db ~(get (System/getenv) "DATABASE_URL")})
+             :db ~(let [env (-> "config.edn" slurp read-string)]
+                    {:dbtype   "postgresql"
+                     :host     (:db-host env)
+                     :port     (:db-port env)
+                     :dbname   (:db-database env)
+                     :user     (:db-user env)
+                     :password (:db-password env)})}
+)

@@ -1,12 +1,9 @@
 begin;
 
-drop table source_tags;
-drop table message_tags;
-drop table tags;
-drop table notifications;
-drop table subscriptions;
-drop table messages;
-drop table sources;
-drop table users;
+drop table if exists users;
+drop table if exists feeds;
+drop table if exists entries;
+drop table if exists subs;
+drop table if exists messages;
 
 commit;

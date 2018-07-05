@@ -78,8 +78,8 @@
      :enclosure_url enc_url
      :enclosure_mime enc_mime
 
-     :date_published_at published_parsed
-     :date_updated_at updated_parsed
+     ;; :date_published_at published_parsed
+     ;; :date_updated_at updated_parsed
 
      }))
 
@@ -87,14 +87,11 @@
 (defn sync-feed
   [feed-url]
   (let [feed (fetch/fetch feed-url)
-
-        ]
-    #_
+        {:keys [entries]} feed]
     (db/with-tx
-
-      )
-    )
-
-
-
-  )
+      (let [feed-db (feed->model feed-url feed)
+            feed-result (db/upsert-feed [feed-db])
+            [{feed-id :id}] feed-result
+            entries-db (for [e entries]
+                         (entry->model feed-id e))]
+        (db/upsert-entry entries-db)))))
