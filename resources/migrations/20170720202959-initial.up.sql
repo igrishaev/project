@@ -97,14 +97,16 @@ create table messages (
     deleted     boolean not null default false,
 
     entry_id    integer not null references entries(id),
-    user_id     integer not null references users(id),
+    user_id     integer not null references users(id), -- todo!
+
+    sub_id      integer not null references subs(id), -- todo!
 
     is_read     boolean not null default false,
     date_read   timestamp with time zone null
 );
 
 create unique index messages_entry_user_unique ON messages
-    (entry_id, user_id) where (not deleted);
+    (entry_id, user_id) where (not deleted);  -- todo!
 
 
 commit;

@@ -1,50 +1,47 @@
 (ns project.spec
-  (:require [project.uri :refer [is-uri?]]
-            [clojure.spec.alpha :as s]))
+  (:require [project.error :as e]
+            [clojure.spec.alpha :as s]
+            [clojure.string :as str]
+            #_
+            [clojure.core.match :refer [match]]))
 
-;; (defn is-uri?
-;;   [val]
-;;   (try
-;;     (let [url (java.net.URI. val)]
-;;       ;; has at least scheme and host specified
-;;       (and (-> url .getScheme not-empty)
-;;            (-> url .getHost not-empty)))
-;;     (catch Exception e)))
+;;
+;; Helpers
+;;
 
-;; user input
+(def invalid :clojure.spec.alpha/invalid)
 
-(defn spec-error [spec data]
-  (s/explain-data spec data))
+(defmacro with-ivalid
+  [& body]
+  `(try
+     ~@body
+     (catch Throwable e#
+       invalid)))
 
-(s/def ::feed_url string?)
+(defn conform [spec value]
+  (let [result (s/conform spec value)]
+    (when-not (= result invalid)
+      result)))
 
-;; db.feed
+(def valid? s/valid?)
 
-(s/def :feed/url-source is-uri?)
-(s/def :feed/url-site is-uri?)
-(s/def :feed/url-icon is-uri?)
-(s/def :feed/date-last-sync inst?)
-(s/def :feed/date-next-sync inst?)
-(s/def :feed/tags (s/coll-of string?))
+(defn url? [x]
+  (when (string? x)
+    (e/with-catch
+      (java.net.URL. x)
+      true)))
 
-;; api
+(defn ->url [x]
+  (with-ivalid
+    (java.net.URL. x)))
 
-;; (s/def ::action
-;;   (s/or :string string?
-;;         :keyword keyword?))
+(s/def ::url
+  (s/conformer ->url))
 
-(s/def ::action string?)
-
-(s/def ::base-api.in
-  (s/keys :req-un [::action]))
-
-(s/def :preview-feed/in
-  (s/keys :req-un [::feed_url]))
-
-(s/def :preview-feed/out
-  (s/keys :req [:feed/url-source
-                :feed/url-site
-                :feed/url-icon
-                :feed/date-last-sync
-                :feed/date-next-sync
-                :feed/tags]))
+(defn ->int [x]
+  (cond
+    (int? x) x
+    (string? x)
+    (with-ivalid
+      (Integer/parseInt x))
+    :else invalid))

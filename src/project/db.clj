@@ -2,7 +2,8 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clj-time.jdbc] ;; extends JDBC protocols
             [honeysql.core :as sql]
-            [cheshire.core :as json]
+            [honeysql.format :as f :refer [format-clause]]
+            [cheshire.core :as json] ;; to json ns
             [clojure.tools.logging :as log]
             [migratus.core :as migratus]
             [project.env :refer [env]])
@@ -17,6 +18,16 @@
    :dbname   (:db-database env)
    :user     (:db-user env)
    :password (:db-password env)})
+
+;;
+
+(defmethod format-clause :returning
+  [[_ fields] _]
+  (str
+   "RETURNING "
+   (f/comma-join (map f/to-sql fields))))
+
+;;
 
 ;;
 ;; DB types
@@ -111,12 +122,22 @@
      [field (sql/raw (clojure.core/format
                       "EXCLUDED.%s" (name field)))])))
 
+(defn get-fields
+  [values]
+  (-> values first keys set (disj :id)))
+
+(defn to-vect
+  [values]
+  (if (map? values)
+    [values]
+    values))
+
 (defn upsert!
   [table constraint values]
-  (let [values (if (map? values) [values] values)
+  (let [values (to-vect values)
         map-insert {:insert-into table :values values}
         [query1 & params] (sql/format map-insert)
-        fields (keys (first values))
+        fields (get-fields values)
         map-update {:set (values-excluded fields)}
         [query2] (sql/format map-update)
         q (clojure.core/format

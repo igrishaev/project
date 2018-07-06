@@ -22,6 +22,8 @@
                  [honeysql "0.9.3"]
                  [medley "1.0.0"]
 
+                 [metosin/ring-http-response "0.9.0"]
+
                  ]
 
   :resource-paths ["resources"]
