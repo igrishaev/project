@@ -23,3 +23,6 @@ repl:
 
 py-server:
 	python py/server.py
+
+py-install:
+	pip install -r py/requirements.txt
