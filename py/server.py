@@ -16,6 +16,9 @@ def json_encoder(obj):
         dt = datetime.fromtimestamp(mktime(obj))
         return json_encoder(dt)
 
+    if isinstance(obj, Exception):
+        return repr(obj)
+
     raise TypeError ("Type %s not serializable" % type(obj))
 
 

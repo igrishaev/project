@@ -20,3 +20,6 @@ db-create-migration:
 
 repl:
 	lein repl
+
+py-server:
+	python py/server.py

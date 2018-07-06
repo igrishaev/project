@@ -40,6 +40,9 @@ create table feeds (
     http_etag      text null,
     http_modified  text null,
 
+    parse_ok       boolean not null default true,
+    parse_err      text null,
+
     constraint feeds_url_source_unique unique (url_source)
 );
 

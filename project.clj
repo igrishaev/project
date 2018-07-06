@@ -19,7 +19,10 @@
                  [compojure "1.6.0"]
                  [ring/ring-jetty-adapter "1.6.2"]
                  [ring/ring-json "0.4.0"]
-                 [honeysql "0.9.3"]]
+                 [honeysql "0.9.3"]
+                 [medley "1.0.0"]
+
+                 ]
 
   :resource-paths ["resources"]
 
