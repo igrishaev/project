@@ -2,11 +2,8 @@
   (:require [project.fetch :as fetch]
             [project.db :as db]
             [project.time :refer [parse-iso-now]]
-            [medley.core :refer [distinct-by]]
-
-            )
-  (:import java.net.URL)
-  )
+            [medley.core :refer [distinct-by]])
+  (:import java.net.URL))
 
 (defn get-host
   [url]
@@ -148,7 +145,7 @@
 
       (db/with-tx
 
-        (let [result (db/upsert-feed [feed-db])
+        (let [result (db/upsert-feed feed-db)
               feed-id (-> result first :id)]
 
           (when-not (empty? entries-db)
@@ -156,6 +153,27 @@
              (for [e entries-db]
                (assoc e :feed_id feed-id)))))))))
 
+
+(defn subscribe
+  [user feed & [params]]
+  (let [title (or (:title params)
+                  (:title feed)
+                  (:subtitle feed)
+                  (:url_source feed))]
+    (db/upsert-subs
+     (merge
+      params
+      {:user_id (:id user)
+       :feed_id (:id feed)
+       :title title}))))
+
+(defn message
+  [user entry & [params]]
+  (db/upsert-message
+     (merge
+      params
+      {:user_id (:id user)
+       :entry_id (:id entry)})))
 
 (defn batch
   []

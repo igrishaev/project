@@ -85,7 +85,8 @@ create table subs (
     title       text not null
 );
 
-create unique index subs_feed_user_unique ON subs (feed_id, user_id) where not deleted;
+create unique index subs_feed_user_unique ON subs
+    (feed_id, user_id) where (not deleted);
 
 
 drop table if exists messages;
@@ -102,7 +103,8 @@ create table messages (
     date_read   timestamp with time zone null
 );
 
-create unique index messages_entry_user_unique ON messages (entry_id, user_id) where not deleted;
+create unique index messages_entry_user_unique ON messages
+    (entry_id, user_id) where (not deleted);
 
 
 commit;

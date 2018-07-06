@@ -105,10 +105,6 @@
 
 (def into-map (partial into {}))
 
-(defn get-fields
-  [values]
-  (keys (first values)))
-
 (defn values-excluded [fields]
   (into-map
    (for [field fields]
@@ -117,27 +113,32 @@
 
 (defn upsert!
   [table constraint values]
-  (let [map-insert {:insert-into table :values values}
+  (let [values (if (map? values) [values] values)
+        map-insert {:insert-into table :values values}
         [query1 & params] (sql/format map-insert)
-        fields (get-fields values)
+        fields (keys (first values))
         map-update {:set (values-excluded fields)}
         [query2] (sql/format map-update)
         q (clojure.core/format
-           "%s ON CONFLICT ON constraint %s DO UPDATE %s RETURNING id"
+           "%s ON CONFLICT %s DO UPDATE %s RETURNING id"
            query1 constraint query2)
         q-vector (concat [q] params)]
     (query q-vector)))
 
-#_
-(defn upsert-feed
-  [params]
-  (upsert! :feeds "feeds_url_source_unique" params))
+(def upsert-user
+  (partial upsert! :users "(email)"))
 
 (def upsert-feed
-  (partial upsert! :feeds "feeds_url_source_unique"))
+  (partial upsert! :feeds "(url_source)"))
 
 (def upsert-entry
-  (partial upsert! :entries "entries_feed_guid_unique"))
+  (partial upsert! :entries "(feed_id, guid)"))
+
+(def upsert-subs
+  (partial upsert! :subs "(feed_id, user_id) where (not deleted)"))
+
+(def upsert-message
+  (partial upsert! :messages "(entry_id, user_id) where (not deleted)"))
 
 ;;
 ;; Migrations
