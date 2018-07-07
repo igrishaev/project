@@ -159,7 +159,7 @@
   (partial upsert! :subs "(feed_id, user_id) where (not deleted)"))
 
 (def upsert-message
-  (partial upsert! :messages "(entry_id, user_id) where (not deleted)"))
+  (partial upsert! :messages "(sub_id, entry_id) where (not deleted)"))
 
 ;;
 ;; Migrations
@@ -174,6 +174,10 @@
   (log/info "Running migrations...")
   (migratus/migrate mg-cfg)
   (log/info "Migrations done."))
+
+(defn- rollback
+  []
+  (migratus/rollback mg-cfg))
 
 ;;
 ;; Init part

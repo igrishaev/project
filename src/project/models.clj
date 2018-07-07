@@ -72,6 +72,7 @@
      :where [:and
              [:= :m.sub_id sub_id]
              [:= :m.entry_id :e.id]
+             [:not :m.is_read]
              [:not :m.deleted]
              [:not :e.deleted]]
      :order-by [[:e.id :desc]]

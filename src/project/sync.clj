@@ -152,7 +152,29 @@
              (for [e entries-db]
                (assoc e :feed_id feed-id)))))))))
 
-(defn batch-demo
+(defn sync-user
+  [user_id]
+  (let [query
+        "
+insert into messages (sub_id, entry_id)
+
+select s.id, e.id
+from subs s
+join feeds f on f.id = s.feed_id
+join entries e on e.feed_id = f.id
+left join messages m on
+  m.entry_id = e.id and m.sub_id = s.id and not m.deleted
+where
+s.user_id = 1
+and m.id is null
+and not s.deleted
+and not f.deleted
+and not e.deleted
+"]
+    (db/execute! [query user_id])))
+
+
+(defn batch-import
   []
   (with-open [rdr (clojure.java.io/reader "rss.txt")]
     (doseq [line (line-seq rdr)]
