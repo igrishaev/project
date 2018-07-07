@@ -51,7 +51,7 @@
     (models/mark-read user msg-ids)
     {:ok true}))
 
-(defn mark-read
+(defn mark-unread
   [request]
   (let [{:keys [params user]} request
         {:keys [msg-ids]} params]
