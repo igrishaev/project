@@ -34,11 +34,13 @@
       {:user_id (:id user)
        :entry_id (:id entry)})))
 
-(defn feed
-  [url]
-
-
-  )
+(defn update-feed
+  [id params]
+  (db/execute!
+   (db/format
+    {:update :feed
+     :set params
+     :where [:= :id id]})))
 
 (defn get-feed-by-id
   [id]
@@ -51,6 +53,21 @@
   (first
    (db/find-by-keys
     :feeds {:url_source url :deleted false})))
+
+(defn create-feed
+  [url]
+  (db/query
+   (db/format
+    {:insert-into :feeds
+     :values [{:url_source url}]
+     :returning [:*]})))
+
+(defn get-or-create-feed
+  [url]
+  (db/with-tx
+    (if-let [feed (get-feed-by-url url)]
+      feed
+      (create-feed url))))
 
 (defn get-sub-by-id
   [id]

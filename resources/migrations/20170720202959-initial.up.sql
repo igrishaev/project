@@ -6,16 +6,23 @@ create table users (
     created_at  timestamp with time zone not null default current_timestamp,
     updated_at  timestamp with time zone null,
     deleted     boolean not null default false,
+
     email       text not null,
     name        text null,
 
-    constraint  email_unique unique (email) -- todo index
+    sync_interval    integer not null default 3600,
+    sync_date_last   timestamp with time zone null,
+    sync_date_next   timestamp with time zone null,
+    sync_count_total integer not null default 0,
+
+    constraint  email_unique unique (email)
 );
 
 drop table if exists feeds;
 create table feeds (
     id          serial primary key,
-    created_at  timestamp with time zone not null default current_timestamp,
+    created_at  timestamp with time zone
+                not null default current_timestamp,
     updated_at  timestamp with time zone null,
     deleted     boolean not null default false,
 
@@ -43,6 +50,13 @@ create table feeds (
     parse_ok       boolean not null default true,
     parse_err      text null,
 
+    sync_interval    integer not null default 3600,
+    sync_date_last   timestamp with time zone null,
+    sync_date_next   timestamp with time zone null,
+    sync_count_total integer not null default 0,
+    sync_count_err   integer not null default 0,
+    sync_error_msg   text null,
+
     constraint feeds_url_source_unique unique (url_source) -- todo index
 );
 
@@ -50,7 +64,8 @@ create table feeds (
 drop table if exists entries;
 create table entries (
     id          serial primary key,
-    created_at  timestamp with time zone not null default current_timestamp,
+    created_at  timestamp with time zone
+                not null default current_timestamp,
     updated_at  timestamp with time zone null,
     deleted     boolean not null default false,
 
@@ -68,21 +83,22 @@ create table entries (
     date_published_at   timestamp with time zone null,
     date_updated_at     timestamp with time zone null,
 
-    constraint entries_feed_guid_unique unique (feed_id, guid) -- todo index
+    constraint entries_feed_guid_unique unique (feed_id, guid)
 );
 
 
 drop table if exists subs;
 create table subs (
     id          serial primary key,
-    created_at  timestamp with time zone not null default current_timestamp,
+    created_at  timestamp with time zone
+                not null default current_timestamp,
     updated_at  timestamp with time zone null,
     deleted     boolean not null default false,
 
     feed_id     integer not null references feeds(id),
     user_id     integer not null references users(id),
 
-    title       text not null
+    title       text null
 );
 
 create unique index subs_feed_user_unique ON subs
@@ -92,7 +108,8 @@ create unique index subs_feed_user_unique ON subs
 drop table if exists messages;
 create table messages (
     id          serial primary key,
-    created_at  timestamp with time zone not null default current_timestamp,
+    created_at  timestamp with time zone
+                not null default current_timestamp,
     updated_at  timestamp with time zone null,
     deleted     boolean not null default false,
 
@@ -105,6 +122,5 @@ create table messages (
 
 create unique index messages_sub_entry_unique ON messages
     (sub_id, entry_id) where (not deleted);
-
 
 commit;

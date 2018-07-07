@@ -1,8 +1,13 @@
 (ns project.sync
   (:require [project.fetch :as fetch]
             [project.db :as db]
+            [project.models :as models]
+            [project.error :as e]
             [project.time :refer [parse-iso-now]]
+
+            [clojure.tools.logging :as log]
             [medley.core :refer [distinct-by]])
+
   (:import java.net.URL))
 
 (defn get-host
@@ -45,9 +50,8 @@
         (clean-val title)
         (clean-val summary))))
 
-
 (defn data->feed
-  [url data]
+  [data]
   (let [{:keys [feed
                 entries
 
@@ -75,9 +79,10 @@
 
         ]
 
-    {:url_source url
-     :url_host (get-host url)
-     :url_favicon (get-google-favicon url)
+    {;; :url_source url
+     ;; :url_host (get-host url)
+     ;; :url_favicon (get-google-favicon url)
+
      :url_image image_href
 
      :language language
@@ -133,22 +138,57 @@
      }))
 
 (defn sync-feed
-  [feed-url]
-  (let [data (fetch/fetch feed-url)]
+  [feed]
+  (let [{feed-url :url_source feed-id :id} feed
+        data (fetch/fetch feed-url)]
 
-    (let [feed (data->feed feed-url data)
+    (let [feed-db (data->feed data)
 
           entries (map data->entry (:entries data))
           entries (distinct-by :guid entries)]
 
       (db/with-tx
 
-        (let [[{feed-id :id}] (db/upsert-feed feed)]
+        (models/update-feed feed-id feed-db)
 
-          (when-not (empty? entries)
-            (db/upsert-entry
-             (for [e entries]
-               (assoc e :feed_id feed-id)))))))))
+        (when-not (empty? entries)
+          (db/upsert-entry
+           (for [e entries]
+             (assoc e :feed_id feed-id))))))))
+
+(defn sync-feed-safe
+  [feed]
+  (let [{url :url_source id :id} feed
+        fields (transient {})]
+
+    (try
+      (sync-feed feed)
+
+      (catch Exception e
+        (let [err-msg (e/exc-msg e)]
+
+          (log/errorf "Sync error, feed: %s, e: %s"
+                      url err-msg)
+          (assoc!
+           fields
+           :sync_count_err (db/raw "sync_count_err + 1")
+           :sync_error_msg err-msg)))
+
+      (finally
+        (assoc!
+         fields
+         :sync_date_last :%now
+         :sync_date_next (db/raw "sync_date_last + sync_interval * interval '1 second'")
+         :sync_count_total (db/raw "sync_count_total + 1"))
+
+        (models/update-feed
+         id
+         (persistent! fields))))))
+
+(defn sync-feed-url
+  [url]
+  (let [feed (models/get-or-create-feed url)]
+    (sync-feed feed)))
 
 (defn sync-user
   [user_id]
@@ -158,17 +198,18 @@ insert into messages (sub_id, entry_id)
 
 select s.id, e.id
 from subs s
-join feeds f on f.id = s.feed_id
-join entries e on e.feed_id = f.id
+join entries e on e.feed_id = s.feed_id
 left join messages m on
   m.entry_id = e.id and m.sub_id = s.id and not m.deleted
 where
 s.user_id = 1
 and m.id is null
 and not s.deleted
-and not f.deleted
 and not e.deleted
 "]
+
+;; todo update user sync
+
     (db/execute! [query user_id])))
 
 
