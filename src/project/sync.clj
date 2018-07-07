@@ -46,7 +46,7 @@
         (clean-val summary))))
 
 
-(defn feed->model
+(defn data->feed
   [url data]
   (let [{:keys [feed
                 entries
@@ -101,7 +101,7 @@
 
      }))
 
-(defn entry->model
+(defn data->entry
   [entry]
 
   (let [{:keys [link
@@ -134,22 +134,20 @@
 
 (defn sync-feed
   [feed-url]
-  (let [feed (fetch/fetch feed-url)
-        {:keys [entries]} feed]
+  (let [data (fetch/fetch feed-url)]
 
-    (let [feed-db (feed->model feed-url feed)
+    (let [feed (data->feed feed-url data)
 
-          entries-db (map entry->model entries)
-          entries-db (distinct-by :guid entries-db)]
+          entries (map data->entry (:entries data))
+          entries (distinct-by :guid entries)]
 
       (db/with-tx
 
-        (let [result (db/upsert-feed feed-db)
-              feed-id (-> result first :id)]
+        (let [[{feed-id :id}] (db/upsert-feed feed)]
 
-          (when-not (empty? entries-db)
+          (when-not (empty? entries)
             (db/upsert-entry
-             (for [e entries-db]
+             (for [e entries]
                (assoc e :feed_id feed-id)))))))))
 
 (defn sync-user
