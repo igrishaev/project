@@ -1,0 +1,3 @@
+- [ ] add uuid to title algo
+- [ ] update user sync fields
+- [ ] add total/unread counters for subs
