@@ -27,6 +27,14 @@
           sub (models/get-sub-by-id sub-id)]
       {:data sub})))
 
+(defn unsubscribe
+  [request]
+  (db/with-tx
+    (let [{:keys [params user]} request
+          {user-id :id} user
+          {:keys [sub-id]} params]
+      (models/unsubscribe user-id sub-id)
+      {:data true})))
 
 (defn subscriptions
   [request]
@@ -38,9 +46,9 @@
 (defn messages
   [request]
   (let [{:keys [params user]} request
-        {user_id :id} user
-        {:keys [sub_id]} params
-        messages (models/get-messages user_id sub_id)]
+        {user-id :id} user
+        {:keys [sub-id]} params
+        messages (models/get-messages user-id sub-id)]
     {:data messages}))
 
 

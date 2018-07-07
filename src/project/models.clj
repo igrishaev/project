@@ -15,6 +15,17 @@
        :feed_id (:id feed)
        :title title}))))
 
+(defn unsubscribe
+  [user_id sub_id]
+  (db/execute!
+   (db/format
+    {:update :subs
+     :set {:deleted true}
+     :where [:and
+             [:= :id sub_id]
+             [:= :user_id user_id]
+             [:not :deleted]]})))
+
 (defn message
   [user entry & [params]]
   (db/upsert-message

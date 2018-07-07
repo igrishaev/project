@@ -9,7 +9,7 @@ create table users (
     email       text not null,
     name        text null,
 
-    constraint  email_unique unique (email)
+    constraint  email_unique unique (email) -- todo index
 );
 
 drop table if exists feeds;
@@ -43,7 +43,7 @@ create table feeds (
     parse_ok       boolean not null default true,
     parse_err      text null,
 
-    constraint feeds_url_source_unique unique (url_source)
+    constraint feeds_url_source_unique unique (url_source) -- todo index
 );
 
 
@@ -68,7 +68,7 @@ create table entries (
     date_published_at   timestamp with time zone null,
     date_updated_at     timestamp with time zone null,
 
-    constraint entries_feed_guid_unique unique (feed_id, guid)
+    constraint entries_feed_guid_unique unique (feed_id, guid) -- todo index
 );
 
 
