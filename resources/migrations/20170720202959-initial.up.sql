@@ -3,7 +3,8 @@ begin;
 drop table if exists users;
 create table users (
     id          serial primary key,
-    created_at  timestamp with time zone not null default current_timestamp,
+    created_at  timestamp with time zone
+                not null default current_timestamp,
     updated_at  timestamp with time zone null,
     deleted     boolean not null default false,
 
@@ -57,6 +58,8 @@ create table feeds (
     sync_count_err   integer not null default 0,
     sync_error_msg   text null,
 
+    entry_count_total integer not null default 0,
+
     constraint feeds_url_source_unique unique (url_source) -- todo index
 );
 
@@ -98,7 +101,10 @@ create table subs (
     feed_id     integer not null references feeds(id),
     user_id     integer not null references users(id),
 
-    title       text null
+    title       text null,
+
+    message_count_total integer not null default 0,
+    message_count_unread integer not null default 0
 );
 
 create unique index subs_feed_user_unique ON subs

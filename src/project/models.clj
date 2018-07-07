@@ -38,8 +38,8 @@
   [id params]
   (db/execute!
    (db/format
-    {:update :feed
-     :set params
+    {:update :feeds
+     :set (assoc params :updated_at :%now)
      :where [:= :id id]})))
 
 (defn get-feed-by-id
@@ -56,11 +56,12 @@
 
 (defn create-feed
   [url]
-  (db/query
-   (db/format
-    {:insert-into :feeds
-     :values [{:url_source url}]
-     :returning [:*]})))
+  (first
+   (db/query
+    (db/format
+     {:insert-into :feeds
+      :values [{:url_source url}]
+      :returning [:*]}))))
 
 (defn get-or-create-feed
   [url]
@@ -75,7 +76,6 @@
    (db/find-by-keys
     :subs {:id id :deleted false})))
 
-
 (defn get-user-subs
   [user_id]
   (db/query
@@ -89,7 +89,6 @@
              [:not :f.deleted]
              [:not :s.deleted]]
      :limit 100})))
-
 
 (defn get-messages
   [sub_id]
@@ -106,14 +105,14 @@
      :order-by [[:e.id :desc]]
      :limit 100})))
 
-
 (defn mark-read
   [user msg-ids]
   (db/execute!
    (db/format
     {:update :messages
      :set {:is_read true
-           :date_read :%now}
+           :date_read :%now
+           :updated_at :%now}
      :where [:and
              [:= :user_id (:id user)]
              [:in :id msg-ids]
@@ -125,7 +124,8 @@
    (db/format
     {:update :messages
      :set {:is_read true
-           :date_read :nil}
+           :date_read :nil
+           :updated_at :%now}
      :where [:and
              [:= :user_id (:id user)]
              [:in :id msg-ids]

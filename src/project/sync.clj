@@ -4,6 +4,7 @@
             [project.models :as models]
             [project.error :as e]
             [project.time :refer [parse-iso-now]]
+            [project.util :as u]
 
             [clojure.tools.logging :as log]
             [medley.core :refer [distinct-by]])
@@ -48,7 +49,8 @@
         (clean-val link)
         (clean-val wp_uuid)
         (clean-val title)
-        (clean-val summary))))
+        (clean-val summary)
+        (u/uuid))))
 
 (defn data->feed
   [data]
@@ -80,7 +82,7 @@
         ]
 
     {;; :url_source url
-     ;; :url_host (get-host url)
+     ;; :url_host (get-host url)        ;; todo
      ;; :url_favicon (get-google-favicon url)
 
      :url_image image_href
@@ -142,6 +144,8 @@
   (let [{feed-url :url_source feed-id :id} feed
         data (fetch/fetch feed-url)]
 
+    ;; todo cleanup nils
+
     (let [feed-db (data->feed data)
 
           entries (map data->entry (:entries data))
@@ -167,8 +171,7 @@
       (catch Exception e
         (let [err-msg (e/exc-msg e)]
 
-          (log/errorf "Sync error, feed: %s, e: %s"
-                      url err-msg)
+          (log/errorf "Sync error, feed: %s, e: %s" url err-msg)
           (assoc!
            fields
            :sync_count_err (db/raw "sync_count_err + 1")
@@ -177,45 +180,88 @@
       (finally
         (assoc!
          fields
+         :updated_at :%now
          :sync_date_last :%now
-         :sync_date_next (db/raw "sync_date_last + sync_interval * interval '1 second'")
+         :sync_date_next (db/raw "now() + sync_interval * interval '1 second'")
          :sync_count_total (db/raw "sync_count_total + 1"))
 
-        (models/update-feed
-         id
-         (persistent! fields))))))
+        (let [fields (persistent! fields)]
+          (models/update-feed id fields))))))
 
 (defn sync-feed-url
   [url]
   (let [feed (models/get-or-create-feed url)]
-    (sync-feed feed)))
+    (sync-feed-safe feed)))
 
-(defn sync-user
+(defn batch-import
+  []
+  (with-open [rdr (clojure.java.io/reader "rss.txt")]
+    (doseq [url (line-seq rdr)]
+      (println url)
+      (sync-feed-url url))))
+
+(defn sync-subs-messages
   [user_id]
-  (let [query
-        "
+  (db/execute!
+   ["
 insert into messages (sub_id, entry_id)
 
-select s.id, e.id
+select
+  s.id, e.id
 from subs s
 join entries e on e.feed_id = s.feed_id
 left join messages m on
   m.entry_id = e.id and m.sub_id = s.id and not m.deleted
 where
-s.user_id = 1
-and m.id is null
-and not s.deleted
-and not e.deleted
-"]
+  s.user_id = ?
+  and m.id is null
+  and not s.deleted
+  and not e.deleted
+" user_id]))
 
-;; todo update user sync
+(defn sync-subs-counters
+  [user_id]
+  (db/execute!
+   ["
+update subs
+set
+  updated_at = now(),
+  message_count_total = q.count_total,
+  message_count_unread = q.count_unread
+from (
+  select
+    s.id as sub_id,
+    count(m.id) as count_total,
+    count(m.id) filter (where not m.is_read) as count_unread
+  from subs s
+  join messages m on m.sub_id = s.id
+  where
+    s.user_id = ?
+    and not s.deleted
+    and not m.deleted
+  group by s.id
+) as q
+where
+  id = q.sub_id
+" user_id]))
 
-    (db/execute! [query user_id])))
+(defn sync-user-counters
+  [user_id]
+  (db/execute!
+   ["
+update users
+set
+  updated_at = now(),
+  sync_date_last = now(),
+  sync_date_next = now() + sync_interval * interval '1 second',
+  sync_count_total = sync_count_total + 1
+where id = ?
+" user_id]))
 
-
-(defn batch-import
-  []
-  (with-open [rdr (clojure.java.io/reader "rss.txt")]
-    (doseq [line (line-seq rdr)]
-      (println line)
-      (sync-feed line))))
+(defn sync-user
+  ;; todo wrap with log etc
+  [user_id]
+  (db/with-tx
+    (sync-subs-messages user_id)
+    (sync-subs-counters user_id)
+    (sync-user-counters user_id)))

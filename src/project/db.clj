@@ -138,7 +138,9 @@
         map-insert {:insert-into table :values values}
         [query1 & params] (sql/format map-insert)
         fields (get-fields values)
-        map-update {:set (values-excluded fields)}
+        vals-exc (values-excluded fields)
+        vals-exc (assoc vals-exc :updated_at :%now)
+        map-update {:set vals-exc}
         [query2] (sql/format map-update)
         q (clojure.core/format
            "%s ON CONFLICT %s DO UPDATE %s RETURNING id"
@@ -170,12 +172,12 @@
           :migration-dir "migrations"
           :db *db*})
 
-(defn- migrate []
+(defn migrate []
   (log/info "Running migrations...")
   (migratus/migrate mg-cfg)
   (log/info "Migrations done."))
 
-(defn- rollback
+(defn rollback
   []
   (migratus/rollback mg-cfg))
 
