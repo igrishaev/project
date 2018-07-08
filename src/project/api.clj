@@ -5,11 +5,15 @@
 
             [clojure.tools.logging :as log]))
 
+(defn kw->var
+  [kw]
+  (-> kw str (subs 1) symbol resolve))
+
 (defn guess-code
   [data]
   (case (:error-code data)
     nil 200
-    :wrong-params 400
+    (:wrong-params :input-params :bad-request) 400
     :not-found 404
     500))
 
@@ -37,11 +41,7 @@
   [action]
   (data->resp
    (h/err :not-found
-          (format "No `%s` action was found" action))))
-
-(defn kw->var
-  [kw]
-  (-> kw str (subs 1) symbol resolve))
+          (format "Action '%s' was not found" action))))
 
 (declare actions)
 

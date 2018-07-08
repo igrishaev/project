@@ -4,6 +4,10 @@
             [project.db :as db]
             [project.sync :as sync]))
 
+;;
+;; Shortcuts
+;;
+
 (defn ok [data]
   data)
 
@@ -13,14 +17,14 @@
    :error-text text
    :error-data data})
 
+;;
+;; API
+;;
+
 
 (defn demo
   [params & _]
   (ok {:foo 42}))
-
-;;
-;; API
-;;
 
 
 (defn preview
@@ -45,6 +49,7 @@
           sub (models/get-sub-by-id sub-id)]
       {:data sub})))
 
+
 (defn unsubscribe
   [request]
   (db/with-tx
@@ -53,6 +58,7 @@
           {:keys [sub-id]} params]
       (models/unsubscribe user-id sub-id)
       {:data true})))
+
 
 (defn subscriptions
   [request]
@@ -76,6 +82,7 @@
         {:keys [msg-ids]} params]
     (models/mark-read user msg-ids)
     {:ok true}))
+
 
 (defn mark-unread
   [request]

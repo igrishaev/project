@@ -3,3 +3,5 @@
 - [ ] add total/unread counters for subs
 - [ ] skip nils when update a feed
 - [ ] refactor db functions
+- [ ] import data from google reader
+- [ ] import data from feedly
