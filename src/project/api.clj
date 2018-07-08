@@ -1,125 +1,69 @@
 (ns project.api
   (:require [project.spec :as spec]
-            [project.models :as models]
             [project.error :as e]
-            [project.env :refer [env]]
-            [clojure.tools.logging :as log]
-            [ring.middleware.http-response :refer
-             [wrap-http-response]]
-            [ring.util.http-response :refer
-             [ok
-              throw!
-              forbidden! not-found!
-              bad-request!
-              internal-server-error!]]))
+            [project.handlers :as h]
 
-(defn err!
-  [status body]
+            [clojure.tools.logging :as log]))
 
-  )
+(defn guess-code
+  [data]
+  (case (:error-code data)
+    nil 200
+    :wrong-params 400
+    :not-found 404
+    500))
 
-(declare ACTIONS)
+(defn data->resp
+  [data]
+  {:status (guess-code data)
+   :body data})
 
-(defn err-body [message & args]
-  {:error (apply format message args)})
+(defn err-spec
+  [spec data]
+  (data->resp
+   (let [out (spec/explain-str spec data)]
+     (h/err :wrong-params
+            "Input data is incorrect"
+            out))))
 
-(defn msg-body [message & args]
-  {:msg (apply format message args)})
+(defn err-action
+  [action]
+  (data->resp
+   (h/err :not-found
+          (format "No `%s` action was found" action))))
 
-(defn _handler-api
+(defn kw->var
+  [kw]
+  (-> kw str (subs 1) symbol resolve))
+
+(declare actions)
+
+(defn handler
   [request]
   (let [{:keys [params user]} request
-        params (spec/conform :qrfd.spec/action.api-base params)]
+        spec :project.spec/api.base
+        params* (spec/conform spec params)]
 
-    #_
-    (when-not params
-      (let [errors (spec/spec->errors :qrfd.spec/action.api-base params)]
-        (bad-request! (-> errors first err-body))))
+    (if params*
 
-    (let [{:keys [action]} params
-          rule (get ACTIONS action)
-          {:keys [spec-in handler auth-required]} rule]
+      (let [{:keys [action]} params*
+            rule (get actions action)]
 
-      (when (and auth-required (nil? user))
-        (forbidden! (err-body "Authentication required.")))
+        (if rule
+          (let [{:keys [handler spec]} rule
+                handler (kw->var handler)
+                params* (spec/conform spec params)]
 
-      (when-not rule
-        (not-found! (err-body "Unsupported action: %s.")))
+            (if params*
+              (let [data (handler params* user)]
+                (data->resp data))
 
-      #_
-      (if-let [params (spec/conform spec-in params)]
-        (handler (assoc request :params params))
-        (let [errors (spec/spec->errors spec-in params)]
-          (bad-request! (-> errors first err-body)))))))
+              (err-spec spec params)))
 
-(def ACTIONS
-  {})
+          (err-action action)))
 
+      (err-spec spec params))))
 
-;; (ns project.api
-;;   (:require [project.db :as db]
-;;             [project.spec :as spec :refer [spec-error]]
-;;             [project.feed :as feed]
-;;             [project.raise :refer [raise]]
-;;             [ring.middleware.json :refer
-;;              [wrap-json-response wrap-json-body]]
-;;             [ring.util.response :refer [response]]
-;;             project.json))
-
-
-;; (defn get-source-info [url]
-;;   (let [source (db/get-source-by-url {:url url})
-;;         messages (db/get-source-last-messages {})]
-;;     {:source source ;; when let, nil
-;;      :messages messages}))
-
-;; (defn save-feed [])
-
-;; (defn preview-feed
-;;   [{:keys [feed_url]}]
-;;   (feed/fetch-feed feed_url)
-
-;;   ;; (if-let [feed (get-source-info feed_url)] ;; when exists
-;;   ;;   feed
-;;   ;;   (let [data (feed/fetch-feed feed_url)]
-;;   ;;     (feed/save-feed feed_url data)
-;;   ;;     (get-source-info feed_url)))
-;;   )
-
-;; (def actions
-;;   {"preview-feed" preview-feed})
-
-;; (defn call-action
-;;   [params]
-;;   ;; (when-not (and (map? params)
-;;   ;;                (-> params :action string?))
-;;   ;;   (raise "wrong input" error))
-;;   (let [spec :project.spec/base-api.in
-;;         error (spec-error spec params)]
-;;     (when error
-;;       (raise "aah shi" error)))
-;;   (let [action (:action params)
-;;         func (get actions action)
-;;         schema-in (keyword action "in")
-;;         schema-out (keyword action "out")]
-;;     (when-not func
-;;       (raise "wrong action" action))
-;;     (when-let [error (spec-error schema-in params)]
-;;       (raise "wrong input" error))
-;;     (let [result (func params)]
-;;       #_(when-let [error (spec-error schema-out result)]
-;;         (raise "wrong output" error))
-;;       result)))
-
-;; (defn ^:private api-handler*
-;;   [{:keys [body]}]
-;;   (try
-;;     (response (call-action body))
-;;     (catch Exception e
-;;       {:status 500
-;;        :body (.getMessage e)})))
-
-;; (def api-handler
-;;   (-> api-handler*
-;;       (wrap-json-body {:keywords? true})
-;;       wrap-json-response))
+(def actions
+  {:lookup {:handler :project.handlers/preview
+            :spec :project.spec/api.preview}})

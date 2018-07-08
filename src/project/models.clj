@@ -107,7 +107,7 @@
 
 (defn mark-read
   [user msg-ids]
-  (db/with-trx
+  (db/with-tx
 
     (db/execute!
      (db/format

@@ -26,7 +26,7 @@
       (while true
         (try
           (func)
-          (catch Exception e
+          (catch Throwable e
             (println e))
           (finally
             (sleep step)))))))

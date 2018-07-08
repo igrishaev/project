@@ -1,9 +1,6 @@
 (ns project.spec
   (:require [project.error :as e]
-            [clojure.spec.alpha :as s]
-            [clojure.string :as str]
-            #_
-            [clojure.core.match :refer [match]]))
+            [clojure.spec.alpha :as s]))
 
 ;;
 ;; Helpers
@@ -22,6 +19,8 @@
   (let [result (s/conform spec value)]
     (when-not (= result invalid)
       result)))
+
+(def explain-str s/explain-str)
 
 (def valid? s/valid?)
 

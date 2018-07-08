@@ -168,7 +168,7 @@
     (try
       (sync-feed feed)
 
-      (catch Exception e
+      (catch Throwable e
         (let [err-msg (e/exc-msg e)]
 
           (log/errorf "Sync error, feed: %s, e: %s" url err-msg)
