@@ -1,19 +1,41 @@
 (ns project.handlers
+  "https://www.jsonrpc.org/specification"
   (:require [project.models :as models]
             [project.db :as db]
             [project.sync :as sync]))
 
+(defn ok [id data]
+  {:status 200
+   :body {:jsonrpc "2.0"
+          :result data
+          :id id}})
+
+(defn err [status code id message & [data]]
+  {:status status
+   :body {:jsonrpc "2.0"
+          :error {:code code
+                  :message message
+                  :data data}
+          :id id}})
+
+(def err-request (partial err 400 -32600))
+(def err-method (partial err 404 -32601))
+(def err-params (partial err 400 -32602))
+(def err-internal (partial err 500 -32603))
+
+
 (defn preview
   [request]
   (let [{:keys [params]} request
+        {:keys [id params]} params
         {:keys [url]} params
         feed (models/get-feed-by-url url)
         ]
     (if feed
-      {:data feed}
+      (ok id feed)
       (do
         (sync/sync-feed url)
-        {:data feed}))))
+        (ok id feed)))))
 
 
 (defn subscribe
