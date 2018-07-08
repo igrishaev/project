@@ -26,6 +26,13 @@
             "Input data is incorrect"
             out))))
 
+(defn err-server
+  [e]
+  (data->resp
+   (h/err :server-error
+          "Internal server error"
+          (e/exc-msg e))))
+
 (defn err-action
   [action]
   (data->resp
@@ -38,7 +45,7 @@
 
 (declare actions)
 
-(defn handler
+(defn handler-unsafe
   [request]
   (let [{:keys [params user]} request
         spec :project.spec/api.base
@@ -64,6 +71,17 @@
 
       (err-spec spec params))))
 
+(defn handler
+  [request]
+  (try
+    (handler-unsafe request)
+    (catch Throwable e
+      (log/error e)  ;; todo log better
+      (err-server e))))
+
 (def actions
   {:lookup {:handler :project.handlers/preview
-            :spec :project.spec/api.preview}})
+            :spec :project.spec/api.preview}
+
+   :demo {:handler :project.handlers/demo
+          :spec :project.spec/api.demo}})

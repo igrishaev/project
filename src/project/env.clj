@@ -1,9 +1,8 @@
 (ns project.env
-  #_
-  (:require [qrfd.error :refer [error!]]
-            [clojure.tools.logging :as log]
-            [clojure.spec.alpha :as s]
-            [qrfd.spec :as spec]))
+  (:require [project.error :as e]
+            [project.spec :as spec]
+
+            [clojure.tools.logging :as log]))
 
 (defonce env nil)
 
@@ -13,22 +12,24 @@
    (constantly
     (-> filepath (or "config.edn") slurp read-string))))
 
-#_
+
 (defn validate-env []
-  (let [spec :qrfd.spec/env]
-    (when-not (s/valid? spec env)
-      (let [out (s/explain-str spec env)
-            msg (format "Config error, spec: %s, data: %s" spec out)]
+  (let [spec :project.spec/env]
+    (when-not (spec/valid? spec env)
+      (let [out (spec/explain-str spec env)
+            msg (format "Config error, spec: %s, data: %s"
+                        spec out)]
         (log/error msg)
-        (error! msg)))))
+        (e/error! msg)))))
 
 ;;
 ;; Init part
 ;;
 
-(load-env)
-
-#_
 (defn init
   []
   (validate-env))
+
+;; Main
+
+(load-env)

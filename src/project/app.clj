@@ -1,5 +1,7 @@
 (ns project.app
-  (:require [compojure.core :refer [context defroutes GET POST]]
+  (:require [project.api :as api]
+
+            [compojure.core :refer [context defroutes GET POST]]
 
             ;; [ring.middleware.webjars :refer [wrap-webjars]]
 
@@ -21,21 +23,21 @@
             ;; qrfd.time
             ))
 
+(defroutes app-naked
 
-(defroutes _app
-
-  (POST "/api" request (api/handler-api request))
+  (POST "/api" request (api/handler request))
 
   )
 
 (def app
-  (-> _app
+  (-> app-naked
 
       ;; tpl/wrap-context
       ;; auth/wrap-user
       ;; views/wrap-session-id
 
-      (wrap-session opt-session)
+      ;; (wrap-session opt-session)
+
       wrap-keyword-params
       wrap-params
       wrap-json-params
@@ -43,7 +45,7 @@
 
       ;;views/wrap-exception
 
-      (wrap-resource "public")
+      ;; (wrap-resource "public")
 
       ;; (wrap-webjars "/webjars")
 

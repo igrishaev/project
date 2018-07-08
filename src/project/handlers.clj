@@ -13,6 +13,16 @@
    :error-text text
    :error-data data})
 
+
+(defn demo
+  [params & _]
+  (ok {:foo 42}))
+
+;;
+;; API
+;;
+
+
 (defn preview
   [params & _]
   (let [{:keys [url]} params

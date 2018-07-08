@@ -26,6 +26,9 @@
 
                  ]
 
+  :main project.core
+  :uberjar-name "project.jar"
+
   :resource-paths ["resources"]
 
   :profiles {:dev {:resource-paths ["env/dev/resources"]}
