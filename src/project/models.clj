@@ -107,19 +107,30 @@
 
 (defn mark-read
   [user msg-ids]
-  (db/execute!
-   (db/format
-    {:update :messages
-     :set {:is_read true
-           :date_read :%now
-           :updated_at :%now}
-     :where [:and
-             [:= :user_id (:id user)]
-             [:in :id msg-ids]
-             [:not :deleted]]})))
+  (db/with-trx
+
+    (db/execute!
+     (db/format
+      {:update :messages
+       :set {:is_read true
+             :date_read :%now
+             :updated_at :%now}
+       :where [:and
+               [:= :user_id (:id user)]
+               [:in :id msg-ids]
+               [:not :deleted]]}))
+
+;; todo update unread count
+
+
+
+    ))
 
 (defn mark-unread
   [user msg-ids]
+
+  ;; todo update unread count
+
   (db/execute!
    (db/format
     {:update :messages

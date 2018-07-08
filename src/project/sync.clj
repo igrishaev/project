@@ -258,6 +258,36 @@ set
 where id = ?
 " user_id]))
 
+(defn get-users-to-sync
+  []
+  (db/query
+   "
+select *
+from users
+where
+  not deleted
+  and (sync_date_next is null
+       or sync_date_next < now())
+order by
+  sync_date_next asc nulls first
+limit 100
+"))
+
+(defn get-feeds-to-sync
+  []
+  (db/query
+   "
+select *
+from feeds
+where
+  not deleted
+  and (sync_date_next is null
+       or sync_date_next < now())
+order by
+  sync_date_next asc nulls first
+limit 100
+"))
+
 (defn sync-user
   ;; todo wrap with log etc
   [user_id]
@@ -265,3 +295,14 @@ where id = ?
     (sync-subs-messages user_id)
     (sync-subs-counters user_id)
     (sync-user-counters user_id)))
+
+(defn sync-user-safe
+  ;; todo wrap with log etc
+  [user]
+  (sync-user (:id user)))
+
+(defn beat-feeds
+  []
+  (let [feeds (get-feeds-to-sync)]
+    (doseq [feed feeds]
+      (sync-feed-safe feed))))
