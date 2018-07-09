@@ -116,10 +116,15 @@
 
 (defn messages
   [params user & _]
-  (let [{user-id :id} user
-        {:keys [sub-id]} params
-        messages (models/get-messages user-id sub-id)]
-    {:data messages}))
+  (let [{:keys [sub_id]} params]
+
+    (if-let [sub (models/get-sub-by-user-and-id
+                  user sub_id)]
+
+      (let [msgs (models/get-messages sub)]
+        (ok msgs))
+
+      (r/err-not-subscribed))))
 
 
 (defn mark-read

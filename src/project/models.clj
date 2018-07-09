@@ -51,6 +51,16 @@
 
 ;; todo bump subs count
 
+(defn get-sub-by-id
+  [id]
+  (db/get-by-id :subs id))
+
+(defn get-sub-by-user-and-id
+  [user id]
+  (first
+   (db/find-by-keys
+    :subs {:id id :user_id (:id user)})))
+
 (defn get-sub-title
   [params feed]
   (or (:title params)
@@ -130,6 +140,20 @@
 ;; Messages
 ;;
 
+(defn get-messages
+  [sub]
+  (db/query
+   (db/format
+    {:select
+     [(db/raw "row_to_json(e) as entry")
+      (db/raw "row_to_json(m) as message")]
+     :from [[:entries :e] [:messages :m]]
+     :where [:and
+             [:= :m.entry_id :e.id]
+             [:= :m.sub_id (:id sub)]]
+     :limit 10
+     :order-by [[:m.id :desc]]})))
+
 #_
 (defn get-messages-by-sub
   [sub_id]
@@ -195,10 +219,6 @@
     (if-let [feed (get-feed-by-url url)]
       feed
       (create-feed url))))
-
-(defn get-sub-by-id
-  [id]
-  (db/get-by-id :subs id))
 
 
 (defn mark-read

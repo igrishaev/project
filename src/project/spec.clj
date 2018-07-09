@@ -69,3 +69,10 @@
 
 (s/def ::api.subscriptions
   (s/keys :req-un []))
+
+;;
+;; Messages
+;;
+
+(s/def ::api.messages
+  (s/keys :req-un []))

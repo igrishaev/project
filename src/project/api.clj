@@ -62,5 +62,8 @@
    :subscriptions {:handler :project.handlers/subscriptions
                    :spec :project.spec/api.subscriptions}
 
+   :messages {:handler :project.handlers/messages
+              :spec :project.spec/api.messages}
+
 
 })
