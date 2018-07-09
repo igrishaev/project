@@ -63,16 +63,17 @@
         (let [feed (models/get-feed-by-id feed-id)]
           (ok (clean-feed feed)))))))
 
+
 (defn subscribe
-  [request]
+  [params user & _]
   (db/with-tx
-    (let [{:keys [params user title]} request
-          {:keys [url]} params
+    (let [{:keys [url title]} params
           feed (models/get-feed-by-id url)
           resp (models/subscribe user feed title)
           sub-id (-> resp first :id)
           sub (models/get-sub-by-id sub-id)]
       {:data sub})))
+
 
 (defn unsubscribe
   [request]
