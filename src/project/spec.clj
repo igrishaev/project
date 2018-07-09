@@ -1,6 +1,7 @@
 (ns project.spec
   (:require [project.error :as e]
             project.spec.env
+            project.spec.email
 
             [clojure.spec.alpha :as s]))
 

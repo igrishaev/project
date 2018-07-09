@@ -2,6 +2,8 @@
   (:require [project.spec :as spec]
             [project.error :as e]))
 
+;; TODO refacto responses
+
 (defn ok [data]
   data)
 
@@ -21,10 +23,16 @@
       500)
     200))
 
+(defn resp
+  ([data]
+   (resp 200 data))
+  ([status data]
+   {:status status
+    :body data}))
+
 (defn data->resp
   [data]
-  {:status (guess-code data)
-   :body data})
+  (resp (guess-code data) data))
 
 (defn err-spec
   [spec data]

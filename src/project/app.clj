@@ -1,5 +1,6 @@
 (ns project.app
   (:require [project.api :as api]
+            [project.auth :as auth]
 
             [compojure.core :refer [context defroutes GET POST]]
 
@@ -14,18 +15,26 @@
             [ring.middleware.json :refer
              [wrap-json-response wrap-json-params]]
 
-            ;; [qrfd.env :refer [env]]
-            ;; [qrfd.views :as views]
-            ;; [qrfd.hooks :as hooks]
-            ;; [qrfd.auth :as auth]
-            ;; [qrfd.template :as tpl]
-            ;; [qrfd.api :as api]
-            ;; qrfd.time
             ))
 
 (defroutes app-naked
 
   (POST "/api" request (api/handler request))
+
+  (context
+   "/auth" []
+
+   (GET "/logout" request (auth/logout request))
+
+   (context
+    "/google" []
+    (GET "/init" request (auth/google-init request))
+    (GET "/back" request (auth/google-back request)))
+
+   (context
+    "/email" []
+    (GET "/init" request (auth/email-init request))
+    (GET "/back" request (auth/email-back request))))
 
   )
 

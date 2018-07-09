@@ -12,6 +12,39 @@
    (db/find-by-keys
     :users {:id id :deleted false})))
 
+(defn upsert-google-user
+  [auth params]
+  (let [{:keys [id
+                name
+                link
+                email
+                gender
+                locale
+                picture]} params]
+
+    (first
+     (db/upsert-user
+      {:email email
+       :source "google"
+       :source_id id
+       :name name
+       :source_url link
+       :locale locale
+       :avatar_url picture
+       :gender gender
+       :auth_data auth}))))
+
+(defn upsert-email-user
+  [params]
+  (let [{:keys [email]} params]
+    (first
+     (db/upsert-user
+      {:email email
+       :source "email"}))))
+
+;;
+;; Other
+;;
 
 (defn subscribe
   [user feed & [params]]

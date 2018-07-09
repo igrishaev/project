@@ -10,11 +10,19 @@ create table users (
 
     email       text not null,
     name        text null,
+    source      text null,
+    source_id   text null,
+    source_url  text null,
+    locale      text null,
+    avatar_url  text null,
+    gender      text null,
 
     sync_interval    integer not null default 3600,
     sync_date_last   timestamp with time zone null,
     sync_date_next   timestamp with time zone null,
     sync_count_total integer not null default 0,
+
+    auth_data   jsonb null,
 
     constraint  email_unique unique (email)
 );
