@@ -53,4 +53,7 @@
   {:preview {:handler :project.handlers/preview
              :spec :project.spec/api.preview}
 
+   :subscribe {:handler :project.handlers/subscribe
+               :spec :project.spec/api.subscribe}
+
    })

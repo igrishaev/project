@@ -3,7 +3,11 @@
             project.spec.env
             project.spec.email
             [project.spec.util :refer
-             [invalid ->url ->keyword]]
+             [invalid
+              ->url
+              ->keyword
+              not-empty-string
+              foreign-key]]
 
             [clojure.spec.alpha :as s]))
 
@@ -21,10 +25,17 @@
 (def valid? s/valid?)
 
 ;;
-;; Api
+;; Fields
 ;;
 
 (s/def ::action ->keyword)
+(s/def ::url ->url)
+(s/def ::feed_id foreign-key)
+(s/def ::title not-empty-string)
+
+;;
+;; Api
+;;
 
 (s/def ::api.base
   (s/keys :req-un [::action]))
@@ -33,7 +44,13 @@
 ;; Preview
 ;;
 
-(s/def ::url ->url)
-
 (s/def ::api.preview
   (s/keys :req-un [::url]))
+
+;;
+;; Subscribe
+;;
+
+(s/def ::api.subscribe
+  (s/keys :req-un [::feed_id]
+          :opt-in [::title]))

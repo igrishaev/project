@@ -53,6 +53,7 @@
         feed (models/get-feed-by-url url)]
     (if feed
 
+      ;; todo: check if deleted first!
       (if (:deleted feed)
         (r/err-feed-deleted)
         (ok (clean-feed feed)))
@@ -69,12 +70,29 @@
   [params user & _]
   (db/with-tx
     (let [{:keys [feed_id title]} params
+          fields {:title title}
           feed (models/get-feed-by-id feed_id)
 
-          resp (models/subscribe user feed title)
 
-          sub-id (-> resp first :id)
-          sub (models/get-sub-by-id sub-id)]
+
+
+
+          ]
+
+      (if feed
+        (let [resp (models/subscribe user feed fields)
+              sub-id (-> resp first :id)
+              sub (models/get-sub-by-id sub-id)
+
+              ]
+
+          )
+
+
+
+        2)
+
+
       (ok sub))))
 
 

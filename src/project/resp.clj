@@ -40,10 +40,10 @@
   (err 403
        "You should be logged in to access this API."))
 
-(defn err-feed-deleted
-  []
+(defn err-feed-404
+  [url]
   (err 404
-       "This feed has been deleted and cannot be queried."))
+       (format "No such a feed was found: %s" url)))
 
 (defn err-server
   [e]

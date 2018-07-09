@@ -53,3 +53,13 @@
    (s/conformer str/lower-case)
    not-empty
    re-email?))
+
+(defn not-empty-string
+  [x]
+  (and (string? x)
+       (not (str/blank? x))))
+
+(defn foreign-key
+  [x]
+  (and (integer? x)
+       (pos? x)))
