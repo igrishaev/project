@@ -59,4 +59,8 @@
    :unsubscribe {:handler :project.handlers/unsubscribe
                  :spec :project.spec/api.unsubscribe}
 
-   })
+   :subscriptions {:handler :project.handlers/subscriptions
+                   :spec :project.spec/api.subscriptions}
+
+
+})

@@ -62,3 +62,10 @@
 
 (s/def ::api.unsubscribe
   (s/keys :req-un [::sub_id]))
+
+;;
+;; Subscriptions
+;;
+
+(s/def ::api.subscriptions
+  (s/keys :req-un []))

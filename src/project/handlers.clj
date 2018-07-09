@@ -99,16 +99,17 @@
 
 
 (defn subscriptions
-  [request]
-  (let [{:keys [user]} request
-        subs (models/get-user-subs user)]
-    {:data subs}))
+  [params user & _]
+  (let [subs (models/get-user-subs user)]
+    (ok subs)))
 
+;;
+;; Messages
+;;
 
 (defn messages
-  [request]
-  (let [{:keys [params user]} request
-        {user-id :id} user
+  [params user & _]
+  (let [{user-id :id} user
         {:keys [sub-id]} params
         messages (models/get-messages user-id sub-id)]
     {:data messages}))

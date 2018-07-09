@@ -11,6 +11,8 @@
   [id]
   (db/get-by-id :users id))
 
+;; todo return a full user
+
 (defn upsert-google-user
   [auth params]
   (let [{:keys [id
@@ -32,6 +34,8 @@
        :avatar_url picture
        :gender gender
        :auth_data auth}))))
+
+;; todo return a full user
 
 (defn upsert-email-user
   [params]
@@ -96,9 +100,42 @@
              [:= :id sub_id]
              [:= :user_id (:id user)]]})))
 
+(defn get-user-subs
+  [user]
+  (db/query
+   (db/format
+    {:select
+     [(db/raw "row_to_json(f) as feed")
+      (db/raw "row_to_json(s) as sub")]
+     :from [[:feeds :f] [:subs :s]]
+     :where [:and
+             [:= :s.user_id (:id user)]
+             [:= :s.feed_id :f.id]]
+     :order [[:s.id :desc]]})))
+
+;;
+;; Messages
+;;
+
+#_
+(defn get-messages-by-sub
+  [sub_id]
+  (db/query
+   (db/format
+    {:select [:e.*]
+     :from [[:messages :m] [:entries :e]]
+     :where [:and
+             [:= :m.sub_id sub_id]
+             [:= :m.entry_id :e.id]
+             [:not :m.is_read]]
+     :order-by [[:e.id :desc]]
+     :limit 100})))
+
 ;;
 ;; Other
 ;;
+
+
 
 (defn message
   [user entry & [params]]
@@ -129,6 +166,7 @@
     :feeds {:url_source url})))
 
 ;; todo fill host, favicon etc
+
 (defn create-feed
   [url]
   (first
@@ -149,30 +187,6 @@
   [id]
   (db/get-by-id :subs id))
 
-(defn get-user-subs
-  [user_id]
-  (db/query
-   (db/format
-    {:select [:f.*
-              [:s.title :sub_title]]
-     :from [[:feeds :f] [:subs :s]]
-     :where [:and
-             [:= :s.user_id user_id]
-             [:= :s.feed_id :f.id]]
-     :limit 100})))
-
-(defn get-messages
-  [sub_id]
-  (db/query
-   (db/format
-    {:select [:e.*]
-     :from [[:messages :m] [:entries :e]]
-     :where [:and
-             [:= :m.sub_id sub_id]
-             [:= :m.entry_id :e.id]
-             [:not :m.is_read]]
-     :order-by [[:e.id :desc]]
-     :limit 100})))
 
 (defn mark-read
   [user msg-ids]

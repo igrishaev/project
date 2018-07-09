@@ -8,6 +8,7 @@
             [cheshire.core :as json] ;; todo to json ns
             [clojure.tools.logging :as log]
             [migratus.core :as migratus])
+
   (:refer-clojure :exclude [format])
   (:import org.postgresql.util.PGobject))
 
@@ -45,10 +46,20 @@
   [pgobj]
   (-> pgobj .getValue (json/parse-string true)))
 
+(defmethod pgobj->clj "json"
+  [pgobj]
+  (-> pgobj .getValue (json/parse-string true)))
+
+(defn clj->pgobject
+  [data]
+  (doto (PGobject.)
+    (.setType "jsonb")
+    (.setValue (json/generate-string data))))
+
 (extend-protocol jdbc/IResultSetReadColumn
 
   PGobject
-  (result-set-read-column [pgobj _metadata _index]
+  (result-set-read-column [pgobj metadata index]
     (pgobj->clj pgobj)))
 
 (extend-protocol jdbc/ISQLValue
@@ -59,7 +70,11 @@
 
   java.net.URL
   (sql-value [val]
-    (str val)))
+    (str val))
+
+  clojure.lang.IPersistentMap
+  (sql-value [val]
+    (clj->pgobject val)))
 
 ;;
 ;; Helpers
