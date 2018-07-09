@@ -51,12 +51,10 @@
   [params & _]
   (let [{:keys [url]} params
         feed (models/get-feed-by-url url)]
+
     (if feed
 
-      ;; todo: check if deleted first!
-      (if (:deleted feed)
-        (r/err-feed-deleted)
-        (ok (clean-feed feed)))
+      (ok (clean-feed feed))
 
       (let [feed (models/create-feed url)
             {feed-id :id} feed]
@@ -64,46 +62,40 @@
         (let [feed (models/get-feed-by-id feed-id)]
           (ok (clean-feed feed)))))))
 
-;; todo not upsert but check if subscribed
-
 (defn subscribe
   [params user & _]
   (db/with-tx
     (let [{:keys [feed_id title]} params
-          fields {:title title}
-          feed (models/get-feed-by-id feed_id)
+          fields {:title title}]
 
+      (db/with-tx
 
+        (if-let [feed (models/get-feed-by-id feed_id)]
 
+          (if (models/subscribed? user feed)
 
+            (r/err-subscribed)
 
-          ]
+            (let [sub (models/subscribe user feed fields)]
+              (ok sub)))
 
-      (if feed
-        (let [resp (models/subscribe user feed fields)
-              sub-id (-> resp first :id)
-              sub (models/get-sub-by-id sub-id)
-
-              ]
-
-          )
-
-
-
-        2)
-
-
-      (ok sub))))
+          (r/err-feed-404 feed_id))))))
 
 
 (defn unsubscribe
-  [request]
-  (db/with-tx
-    (let [{:keys [params user]} request
-          {user-id :id} user
-          {:keys [sub-id]} params]
-      (models/unsubscribe user-id sub-id)
-      {:data true})))
+  [params user & _]
+
+  (let [{:keys [sub_id]} params]
+
+    (db/with-tx
+
+      (if (models/has-sub? user sub_id)
+
+        (do
+          (models/unsubscribe user sub_id)
+          (r/ok-empty))
+
+        (r/err-not-subscribed)))))
 
 
 (defn subscriptions

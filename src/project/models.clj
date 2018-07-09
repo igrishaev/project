@@ -42,35 +42,63 @@
        :source "email"}))))
 
 ;;
-;; Other
+;; Subs
 ;;
 
 ;; todo bump subs count
 
+(defn get-sub-title
+  [params feed]
+  (or (:title params)
+      (:title feed)
+      (:subtitle feed)
+      (:url_source feed)))
+
+(defn subscribed?
+  [user feed]
+  (first
+   (db/find-by-keys
+    :subs {:user_id (:id user)
+           :feed_id (:id feed)})))
+
+(defn has-sub?
+  [user sub_id]
+  (first
+   (db/find-by-keys
+    :subs {:id sub_id
+           :user_id (:id user)})))
+
 (defn subscribe
   [user feed & [params]]
-  (let [title (or (:title params)
-                  (:title feed)
-                  (:subtitle feed)
-                  (:url_source feed))]
-    (db/upsert-subs
-     (merge
-      params
-      {:user_id (:id user)
-       :feed_id (:id feed)
-       :title title}))))
+  (let [title (get-sub-title params feed)
+        values {:user_id (:id user)
+                :feed_id (:id feed)
+                :title title}]
+    (first
+     (db/query
+      (db/format
+       {:insert-into :subs
+        :values [values]
+        :returning [:*]})))))
 
 ;; todo dec subs count
 ;; todo mb not now?
 
+;; todo delete messages?
+;; or do that later?
+
 (defn unsubscribe
-  [user_id sub_id]
+  [user sub_id]
   (db/execute!
    (db/format
     {:delete-from :subs
      :where [:and
              [:= :id sub_id]
-             [:= :user_id user_id]]})))
+             [:= :user_id (:id user)]]})))
+
+;;
+;; Other
+;;
 
 (defn message
   [user entry & [params]]

@@ -24,6 +24,10 @@
 ;; Shortcuts
 ;;
 
+(defn ok-empty
+  []
+  (resp {:ok true}))
+
 (defn ok-message
   [message & args]
   (resp {:message (apply format message args )}))
@@ -41,9 +45,9 @@
        "You should be logged in to access this API."))
 
 (defn err-feed-404
-  [url]
+  [artifact]
   (err 404
-       (format "No such a feed was found: %s" url)))
+       (format "No such a feed was found: %s" artifact)))
 
 (defn err-server
   [e]
@@ -55,3 +59,13 @@
   [action]
   (err 404
        (format "Action '%s' was not found" action)))
+
+(defn err-subscribed
+  []
+  (err 400
+       "You have already been subscribed to that feed."))
+
+(defn err-not-subscribed
+  []
+  (err 400
+       "You are not subscribed to that feed."))
