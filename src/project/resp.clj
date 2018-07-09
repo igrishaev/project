@@ -35,6 +35,11 @@
          "Wrong input parameters"
          debug)))
 
+(defn err-anon
+  []
+  (err 403
+       "You should be logged in to access this API."))
+
 (defn err-server
   [e]
   (err 500

@@ -15,28 +15,31 @@
 (defn handler-unsafe
   [request]
   (let [{:keys [params user]} request
-        spec :project.spec/api.base
-        params* (spec/conform spec params)]
+        spec :project.spec/api.base]
 
-    (if params*
+    (if user
 
-      (let [{:keys [action]} params*
-            rule (get actions action)]
+      (if-let [params* (spec/conform spec params)]
 
-        (if rule
-          (let [{:keys [handler spec]} rule
-                handler (kw->var handler)
-                params* (spec/conform spec params)]
+        (let [{:keys [action]} params*
+              rule (get actions action)]
 
-            (if params*
-              (let [data (handler params* user)]
-                (r/ok data))
+          (if rule
+            (let [{:keys [handler spec]} rule
+                  handler (kw->var handler)
+                  params* (spec/conform spec params)]
 
-              (r/err-spec spec params)))
+              (if params*
+                (let [data (handler params* user)]
+                  (r/ok data))
 
-          (r/err-action action)))
+                (r/err-spec spec params)))
 
-      (r/err-spec spec params))))
+            (r/err-action action)))
+
+        (r/err-spec spec params))
+
+      (r/err-anon))))
 
 (defn handler
   [request]
