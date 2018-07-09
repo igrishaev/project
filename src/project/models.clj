@@ -100,18 +100,31 @@
              [:= :id sub_id]
              [:= :user_id (:id user)]]})))
 
+(def subs-query
+  {:select
+   [(db/raw "row_to_json(f) as feed")
+    (db/raw "row_to_json(s) as sub")]
+   :from [[:feeds :f] [:subs :s]]
+   :where [:and
+           [:= :s.feed_id :f.id]]})
+
 (defn get-user-subs
   [user]
   (db/query
    (db/format
-    {:select
-     [(db/raw "row_to_json(f) as feed")
-      (db/raw "row_to_json(s) as sub")]
-     :from [[:feeds :f] [:subs :s]]
-     :where [:and
-             [:= :s.user_id (:id user)]
-             [:= :s.feed_id :f.id]]
-     :order [[:s.id :desc]]})))
+    (-> subs-query
+        (update :where conj [:= :s.user_id (:id user)])
+        (assoc :order [[:s.id :desc]])))))
+
+(defn get-user-sub
+  [user sub]
+  (first
+   (db/query
+    (db/format
+     (-> subs-query
+         (update :where conj [:= :s.user_id (:id user)])
+         (update :where conj [:= :s.id (:id sub)])
+         (assoc :limit 1))))))
 
 ;;
 ;; Messages

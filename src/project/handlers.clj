@@ -38,9 +38,12 @@
    :entry_count_total
    :sub_count_total])
 
-(defn clean-feed
-  [feed]
-  (select-keys feed feed-fields))
+
+(defn clean-model
+  [fields model]
+  (select-keys model fields))
+
+(def clean-feed (partial clean-model feed-fields))
 
 ;; todo check if a URL points to a feed
 ;; todo handle a case when it's not a feed
@@ -62,12 +65,13 @@
         (let [feed (models/get-feed-by-id feed-id)]
           (ok (clean-feed feed)))))))
 
+;; todo add some messages
+
 (defn subscribe
   [params user & _]
   (db/with-tx
     (let [{:keys [feed_id title]} params
           fields {:title title}]
-
       (db/with-tx
 
         (if-let [feed (models/get-feed-by-id feed_id)]
@@ -76,8 +80,9 @@
 
             (r/err-subscribed)
 
-            (let [sub (models/subscribe user feed fields)]
-              (ok sub)))
+            (let [sub (models/subscribe user feed fields)
+                  res (models/get-user-sub user sub)]
+              (ok (update res :feed clean-feed))))
 
           (r/err-feed-404 feed_id))))))
 
@@ -101,7 +106,9 @@
 (defn subscriptions
   [params user & _]
   (let [subs (models/get-user-subs user)]
-    (ok subs)))
+    (ok
+     (for [sub subs]
+       (update sub :feed clean-feed)))))
 
 ;;
 ;; Messages
