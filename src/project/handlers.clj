@@ -63,16 +63,19 @@
         (let [feed (models/get-feed-by-id feed-id)]
           (ok (clean-feed feed)))))))
 
+;; todo not upsert but check if subscribed
 
 (defn subscribe
   [params user & _]
   (db/with-tx
-    (let [{:keys [url title]} params
-          feed (models/get-feed-by-id url)
+    (let [{:keys [feed_id title]} params
+          feed (models/get-feed-by-id feed_id)
+
           resp (models/subscribe user feed title)
+
           sub-id (-> resp first :id)
           sub (models/get-sub-by-id sub-id)]
-      {:data sub})))
+      (ok sub))))
 
 
 (defn unsubscribe
