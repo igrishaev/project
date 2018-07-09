@@ -1,16 +1,15 @@
 (ns project.models
-  (:require
-   [project.db :as db]))
+  (:require [project.db :as db]))
 
 ;;
 ;; User
 ;;
 
+;; todo email lowercase
+
 (defn get-user-by-id
   [id]
-  (first
-   (db/find-by-keys
-    :users {:id id :deleted false})))
+  (db/get-by-id :users id))
 
 (defn upsert-google-user
   [auth params]
@@ -47,6 +46,7 @@
 ;;
 
 ;; todo bump subs count
+
 (defn subscribe
   [user feed & [params]]
   (let [title (or (:title params)
@@ -61,16 +61,16 @@
        :title title}))))
 
 ;; todo dec subs count
+;; todo mb not now?
+
 (defn unsubscribe
   [user_id sub_id]
   (db/execute!
    (db/format
-    {:update :subs
-     :set {:deleted true}
+    {:delete-from :subs
      :where [:and
              [:= :id sub_id]
-             [:= :user_id user_id]
-             [:not :deleted]]})))
+             [:= :user_id user_id]]})))
 
 (defn message
   [user entry & [params]]
@@ -92,13 +92,13 @@
   [id]
   (first
    (db/find-by-keys
-    :feeds {:id id :deleted false})))
+    :feeds {:id id})))
 
 (defn get-feed-by-url
   [url]
   (first
    (db/find-by-keys
-    :feeds {:url_source url :deleted false})))
+    :feeds {:url_source url})))
 
 ;; todo fill host, favicon etc
 (defn create-feed
@@ -119,9 +119,7 @@
 
 (defn get-sub-by-id
   [id]
-  (first
-   (db/find-by-keys
-    :subs {:id id :deleted false})))
+  (db/get-by-id :subs id))
 
 (defn get-user-subs
   [user_id]
@@ -132,9 +130,7 @@
      :from [[:feeds :f] [:subs :s]]
      :where [:and
              [:= :s.user_id user_id]
-             [:= :s.feed_id :f.id]
-             [:not :f.deleted]
-             [:not :s.deleted]]
+             [:= :s.feed_id :f.id]]
      :limit 100})))
 
 (defn get-messages
@@ -146,9 +142,7 @@
      :where [:and
              [:= :m.sub_id sub_id]
              [:= :m.entry_id :e.id]
-             [:not :m.is_read]
-             [:not :m.deleted]
-             [:not :e.deleted]]
+             [:not :m.is_read]]
      :order-by [[:e.id :desc]]
      :limit 100})))
 
@@ -164,8 +158,7 @@
              :updated_at :%now}
        :where [:and
                [:= :user_id (:id user)]
-               [:in :id msg-ids]
-               [:not :deleted]]}))
+               [:in :id msg-ids]]}))
 
 ;; todo update unread count
 
@@ -186,5 +179,4 @@
            :updated_at :%now}
      :where [:and
              [:= :user_id (:id user)]
-             [:in :id msg-ids]
-             [:not :deleted]]})))
+             [:in :id msg-ids]]})))

@@ -21,14 +21,14 @@
    :password (:db-password env)})
 
 ;;
+;; Extend HoneySql
+;;
 
 (defmethod format-clause :returning
   [[_ fields] _]
   (str
    "RETURNING "
    (f/comma-join (map f/to-sql fields))))
-
-;;
 
 ;;
 ;; DB types
@@ -75,6 +75,9 @@
 
 (defn query [& args]
   (apply jdbc/query *db* args))
+
+(defn get-by-id [& args]
+  (apply jdbc/get-by-id *db* args))
 
 (defn find-by-keys [& args]
   (apply jdbc/find-by-keys *db* args))
@@ -156,10 +159,10 @@
   (partial upsert! :entries "(feed_id, guid)"))
 
 (def upsert-subs
-  (partial upsert! :subs "(feed_id, user_id) where (not deleted)"))
+  (partial upsert! :subs "(feed_id, user_id)"))
 
 (def upsert-message
-  (partial upsert! :messages "(sub_id, entry_id) where (not deleted)"))
+  (partial upsert! :messages "(sub_id, entry_id)"))
 
 ;;
 ;; Migrations

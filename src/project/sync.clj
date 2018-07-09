@@ -154,7 +154,6 @@ from (
   from entries e
   where
     e.feed_id = ?
-    and not e.deleted
   group by e.feed_id
 ) as q
 where
@@ -176,7 +175,6 @@ from (
   from subs s
   where
     s.feed_id = ?
-    and not s.deleted
   group by s.feed_id
 ) as q
 where
@@ -253,12 +251,10 @@ select
 from subs s
 join entries e on e.feed_id = s.feed_id
 left join messages m on
-  m.entry_id = e.id and m.sub_id = s.id and not m.deleted
+  m.entry_id = e.id and m.sub_id = s.id
 where
   s.user_id = ?
   and m.id is null
-  and not s.deleted
-  and not e.deleted
 " user_id]))
 
 (defn sync-subs-counters
@@ -279,8 +275,6 @@ from (
   join messages m on m.sub_id = s.id
   where
     s.user_id = ?
-    and not s.deleted
-    and not m.deleted
   group by s.id
 ) as q
 where
@@ -307,7 +301,6 @@ where id = ?
 select *
 from users
 where
-  not deleted
   and (sync_date_next is null
        or sync_date_next < now())
 order by
@@ -322,7 +315,6 @@ limit 100
 select *
 from feeds
 where
-  not deleted
   and (sync_date_next is null
        or sync_date_next < now())
 order by

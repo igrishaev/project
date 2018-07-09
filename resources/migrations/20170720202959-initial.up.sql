@@ -3,139 +3,126 @@ begin;
 drop table if exists users;
 create table users (
     id          serial primary key,
-    created_at  timestamp with time zone
-                not null default current_timestamp,
-    updated_at  timestamp with time zone null,
-    deleted     boolean not null default false,
+    created_at  timestamp with time zone not null default current_timestamp,
+    updated_at  timestamp with time zone,
 
     email       text not null,
-    name        text null,
-    source      text null,
-    source_id   text null,
-    source_url  text null,
-    locale      text null,
-    avatar_url  text null,
-    gender      text null,
+    name        text,
+    source      text,
+    source_id   text,
+    source_url  text,
+    locale      text,
+    avatar_url  text,
+    gender      text,
 
     sync_interval    integer not null default 3600,
-    sync_date_last   timestamp with time zone null,
-    sync_date_next   timestamp with time zone null,
+    sync_date_last   timestamp with time zone,
+    sync_date_next   timestamp with time zone,
     sync_count_total integer not null default 0,
 
-    auth_data   jsonb null,
+    auth_data   jsonb,
 
-    constraint  email_unique unique (email)
+    unique (email)
 );
 
 drop table if exists feeds;
 create table feeds (
     id          serial primary key,
-    created_at  timestamp with time zone
-                not null default current_timestamp,
-    updated_at  timestamp with time zone null,
-    deleted     boolean not null default false,
+    created_at  timestamp with time zone not null default current_timestamp,
+    updated_at  timestamp with time zone,
 
     url_source  text not null,
-    url_host    text null,
-    url_favicon text null,
-    url_image   text null,
+    url_host    text,
+    url_favicon text,
+    url_image   text,
 
-    language    text null,
+    language    text,
 
-    title       text null,
-    subtitle    text null,
+    title       text,
+    subtitle    text,
 
-    link        text null,
+    link        text,
 
-    upd_period  text null,
-    upd_freq    text null,
+    upd_period  text,
+    upd_freq    text,
 
-    date_updated_at   timestamp with time zone null,
+    date_updated_at timestamp with time zone,
 
-    http_status    integer null,
-    http_etag      text null,
-    http_modified  text null,
+    http_status    integer,
+    http_etag      text,
+    http_modified  text,
 
     parse_ok       boolean not null default true,
-    parse_err      text null,
+    parse_err      text,
 
     sync_interval    integer not null default 3600,
-    sync_date_last   timestamp with time zone null,
-    sync_date_next   timestamp with time zone null,
+    sync_date_last   timestamp with time zone,
+    sync_date_next   timestamp with time zone,
     sync_count_total integer not null default 0,
     sync_count_err   integer not null default 0,
-    sync_error_msg   text null,
+    sync_error_msg   text,
 
     entry_count_total integer not null default 0,
     sub_count_total   integer not null default 0,
 
-    constraint feeds_url_source_unique unique (url_source) -- todo index
+    unique (url_source)
 );
 
 
 drop table if exists entries;
 create table entries (
     id          serial primary key,
-    created_at  timestamp with time zone
-                not null default current_timestamp,
-    updated_at  timestamp with time zone null,
-    deleted     boolean not null default false,
+    created_at  timestamp with time zone not null default current_timestamp,
+    updated_at  timestamp with time zone,
 
-    feed_id     integer not null references feeds(id),
+    feed_id     integer references feeds(id),
 
     guid        text not null,
-    link        text null,
-    author      text null,
-    title       text null,
-    summary     text null,
+    link        text,
+    author      text,
+    title       text,
+    summary     text,
 
-    enclosure_url   text null,
-    enclosure_mime  text null,
+    enclosure_url   text,
+    enclosure_mime  text,
 
-    date_published_at   timestamp with time zone null,
-    date_updated_at     timestamp with time zone null,
+    date_published_at   timestamp with time zone,
+    date_updated_at     timestamp with time zone,
 
-    constraint entries_feed_guid_unique unique (feed_id, guid)
+    unique (feed_id, guid)
 );
 
 
 drop table if exists subs;
 create table subs (
     id          serial primary key,
-    created_at  timestamp with time zone
-                not null default current_timestamp,
-    updated_at  timestamp with time zone null,
-    deleted     boolean not null default false,
+    created_at  timestamp with time zone not null default current_timestamp,
+    updated_at  timestamp with time zone,
 
-    feed_id     integer not null references feeds(id),
-    user_id     integer not null references users(id),
+    feed_id     integer references feeds(id),
+    user_id     integer references users(id),
 
-    title       text null,
+    title       text,
 
     message_count_total integer not null default 0,
-    message_count_unread integer not null default 0
+    message_count_unread integer not null default 0,
+
+    unique (feed_id, user_id)
 );
-
-create unique index subs_feed_user_unique ON subs
-    (feed_id, user_id) where (not deleted);
-
 
 drop table if exists messages;
 create table messages (
     id          serial primary key,
-    created_at  timestamp with time zone
-                not null default current_timestamp,
-    updated_at  timestamp with time zone null,
-    deleted     boolean not null default false,
+    created_at  timestamp with time zone not null default current_timestamp,
+    updated_at  timestamp with time zone,
 
-    entry_id    integer not null references entries(id),
-    sub_id      integer not null references subs(id),
+    entry_id    integer references entries(id),
+    sub_id      integer references subs(id),
 
     is_read     boolean not null default false,
-    date_read   timestamp with time zone null
-);
+    date_read   timestamp with time zone,
 
-create unique index messages_sub_entry_unique ON messages
-    (sub_id, entry_id) where (not deleted);
+    unique (sub_id, entry_id)
+);
 
 commit;
