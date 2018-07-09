@@ -2,7 +2,7 @@
   (:require [project.env :refer [env]]
 
             [buddy.core.mac :as mac]
-            [buddy.core.codecs :as codecs]
+            [buddy.core.codecs :as codecs]))
 
 (def crypt-key (:crypt-key env))
 

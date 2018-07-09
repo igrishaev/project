@@ -1,12 +1,13 @@
 (ns project.db
-  (:require [clojure.java.jdbc :as jdbc]
+  (:require [project.env :refer [env]]
+
+            [clojure.java.jdbc :as jdbc]
             [clj-time.jdbc] ;; extends JDBC protocols
             [honeysql.core :as sql]
             [honeysql.format :as f :refer [format-clause]]
-            [cheshire.core :as json] ;; to json ns
+            [cheshire.core :as json] ;; todo to json ns
             [clojure.tools.logging :as log]
-            [migratus.core :as migratus]
-            [project.env :refer [env]])
+            [migratus.core :as migratus])
   (:refer-clojure :exclude [format])
   (:import org.postgresql.util.PGobject))
 

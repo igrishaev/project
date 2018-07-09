@@ -26,3 +26,6 @@ py-server:
 
 py-install:
 	pip install -r py/requirements.txt
+
+mail-stub:
+	mailhog
