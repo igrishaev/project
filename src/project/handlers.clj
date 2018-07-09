@@ -116,12 +116,12 @@
 
 (defn messages
   [params user & _]
-  (let [{:keys [sub_id]} params]
+  (let [{:keys [sub_id from_id]} params]
 
     (if-let [sub (models/get-sub-by-user-and-id
                   user sub_id)]
 
-      (let [msgs (models/get-messages sub)]
+      (let [msgs (models/get-messages sub from_id)]
         (ok msgs))
 
       (r/err-not-subscribed))))

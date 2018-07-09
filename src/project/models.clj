@@ -140,38 +140,33 @@
 ;; Messages
 ;;
 
-(defn get-messages
-  [sub]
-  (db/query
-   (db/format
-    {:select
-     [(db/raw "row_to_json(e) as entry")
-      (db/raw "row_to_json(m) as message")]
-     :from [[:entries :e] [:messages :m]]
-     :where [:and
-             [:= :m.entry_id :e.id]
-             [:= :m.sub_id (:id sub)]]
-     :limit 10
-     :order-by [[:m.id :desc]]})))
+(def messages-query
+  {:select
+   [(db/raw "row_to_json(e) as entry")
+    (db/raw "row_to_json(m) as message")]
+   :from [[:entries :e] [:messages :m]]
+   :where [:and
+           [:= :m.entry_id :e.id]]
+   :order-by [[:m.id :desc]]})
 
-#_
-(defn get-messages-by-sub
-  [sub_id]
+(defn get-messages
+  [sub & [from_id]]
   (db/query
    (db/format
-    {:select [:e.*]
-     :from [[:messages :m] [:entries :e]]
-     :where [:and
-             [:= :m.sub_id sub_id]
-             [:= :m.entry_id :e.id]
-             [:not :m.is_read]]
-     :order-by [[:e.id :desc]]
-     :limit 100})))
+    (cond-> messages-query
+
+      true
+      (update :where conj [:= :m.sub_id (:id sub)])
+
+      true
+      (assoc :limit 10)
+
+      from_id
+      (update :where conj [:< :m.id from_id])))))
 
 ;;
 ;; Other
 ;;
-
 
 
 (defn message

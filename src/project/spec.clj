@@ -32,6 +32,7 @@
 (s/def ::url ->url)
 (s/def ::feed_id foreign-key)
 (s/def ::sub_id foreign-key)
+(s/def ::from_id foreign-key)
 (s/def ::title not-empty-string)
 
 ;;
@@ -75,4 +76,4 @@
 ;;
 
 (s/def ::api.messages
-  (s/keys :req-un []))
+  (s/keys :opt-un [::from_id]))
