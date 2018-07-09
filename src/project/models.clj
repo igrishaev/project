@@ -46,6 +46,7 @@
 ;; Other
 ;;
 
+;; todo bump subs count
 (defn subscribe
   [user feed & [params]]
   (let [title (or (:title params)
@@ -59,6 +60,7 @@
        :feed_id (:id feed)
        :title title}))))
 
+;; todo dec subs count
 (defn unsubscribe
   [user_id sub_id]
   (db/execute!

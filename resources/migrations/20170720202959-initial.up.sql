@@ -67,6 +67,7 @@ create table feeds (
     sync_error_msg   text null,
 
     entry_count_total integer not null default 0,
+    sub_count_total   integer not null default 0,
 
     constraint feeds_url_source_unique unique (url_source) -- todo index
 );

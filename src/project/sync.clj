@@ -139,6 +139,50 @@
 
      }))
 
+(defn update-feed-entry-count
+  [feed_id]
+  (db/execute!
+   ["
+update feeds
+set
+  updated_at = now(),
+  entry_count_total = q.entry_count
+from (
+  select
+    e.feed_id as feed_id,
+    count(e.id) as entry_count
+  from entries e
+  where
+    e.feed_id = ?
+    and not e.deleted
+  group by e.feed_id
+) as q
+where
+  id = q.feed_id
+" feed_id]))
+
+(defn update-feed-sub-count
+  [feed_id]
+  (db/execute!
+   ["
+update feeds
+set
+  updated_at = now(),
+  sub_count_total = q.sub_count
+from (
+  select
+    s.feed_id as feed_id,
+    count(s.id) as sub_count
+  from subs s
+  where
+    s.feed_id = ?
+    and not s.deleted
+  group by s.feed_id
+) as q
+where
+  id = q.feed_id
+" feed_id]))
+
 (defn sync-feed
   [feed]
   (let [{feed-url :url_source feed-id :id} feed
@@ -162,11 +206,14 @@
 
 (defn sync-feed-safe
   [feed]
-  (let [{url :url_source id :id} feed
+  (let [{feed-id :id} feed
+        {url :url_source id :id} feed
         fields (transient {})]
 
     (try
       (sync-feed feed)
+      (update-feed-entry-count feed-id)
+      (update-feed-sub-count feed-id)
 
       (catch Throwable e
         (let [err-msg (e/exc-msg e)]
@@ -182,7 +229,9 @@
          fields
          :updated_at :%now
          :sync_date_last :%now
-         :sync_date_next (db/raw "now() + sync_interval * interval '1 second'")
+         :sync_date_next
+         (db/raw "now() + sync_interval * interval '1 second'")
+
          :sync_count_total (db/raw "sync_count_total + 1"))
 
         (let [fields (persistent! fields)]
@@ -192,13 +241,6 @@
   [url]
   (let [feed (models/get-or-create-feed url)]
     (sync-feed-safe feed)))
-
-(defn batch-import
-  []
-  (with-open [rdr (clojure.java.io/reader "rss.txt")]
-    (doseq [url (line-seq rdr)]
-      (println url)
-      (sync-feed-url url))))
 
 (defn sync-subs-messages
   [user_id]
@@ -301,8 +343,13 @@ limit 100
   [user]
   (sync-user (:id user)))
 
-(defn beat-feeds
+;;
+;; Local import
+;;
+
+(defn feed-import
   []
-  (let [feeds (get-feeds-to-sync)]
-    (doseq [feed feeds]
-      (sync-feed-safe feed))))
+  (with-open [rdr (clojure.java.io/reader "rss.txt")]
+    (doseq [url (line-seq rdr)]
+      (println url)
+      (sync-feed-url url))))

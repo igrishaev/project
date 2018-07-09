@@ -25,7 +25,6 @@
         (sync/sync-feed url)
         (ok feed)))))
 
-
 (defn subscribe
   [request]
   (db/with-tx
