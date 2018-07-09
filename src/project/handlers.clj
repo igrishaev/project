@@ -3,7 +3,7 @@
   (:require [project.models :as models]
             [project.db :as db]
             [project.sync :as sync]
-            [project.resp :refer [ok err]]))
+            [project.resp :refer [ok]]))
 
 ;;
 ;; API

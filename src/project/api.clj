@@ -30,7 +30,7 @@
 
             (if params*
               (let [data (handler params* user)]
-                (r/data->resp data))
+                (r/ok data))
 
               (r/err-spec spec params)))
 

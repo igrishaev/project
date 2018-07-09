@@ -2,6 +2,7 @@
   (:require [project.env :refer [env]]
             [project.models :as models]
             [project.spec :as spec]
+            [project.error :as e]
             [project.crypt :as crypt]
             [project.email :as email]
             [project.time :as time]
@@ -105,14 +106,14 @@
             url (url/get-url "/auth/email/back" data)
             context {:url url}]
 
-        (email/send email subject template context)
-        (r/resp {:ok true}))
+        (try
+          (email/send email subject template context)
+          (r/ok-message "Message sent") ;; better message
 
-      ;; TODO wrap error
-      2)
+          (catch Throwable e
+            (r/err 500 "Cannot send email" (e/exc-msg e)))))
 
-    )
-)
+      (r/err-spec spec params))))
 
 (defn email-back
   [request]
@@ -127,8 +128,6 @@
             (let [user (models/upsert-email-user {:email email})]
               (auth-resp-ok user session))
 
-            ;; TODO refactor messages
-
-            (auth-resp-err "The URL has expired, params: %s" params)))
-        (auth-resp-err "The URL signature doesn't match, params: %s" params))
-      (auth-resp-err "Wrong URL parameters, params: %s" params))))
+            (auth-resp-err "The login URL has expired.")))
+        (auth-resp-err "The login URL is malformed."))
+      (auth-resp-err "The login URL is malformed."))))
