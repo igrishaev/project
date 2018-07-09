@@ -2,6 +2,17 @@
   (:require
    [project.db :as db]))
 
+;;
+;; User
+;;
+
+(defn get-user-by-id
+  [id]
+  (first
+   (db/find-by-keys
+    :users {:id id :deleted false})))
+
+
 (defn subscribe
   [user feed & [params]]
   (let [title (or (:title params)

@@ -14,7 +14,7 @@
 
 
 (defn validate-env []
-  (let [spec :project.spec/env]
+  (let [spec :project.spec.env/env]
     (when-not (spec/valid? spec env)
       (let [out (spec/explain-str spec env)
             msg (format "Config error, spec: %s, data: %s"
@@ -28,8 +28,9 @@
 
 (defn init
   []
+  (load-env)
   (validate-env))
 
 ;; Main
 
-(load-env)
+(init)

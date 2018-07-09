@@ -1,5 +1,7 @@
 (ns project.spec
   (:require [project.error :as e]
+            project.spec.env
+
             [clojure.spec.alpha :as s]))
 
 ;;
@@ -16,26 +18,6 @@
 (def explain-str s/explain-str)
 
 (def valid? s/valid?)
-
-;;
-;; Env
-;;
-
-(s/def ::db-host string?)
-(s/def ::db-port int?)
-(s/def ::db-database string?)
-(s/def ::db-user string?)
-(s/def ::db-password string?)
-
-(s/def ::server-port int?)
-
-(s/def ::env (s/keys :req-un [::db-host
-                              ::db-port
-                              ::db-database
-                              ::db-user
-                              ::db-password
-
-                              ::server-port]))
 
 ;;
 ;; Api
@@ -72,13 +54,6 @@
      ~@body
      (catch Throwable e#
        invalid)))
-
-#_
-(defn url? [x]
-  (when (string? x)
-    (e/with-catch
-      (java.net.URL. x)
-      true)))
 
 #_
 (defn ->url [x]

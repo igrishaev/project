@@ -2,20 +2,8 @@
   "https://www.jsonrpc.org/specification"
   (:require [project.models :as models]
             [project.db :as db]
-            [project.sync :as sync]))
-
-;;
-;; Shortcuts
-;;
-
-(defn ok [data]
-  data)
-
-(defn err
-  [code text & [data]]
-  {:error-code code
-   :error-text text
-   :error-data data})
+            [project.sync :as sync]
+            [project.resp :refer [ok err]]))
 
 ;;
 ;; API

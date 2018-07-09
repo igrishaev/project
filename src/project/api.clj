@@ -2,48 +2,15 @@
   (:require [project.spec :as spec]
             [project.error :as e]
             [project.handlers :as h]
+            [project.resp :as r]
 
             [clojure.tools.logging :as log]))
+
+(declare actions)
 
 (defn kw->var
   [kw]
   (-> kw str (subs 1) symbol resolve))
-
-(defn guess-code
-  [data]
-  (case (:error-code data)
-    nil 200
-    (:wrong-params :input-params :bad-request) 400
-    :not-found 404
-    500))
-
-(defn data->resp
-  [data]
-  {:status (guess-code data)
-   :body data})
-
-(defn err-spec
-  [spec data]
-  (data->resp
-   (let [out (spec/explain-str spec data)]
-     (h/err :wrong-params
-            "Input data is incorrect"
-            out))))
-
-(defn err-server
-  [e]
-  (data->resp
-   (h/err :server-error
-          "Internal server error"
-          (e/exc-msg e))))
-
-(defn err-action
-  [action]
-  (data->resp
-   (h/err :not-found
-          (format "Action '%s' was not found" action))))
-
-(declare actions)
 
 (defn handler-unsafe
   [request]
@@ -63,13 +30,13 @@
 
             (if params*
               (let [data (handler params* user)]
-                (data->resp data))
+                (r/data->resp data))
 
-              (err-spec spec params)))
+              (r/err-spec spec params)))
 
-          (err-action action)))
+          (r/err-action action)))
 
-      (err-spec spec params))))
+      (r/err-spec spec params))))
 
 (defn handler
   [request]
@@ -77,7 +44,7 @@
     (handler-unsafe request)
     (catch Throwable e
       (log/error e)  ;; todo log better
-      (err-server e))))
+      (r/err-server e))))
 
 (def actions
   {:lookup {:handler :project.handlers/preview
