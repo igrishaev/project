@@ -1,5 +1,6 @@
 (ns project.app
   (:require [project.api :as api]
+            [project.env :refer [env]]
             [project.auth :as auth]
 
             [compojure.core :refer [context defroutes GET POST]]
@@ -38,14 +39,23 @@
 
   )
 
+(def opt-cookie
+  {:secure    (:cookie-secure    env)
+   :http-only (:cookie-http-only env)
+   :max-age   (:cookie-max-age   env)})
+
+(def opt-session
+  {:store (cookie-store {:key (:cookie-session-key env)})
+   :cookie-attrs opt-cookie
+   :cookie-name (:cookie-session-name env)})
+
 (def app
   (-> app-naked
 
       ;; tpl/wrap-context
-      ;; auth/wrap-user
-      ;; views/wrap-session-id
+      auth/wrap-user
 
-      ;; (wrap-session opt-session)
+      (wrap-session opt-session)
 
       wrap-keyword-params
       wrap-params
@@ -55,7 +65,6 @@
       ;;views/wrap-exception
 
       ;; (wrap-resource "public")
-
       ;; (wrap-webjars "/webjars")
 
       ))
