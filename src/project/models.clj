@@ -100,6 +100,7 @@
    (db/find-by-keys
     :feeds {:url_source url :deleted false})))
 
+;; todo fill host, favicon etc
 (defn create-feed
   [url]
   (first

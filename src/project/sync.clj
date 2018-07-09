@@ -202,18 +202,18 @@ where
         (when-not (empty? entries)
           (db/upsert-entry
            (for [e entries]
-             (assoc e :feed_id feed-id))))))))
+             (assoc e :feed_id feed-id))))
+
+        (update-feed-entry-count feed-id)
+        (update-feed-sub-count feed-id)))))
 
 (defn sync-feed-safe
   [feed]
-  (let [{feed-id :id} feed
-        {url :url_source id :id} feed
+  (let [{url :url_source id :id} feed
         fields (transient {})]
 
     (try
       (sync-feed feed)
-      (update-feed-entry-count feed-id)
-      (update-feed-sub-count feed-id)
 
       (catch Throwable e
         (let [err-msg (e/exc-msg e)]

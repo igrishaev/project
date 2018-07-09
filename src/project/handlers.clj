@@ -3,27 +3,65 @@
   (:require [project.models :as models]
             [project.db :as db]
             [project.sync :as sync]
-            [project.resp :refer [ok]]))
+            [project.resp :refer [ok] :as r]))
 
 ;;
 ;; API
 ;;
 
+(def feed-fields
+  [:id
+   :created_at
 
-(defn demo
-  [params & _]
-  (ok {:foo 42}))
+   :updated_at
 
+   :url_source
+   :url_host
+   :url_favicon
+   :url_image
+
+   :language
+
+   :title
+   :subtitle
+
+   :link
+
+   :date_updated_at
+
+   :sync_interval
+   :sync_date_last
+   :sync_date_next
+   :sync_count_total
+   :sync_count_err
+
+   :entry_count_total
+   :sub_count_total])
+
+(defn clean-feed
+  [feed]
+  (select-keys feed feed-fields))
+
+;; todo check if a URL points to a feed
+;; todo handle a case when it's not a feed
+;; entries are empty
+;; http >= 400
 
 (defn preview
   [params & _]
   (let [{:keys [url]} params
         feed (models/get-feed-by-url url)]
     (if feed
-      (ok feed)
-      (do
-        (sync/sync-feed url)
-        (ok feed)))))
+
+      (if (:deleted feed)
+        (r/err-feed-deleted)
+        (ok (clean-feed feed)))
+
+      (let [feed (models/create-feed url)
+            {feed-id :id} feed]
+        (sync/sync-feed-safe feed)
+        (let [feed (models/get-feed-by-id feed-id)]
+          (ok (clean-feed feed)))))))
 
 (defn subscribe
   [request]
@@ -35,7 +73,6 @@
           sub-id (-> resp first :id)
           sub (models/get-sub-by-id sub-id)]
       {:data sub})))
-
 
 (defn unsubscribe
   [request]

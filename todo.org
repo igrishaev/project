@@ -5,3 +5,4 @@
 - [ ] refactor db functions
 - [ ] import data from google reader
 - [ ] import data from feedly
+- [ ] todo fill host, favicon etc when creating a feed

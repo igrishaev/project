@@ -21,8 +21,13 @@
 
 (def auth-redirect-path "/")
 
+
+;; TODO
 (defn request->user
   [request]
+
+  (models/get-user-by-id 1)
+  #_
   (when-let [user-id (some-> request :session :user-id)]
     (models/get-user-by-id user-id)))
 

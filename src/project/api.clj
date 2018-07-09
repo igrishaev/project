@@ -50,8 +50,7 @@
       (r/err-server e))))
 
 (def actions
-  {:lookup {:handler :project.handlers/preview
-            :spec :project.spec/api.preview}
+  {:preview {:handler :project.handlers/preview
+             :spec :project.spec/api.preview}
 
-   :demo {:handler :project.handlers/demo
-          :spec :project.spec/api.demo}})
+   })
