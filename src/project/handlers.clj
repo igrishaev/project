@@ -128,16 +128,34 @@
 
 
 (defn mark-read
-  [request]
-  (let [{:keys [params user]} request
-        {:keys [msg-ids]} params]
-    (models/mark-read user msg-ids)
-    {:ok true}))
+  [params user & _]
+  (let [{:keys [sub_id message_id]} params
+        {user_id :id} user]
+
+    (db/with-tx
+
+      (if (models/sub-exists?
+           {:id sub_id :user_id user_id})
+
+        (do
+          (models/mark-read message_id sub_id)
+          (r/ok-empty))
+
+        (r/err-not-subscribed)))))
 
 
 (defn mark-unread
-  [request]
-  (let [{:keys [params user]} request
-        {:keys [msg-ids]} params]
-    (models/mark-unread user msg-ids)
-    {:ok true}))
+  [params user & _]
+  (let [{:keys [sub_id message_id]} params
+        {user_id :id} user]
+
+    (db/with-tx
+
+      (if (models/sub-exists?
+           {:id sub_id :user_id user_id})
+
+        (do
+          (models/mark-unread message_id sub_id)
+          (r/ok-empty))
+
+        (r/err-not-subscribed)))))

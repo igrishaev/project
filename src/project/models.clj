@@ -2,6 +2,20 @@
   (:require [project.db :as db]))
 
 ;;
+;; Common
+;;
+
+(defn model-exists?
+  [table params]
+  (first
+   (db/query
+    (db/format
+     {:select [:id]
+      :from [:subs]
+      :where (cons :and (for [[k v] params] [:= k v]))
+      :limit 1}))))
+
+;;
 ;; User
 ;;
 
@@ -50,6 +64,8 @@
 ;;
 
 ;; todo bump subs count
+
+(def sub-exists? (partial model-exists? :subs))
 
 (defn get-sub-by-id
   [id]
@@ -146,7 +162,8 @@
     (db/raw "row_to_json(m) as message")]
    :from [[:entries :e] [:messages :m]]
    :where [:and
-           [:= :m.entry_id :e.id]]
+           [:= :m.entry_id :e.id]
+           [:not :m.is_read]]
    :order-by [[:m.id :desc]]})
 
 (defn get-messages
@@ -163,6 +180,36 @@
 
       from_id
       (update :where conj [:< :m.id from_id])))))
+
+;; todo bump sub read counter
+;; todo make batch?
+
+(defn mark-read
+  [message_id sub_id]
+  (db/execute!
+   (db/format
+    {:update :messages
+     :set {:is_read true
+           :date_read :%now
+           :updated_at :%now}
+     :where [:and
+             [:= :id message_id]
+             [:= :sub_id sub_id]]})))
+
+;; todo bump sub read counter
+;; todo make batch?
+
+(defn mark-unread
+  [message_id sub_id]
+  (db/execute!
+   (db/format
+    {:update :messages
+     :set {:is_read false
+           :date_read nil
+           :updated_at :%now}
+     :where [:and
+             [:= :id message_id]
+             [:= :sub_id sub_id]]})))
 
 ;;
 ;; Other
@@ -214,39 +261,3 @@
     (if-let [feed (get-feed-by-url url)]
       feed
       (create-feed url))))
-
-
-(defn mark-read
-  [user msg-ids]
-  (db/with-tx
-
-    (db/execute!
-     (db/format
-      {:update :messages
-       :set {:is_read true
-             :date_read :%now
-             :updated_at :%now}
-       :where [:and
-               [:= :user_id (:id user)]
-               [:in :id msg-ids]]}))
-
-;; todo update unread count
-
-
-
-    ))
-
-(defn mark-unread
-  [user msg-ids]
-
-  ;; todo update unread count
-
-  (db/execute!
-   (db/format
-    {:update :messages
-     :set {:is_read true
-           :date_read :nil
-           :updated_at :%now}
-     :where [:and
-             [:= :user_id (:id user)]
-             [:in :id msg-ids]]})))

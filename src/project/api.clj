@@ -50,6 +50,7 @@
       (r/err-server e))))
 
 (def actions
+
   {:preview {:handler :project.handlers/preview
              :spec :project.spec/api.preview}
 
@@ -65,5 +66,9 @@
    :messages {:handler :project.handlers/messages
               :spec :project.spec/api.messages}
 
+   :mark-read {:handler :project.handlers/mark-read
+               :spec :project.spec/api.mark-read}
 
-})
+   :mark-unread {:handler :project.handlers/mark-unread
+                 :spec :project.spec/api.mark-unread}
+   })

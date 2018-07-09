@@ -32,6 +32,7 @@
 (s/def ::url ->url)
 (s/def ::feed_id foreign-key)
 (s/def ::sub_id foreign-key)
+(s/def ::message_id foreign-key)
 (s/def ::from_id foreign-key)
 (s/def ::title not-empty-string)
 
@@ -77,3 +78,19 @@
 
 (s/def ::api.messages
   (s/keys :opt-un [::from_id]))
+
+;;
+;; Mark read
+;;
+
+(s/def ::api.mark-read
+  (s/keys :req-un [::sub_id
+                   ::message_id]))
+
+;;
+;; Mark unread
+;;
+
+(s/def ::api.mark-unread
+  (s/keys :req-un [::sub_id
+                   ::message_id]))
