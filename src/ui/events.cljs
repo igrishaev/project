@@ -9,6 +9,15 @@
    [ajax.core :as ajax]))
 
 ;;
+;; Navigation
+;;
+
+(rf/reg-event-db
+ ::page
+ (fn [db [_ page params]]
+   (assoc db :page {:page page :params params})))
+
+;;
 ;; Api base
 ;;
 
@@ -114,7 +123,7 @@
 
 (rf/reg-event-db
  ::api.messages.ok
- (fn [db [_ {:keys [sub_id] :as resp}]]
+ (fn [db [_ {:keys [messages sub_id] :as resp}]]
    (assoc-in db [:messages sub_id] resp)))
 
 ;;

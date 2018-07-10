@@ -1,0 +1,22 @@
+#app-left-sidebar {
+    width: 350px;
+}
+
+#app-content {
+    margin-left: 350px;
+}
+
+.app-message img {
+    max-width: 100%;
+}
+
+.app-message-summary {
+    font-size: 12pt            !important;
+    font-style: normal;
+}
+
+.app-message-summary blockquote {
+    background: none;
+    padding: 10px;
+    font-style: italic;
+}

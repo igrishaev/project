@@ -29,6 +29,8 @@
                   handler (kw->var handler)
                   params* (spec/conform spec params)]
 
+              (prn params*)
+
               (if params*
                 (handler params* user)
 
