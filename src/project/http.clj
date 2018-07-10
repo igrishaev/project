@@ -1,29 +1,44 @@
 (ns project.http
   (:require [clj-http.client :as client]
+            #_
             [project.conf :refer [conf]]
             [clj-http.conn-mgr
              :refer [make-reusable-conn-manager
                      shutdown-manager]]
-            [mount.core :as mount])
+
+            #_
+            [mount.core :as mount]
+
+            )
   (:refer-clojure :exclude [get]))
 
 (declare CM)
 
 (defn- on-start []
-  (let [params {:timeout (:http-timeout conf)
-                :threads (:http-threads conf)}]
+  (let [params {}
+
+        #_{:timeout (:http-timeout conf)
+           :threads (:http-threads conf)}]
+
     (make-reusable-conn-manager params)))
 
 (defn- on-stop []
   (shutdown-manager CM))
 
+;; todo refactor everything
+
+(defonce CM nil)
+
+#_
 (mount/defstate CM
   :start (on-start)
   :stop (on-stop))
 
+#_
 (defn start! []
   (mount/start #'CM))
 
+#_
 (defn stop! []
   (mount/stop #'CM))
 
@@ -36,6 +51,7 @@
               :connection-manager CM
               :throw-exceptions true
               :url url)
+       #_
        (assoc-in [:headers "User-Agent"]
                  (:http-user-agent conf)))))
 

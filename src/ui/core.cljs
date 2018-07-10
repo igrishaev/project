@@ -1,4 +1,4 @@
-(ns project.ui.core
+(ns ui.core
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
 

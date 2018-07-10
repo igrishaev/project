@@ -82,7 +82,7 @@
   {:builds [{:id "dev"
              :source-paths ["src"]
              :figwheel true
-             :compiler {:main project.ui.core
+             :compiler {:main ui.core
                         :preloads [re-frisk.preload]
                         :optimizations :none
                         :asset-path "/ui/main-dev"
@@ -92,7 +92,7 @@
 
             {:id "prod"
              :source-paths ["src"]
-             :compiler {:main project.ui.core
+             :compiler {:main ui.core
                         :pretty-print false
                         :optimizations :advanced
                         :infer-externs true
