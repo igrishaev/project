@@ -122,14 +122,18 @@
                   user sub_id)]
 
       (let [msgs (models/get-messages sub from_id)]
-        (ok msgs))
+        (ok {:messages msgs
+             :sub_id sub_id
+             :from_id from_id}))
 
       (r/err-not-subscribed))))
 
 
+;; todo re-calc unread count
+
 (defn mark-read
   [params user & _]
-  (let [{:keys [sub_id message_id]} params
+  (let [{:keys [sub_id message_id is_read]} params
         {user_id :id} user]
 
     (db/with-tx
@@ -138,24 +142,7 @@
            {:id sub_id :user_id user_id})
 
         (do
-          (models/mark-read message_id sub_id)
-          (r/ok-empty))
-
-        (r/err-not-subscribed)))))
-
-
-(defn mark-unread
-  [params user & _]
-  (let [{:keys [sub_id message_id]} params
-        {user_id :id} user]
-
-    (db/with-tx
-
-      (if (models/sub-exists?
-           {:id sub_id :user_id user_id})
-
-        (do
-          (models/mark-unread message_id sub_id)
+          (models/mark-read message_id sub_id is_read)
           (r/ok-empty))
 
         (r/err-not-subscribed)))))

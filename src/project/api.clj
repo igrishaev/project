@@ -30,8 +30,7 @@
                   params* (spec/conform spec params)]
 
               (if params*
-                (let [data (handler params* user)]
-                  (r/ok data))
+                (handler params* user)
 
                 (r/err-spec spec params)))
 
@@ -67,8 +66,4 @@
               :spec :project.spec/api.messages}
 
    :mark-read {:handler :project.handlers/mark-read
-               :spec :project.spec/api.mark-read}
-
-   :mark-unread {:handler :project.handlers/mark-unread
-                 :spec :project.spec/api.mark-unread}
-   })
+               :spec :project.spec/api.mark-read}})

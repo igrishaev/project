@@ -1,5 +1,7 @@
 (ns ui.core
-  (:require [reagent.core :as r]
+  (:require [ui.views :as views]
+
+   [reagent.core :as r]
             [re-frame.core :as rf]
 
             ;; [qrfd.events]
@@ -14,11 +16,17 @@
 (defn get-by-id [id]
   (.getElementById js/document id))
 
-#_
+
 (defn init-mount []
-  (r/render [views/view-top-navbar] (get-by-id "view-top-navbar"))
-  (r/render [modal/view-modal] (get-by-id "view-modal"))
-  (r/render [views/view-content] (get-by-id "app")))
+  ;; (r/render [views/view-top-navbar] (get-by-id "view-top-navbar"))
+  ;; (r/render [modal/view-modal] (get-by-id "view-modal"))
+
+  #_
+  (r/render [views/view-content] (get-by-id "app"))
+
+  (r/render [views/foobar] (get-by-id "app"))
+
+  )
 
 #_
 (defn init-db
@@ -32,11 +40,13 @@
 
 
 (defn ^:export init []
+  #_
   (js/alert "test2")
+
   ;; (init-db)
   ;; (routes/init)
   ;; (charts/init)
-  ;; (init-mount)
+  (init-mount)
   ;; (init-urls)
   )
 

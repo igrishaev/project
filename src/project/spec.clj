@@ -33,8 +33,9 @@
 (s/def ::feed_id foreign-key)
 (s/def ::sub_id foreign-key)
 (s/def ::message_id foreign-key)
-(s/def ::from_id foreign-key)
+(s/def ::from_id (s/nilable foreign-key))
 (s/def ::title not-empty-string)
+(s/def ::is_read boolean?)
 
 ;;
 ;; Api
@@ -85,12 +86,5 @@
 
 (s/def ::api.mark-read
   (s/keys :req-un [::sub_id
-                   ::message_id]))
-
-;;
-;; Mark unread
-;;
-
-(s/def ::api.mark-unread
-  (s/keys :req-un [::sub_id
-                   ::message_id]))
+                   ::message_id
+                   ::is_read]))

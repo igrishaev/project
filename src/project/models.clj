@@ -185,31 +185,17 @@
 ;; todo make batch?
 
 (defn mark-read
-  [message_id sub_id]
+  [message_id sub_id is_read]
   (db/execute!
    (db/format
     {:update :messages
-     :set {:is_read true
-           :date_read :%now
+     :set {:is_read is_read
+           :date_read (when is_read :%now)
            :updated_at :%now}
      :where [:and
              [:= :id message_id]
              [:= :sub_id sub_id]]})))
 
-;; todo bump sub read counter
-;; todo make batch?
-
-(defn mark-unread
-  [message_id sub_id]
-  (db/execute!
-   (db/format
-    {:update :messages
-     :set {:is_read false
-           :date_read nil
-           :updated_at :%now}
-     :where [:and
-             [:= :id message_id]
-             [:= :sub_id sub_id]]})))
 
 ;;
 ;; Other
