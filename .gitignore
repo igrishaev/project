@@ -14,4 +14,5 @@ profiles.clj
 config.edn
 *.pyc
 figwheel_server.log
+resources/public/assets/
 resources/public/ui/
