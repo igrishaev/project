@@ -1,12 +1,13 @@
 (ns ui.views
-  (:require [ui.events]
-            [ui.subs]
-            [re-frame.core :as rf]
+  (:require ui.events
+            ui.subs
+            [ui.url :as url]
 
-            )
+            [clojure.string :as str]
+            [re-frame.core :as rf]))
 
-  )
 
+;; todo move that
 
 (defn view-sync-button
   []
@@ -15,7 +16,20 @@
     #(rf/dispatch [:ui.events/api.subs])}
    "Sync"])
 
-;; todo rename
+(def clear-str (comp not-empty str/trim))
+
+(defn get-feed-title
+  [feed sub]
+  (or (some-> sub :title clear-str)
+      (some-> feed :title clear-str)
+      (some-> feed :subtitle clear-str)
+      (-> feed :url_source url/get-short-url)))
+
+(defn get-fav-url
+  [feed]
+  (let [{:keys [url_favicon url_source]} feed]
+    (or url_favicon
+        (url/get-fav-url url_source))))
 
 (defn left-sidebar
   []
@@ -49,14 +63,9 @@
              [:li [:a {:href (str "#/subs/" sub-id)}
 
                    [:img {:style {:margin-right :10px}
-                          :src "https://www.google.com/s2/favicons?domain=varlamov.ru&alt=feed"}]
+                          :src (get-fav-url feed)}]
 
-                   (or (:title sub)
-                       (:title feed)
-                       (:subtitle feed)
-                       (:url_source feed))
-
-                   ]]
+                   (get-feed-title feed sub)]]
 
 
              )
@@ -198,6 +207,9 @@
 
 (defn view-content
   []
+
+  (rf/dispatch [:ui.events/api.subs])
+
   (let [page @(rf/subscribe [:ui.subs/page])
         {:keys [page params]} page]
     (case page

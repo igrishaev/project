@@ -6,3 +6,4 @@
 - [ ] import data from google reader
 - [ ] import data from feedly
 - [ ] todo fill host, favicon etc when creating a feed
+- [ ] left sb, feeds list. mark the current feed

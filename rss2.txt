@@ -1,0 +1,3 @@
+https://meduza.io/rss/all
+https://habr.com/rss/best/
+https://varlamov.ru/data/rss

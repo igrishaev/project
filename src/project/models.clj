@@ -1,5 +1,6 @@
 (ns project.models
-  (:require [project.db :as db]))
+  (:require [project.db :as db]
+            [project.url :as url]))
 
 ;;
 ;; Common
@@ -156,6 +157,14 @@
 ;; Messages
 ;;
 
+(defn message
+  [user entry & [params]]
+  (db/upsert-message
+     (merge
+      params
+      {:user_id (:id user)
+       :entry_id (:id entry)})))
+
 (def messages-query
   {:select
    [(db/raw "row_to_json(e) as entry")
@@ -196,19 +205,9 @@
              [:= :id message_id]
              [:= :sub_id sub_id]]})))
 
-
 ;;
-;; Other
+;; Feed
 ;;
-
-
-(defn message
-  [user entry & [params]]
-  (db/upsert-message
-     (merge
-      params
-      {:user_id (:id user)
-       :entry_id (:id entry)})))
 
 (defn update-feed
   [id params]
@@ -230,16 +229,19 @@
    (db/find-by-keys
     :feeds {:url_source url})))
 
-;; todo fill host, favicon etc
-
 (defn create-feed
   [url]
-  (first
-   (db/query
-    (db/format
-     {:insert-into :feeds
-      :values [{:url_source url}]
-      :returning [:*]}))))
+  (let [url_host (url/get-host url)
+        url_favicon (url/get-fav-url url)
+        params {:url_source url
+                :url_host url_host
+                :url_favicon url_favicon}]
+    (first
+     (db/query
+      (db/format
+       {:insert-into :feeds
+        :values [params]
+        :returning [:*]})))))
 
 (defn get-or-create-feed
   [url]
@@ -247,3 +249,7 @@
     (if-let [feed (get-feed-by-url url)]
       feed
       (create-feed url))))
+
+;;
+;; Other
+;;

@@ -7,18 +7,7 @@
             [project.util :as u]
 
             [clojure.tools.logging :as log]
-            [medley.core :refer [distinct-by]])
-
-  (:import java.net.URL))
-
-(defn get-host
-  [url]
-  (-> url URL. .getHost))
-
-(defn get-google-favicon
-  [url]
-  (format "https://www.google.com/s2/favicons?domain=%s&alt=feed"
-          (get-host url)))
+            [medley.core :refer [distinct-by]]))
 
 (defn map-pred
   [params]
@@ -38,7 +27,7 @@
     (not-empty (clojure.string/trim val))))
 
 
-(defn get-entry-id
+(defn get-guid
   [entry]
   (let [{:keys [id
                 link
@@ -81,12 +70,7 @@
 
         ]
 
-    {;; :url_source url
-     ;; :url_host (get-host url)        ;; todo
-     ;; :url_favicon (get-google-favicon url)
-
-     :url_image image_href
-
+    {:url_image image_href
      :language language
 
      :title title
@@ -125,7 +109,7 @@
 
         ]
 
-    {:guid (get-entry-id entry)
+    {:guid (get-guid entry)
      :link link
      :author author
      :title title

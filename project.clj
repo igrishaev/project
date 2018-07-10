@@ -49,7 +49,7 @@
                  [day8.re-frame/http-fx "0.1.6" :exclusions [cheshire]]
                  [cljs-ajax "0.7.3" :exclusions [cheshire]]
                  [com.andrewmcveigh/cljs-time "0.5.2"]
-                 ;; [com.cemerick/url "0.1.1"]
+                 [com.cemerick/url "0.1.1"]
                  [secretary "1.2.3"]
 
                  ;; [org.webjars/jquery "3.3.1-1"]
