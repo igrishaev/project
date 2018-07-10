@@ -6,8 +6,13 @@
     margin-left: 350px;
 }
 
-.app-message img {
+.app-message-summary img {
     max-width: 100%;
+}
+
+
+.app-message-summary img[align="left"] {
+    margin: 0 15px 0 0;
 }
 
 .app-message-summary {
@@ -17,6 +22,12 @@
 
 .app-message-summary blockquote {
     background: none;
-    padding: 10px;
+    padding: 35px;
     font-style: italic;
+}
+
+.app-message-summary br {
+    margin-bottom: 10px;
+    display: block;
+    content: "";
 }

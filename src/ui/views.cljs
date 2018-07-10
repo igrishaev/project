@@ -86,7 +86,7 @@
       [:span.card-subtitle "Card subtitle description"]]
 
      [:div.card-body
-      [:div.app-message-content
+      [:div.app-message-summary
        {:dangerouslySetInnerHTML {:__html (:summary entry)}}]
 
       ;;btn.btn-primary
