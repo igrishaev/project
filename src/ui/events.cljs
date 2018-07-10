@@ -28,6 +28,7 @@
  (fn [_ [& args]]
    (js/console.log args #_(clj->js data))
 
+   nil
    #_
    {:dispatch-n
     [[::notification
