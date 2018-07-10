@@ -8,16 +8,21 @@
 
 .app-message-summary img {
     max-width: 100%;
+    display: block;
+    margin-bottom: 15px;
 }
-
 
 .app-message-summary img[align="left"] {
     margin: 0 15px 0 0;
 }
 
-.app-message-summary {
-    font-size: 12pt            !important;
+.app-message-summary,
+.app-message-summary p
+{
+    font-size: 12pt;
     font-style: normal;
+    line-height: normal;
+    font-weight: normal;
 }
 
 .app-message-summary blockquote {

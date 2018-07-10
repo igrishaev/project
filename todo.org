@@ -5,5 +5,14 @@
 - [ ] refactor db functions
 - [ ] import data from google reader
 - [ ] import data from feedly
-- [ ] todo fill host, favicon etc when creating a feed
+- [X] todo fill host, favicon etc when creating a feed
 - [ ] left sb, feeds list. mark the current feed
+- [ ] shot enclosure node (img, video, etc)
+
+- [ ] place a link for a message
+- [ ] add date and author for a message
+- [ ] number of unreads in sb
+- [ ] fix left db view so it scrolls
+- [ ] fix long urls in the left sb
+
+- [ ] preview large images in popup

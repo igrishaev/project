@@ -56,8 +56,10 @@
           [:a {:href "#"} [:i.icon.mdi.mdi-face] [:span "Feeds"]]
           [:ul.sub-menu
 
+
+
            (for [{:keys [feed sub]} subs
-                 :let [{sub-id :id} sub]]
+                 :let [{sub-id :id :keys [message_count_unread]} sub]]
 
              ^{:key sub-id}
              [:li [:a {:href (str "#/subs/" sub-id)}
@@ -65,11 +67,13 @@
                    [:img {:style {:margin-right :10px}
                           :src (get-fav-url feed)}]
 
-                   (get-feed-title feed sub)]]
+                   (get-feed-title feed sub)
 
+                   (when (pos? message_count_unread)
+                     [:span.badge.float-right
+                      message_count_unread])
 
-             )
-
+                   ]])
 
            #_
            [:li
