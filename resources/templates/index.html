@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="view-modal"></div>
+<div id="app"></div>
+{% endblock %}
+
+{% block scritps %}
+
+<!-- <script type="text/javascript"> -->
+<!--     var user = {{ request.user|json|safe }}; -->
+<!--     var google_api_key = "{{ env.google-api-key }}"; -->
+<!--     var server_schema = "{{ env.server-schema }}"; -->
+<!--     var server_domain = "{{ env.server-domain }}"; -->
+<!-- </script> -->
+
+<!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
+
+<script src="/ui/main.js"></script>
+
+{% endblock %}

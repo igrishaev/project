@@ -2,12 +2,14 @@
   (:require [project.api :as api]
             [project.env :refer [env]]
             [project.auth :as auth]
+            [project.views :as views]
 
             [compojure.core :refer [context defroutes GET POST]]
 
             ;; [ring.middleware.webjars :refer [wrap-webjars]]
 
             [compojure.route :as route]
+            ;; [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.resource :refer [wrap-resource]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.cookie :refer [cookie-store]]
@@ -19,6 +21,8 @@
             ))
 
 (defroutes app-naked
+
+  (GET "/" request (views/view-index request))
 
   (POST "/api" request (api/handler request))
 
@@ -37,7 +41,9 @@
     (GET "/init" request (auth/email-init request))
     (GET "/back" request (auth/email-back request))))
 
-  )
+  ;; todo better 404
+
+  (route/not-found ""))
 
 (def opt-cookie
   {:secure    (:cookie-secure    env)
@@ -64,7 +70,7 @@
 
       ;;views/wrap-exception
 
-      ;; (wrap-resource "public")
+      (wrap-resource "public")
       ;; (wrap-webjars "/webjars")
 
       ))

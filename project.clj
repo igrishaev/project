@@ -4,7 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :plugins [[migratus-lein "0.5.0"]]
+  :plugins [[migratus-lein "0.5.7"]
+            [lein-figwheel "0.5.15"]
+            [lein-cljsbuild "1.1.7"]]
 
   :dependencies [[org.clojure/clojure "1.9.0"]
 
@@ -50,16 +52,13 @@
                  ;; [com.cemerick/url "0.1.1"]
                  [secretary "1.2.3"]
 
+                 ;; [org.webjars/jquery "3.3.1-1"]
+                 ;; [org.webjars/bootstrap "4.1.0"]
                  ]
 
   :main project.core
   :uberjar-name "project.jar"
 
-  :resource-paths ["resources"]
-
-  :profiles {:dev {:resource-paths ["env/dev/resources"]}
-             :test {:resource-paths ["env/dev/resources"
-                                     "env/test/resources"]}}
   :migratus {:store :database
              :db ~(let [env (-> "config.edn" slurp read-string)]
                     {:dbtype   "postgresql"
@@ -68,4 +67,35 @@
                      :dbname   (:db-database env)
                      :user     (:db-user env)
                      :password (:db-password env)})}
-)
+
+  :resource-paths ["resources"]
+
+  :profiles {:uberjar {:aot :all :omit-source true}
+
+             :dev {:resource-paths ["profiles/dev/resources"]
+                   :dependencies [[ring/ring-mock "0.3.2" :exclusions [cheshire]]
+                                  [re-frisk "0.5.3" :exclusions [org.clojure/tools.reader]]]}
+
+             :test {:resource-paths ["profiles/test/resources"]}}
+
+  :cljsbuild
+  {:builds [{:id "dev"
+             :source-paths ["src"]
+             :figwheel true
+             :compiler {:main project.ui.core
+                        :preloads [re-frisk.preload]
+                        :optimizations :none
+                        :asset-path "/ui/main-dev"
+                        :output-to "resources/public/ui/main.js"
+                        :output-dir "resources/public/ui/main-dev"
+                        :pretty-print true}}
+
+            {:id "prod"
+             :source-paths ["src"]
+             :compiler {:main project.ui.core
+                        :pretty-print false
+                        :optimizations :advanced
+                        :infer-externs true
+                        :asset-path "/ui/main-prod"
+                        :output-to "resources/public/ui/main.js"
+                        :output-dir "resources/public/ui/main-prod"}}]})

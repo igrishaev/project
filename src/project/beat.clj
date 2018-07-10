@@ -46,18 +46,20 @@
 (defn status []
   (not-empty state))
 
-(defn start []
+(defn alter-state
+  [val]
   (alter-var-root
    #'state
-   (fn [& args]
-     [(task-users)
-      (task-feeds)])))
+   (constantly val)))
+
+(defn start []
+  (alter-var-root
+   (alter-state
+    [(task-users)
+     (task-feeds)])))
 
 (defn stop []
-  (when beat
+  (when status
     (doseq [f state]
       (cancel f))
-    (alter-var-root
-     #'state
-     (fn [& args]
-       nil))))
+    (alter-state nil)))
