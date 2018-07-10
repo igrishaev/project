@@ -56,8 +56,6 @@
           [:a {:href "#"} [:i.icon.mdi.mdi-face] [:span "Feeds"]]
           [:ul.sub-menu
 
-
-
            (for [{:keys [feed sub]} subs
                  :let [{sub-id :id :keys [message_count_unread]} sub]]
 
@@ -93,9 +91,16 @@
   [:div.row
    [:div.col-12.col-lg-9.offset-lg-1
     [:div.card.app-message
-     [:div.card-header
+     [:div.card-header.card-header-divider
 
-      [:span.title (:title entry)]
+      (if-let [link (:link entry)]
+        [:a.title
+         {:href link :target :_blank}
+         (:title entry)]
+
+        [:span.title
+         (:title entry)])
+
       [:span.card-subtitle "Card subtitle description"]]
 
      [:div.card-body
@@ -106,8 +111,9 @@
 ]
 
      [:div.card-footer.card-footer-contra__.text-center__
-      [:a.card-link {:href (:link entry)} "Visit the page"]
-      ]
+      [:a.card-link {:href (:link entry)}
+       "Visit the page "
+       [:span {:dangerouslySetInnerHTML {:__html "&rarr;"}}]]]
 
 
 ]]]

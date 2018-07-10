@@ -55,6 +55,8 @@ create table feeds (
     parse_ok       boolean not null default true,
     parse_err      text,
 
+    last_entry_count  integer not null default 0,
+
     sync_interval    integer not null default 3600,
     sync_date_last   timestamp with time zone,
     sync_date_next   timestamp with time zone,

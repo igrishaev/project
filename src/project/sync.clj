@@ -83,6 +83,8 @@
 
      :date_updated_at (parse-iso-now updated_parsed)
 
+     :last_entry_count (count entries)
+
      :http_status status
      :http_etag etag
      :http_modified last-modified
