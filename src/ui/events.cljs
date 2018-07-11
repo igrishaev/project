@@ -57,10 +57,11 @@
                {:url url}
                ::api.preview.ok]}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::api.preview.ok
- (fn [db [_ feed]]
-   (update-in db [:preview] feed)))
+ (fn [{db :db} [_ feed]]
+   {:db (assoc-in db [:preview] feed)
+    :dispatch [::page :preview]}))
 
 ;;
 ;; Subscribe
