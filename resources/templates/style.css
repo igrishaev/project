@@ -36,3 +36,7 @@
     display: block;
     content: "";
 }
+
+.be-top-header .be-right-navbar {
+    width: calc(100% - 350px);
+}
