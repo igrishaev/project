@@ -1,5 +1,5 @@
 (ns ui.url
-  (:require [ui.util :as util :refer [format]]
+  (:require [ui.util :as util :refer [format clear-str]]
 
             [cemerick.url]
             [clojure.string :as str]))
@@ -38,6 +38,13 @@
 (defn get-short-url [url]
   (let [{:keys [host path]} (cemerick.url/url url)]
     (str host path)))
+
+
+(defn valid-url?
+  [url]
+  (let [{:keys [protocol host]} (cemerick.url/url url)]
+    (and (clear-str protocol)
+         (clear-str host))))
 
 ;; (defn qr-url [hash]
 ;;   (format "/%s/qr" hash))

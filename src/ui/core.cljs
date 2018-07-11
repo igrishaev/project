@@ -27,6 +27,8 @@
 
   (r/render [views/view-content] (el-by-id "app-content"))
 
+  (r/render [views/view-search] (el-by-id "app-search-container"))
+
   (r/render [views/left-sidebar] (el-by-id "app-left-sidebar"))
 
 

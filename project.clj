@@ -51,6 +51,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]
                  [com.cemerick/url "0.1.1"]
                  [secretary "1.2.3"]
+                 [reagent-forms "0.5.42"]
 
                  ;; [org.webjars/jquery "3.3.1-1"]
                  ;; [org.webjars/bootstrap "4.1.0"]

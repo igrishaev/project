@@ -18,3 +18,4 @@
 - [ ] show feed header in message view
 - [ ] for an entry's title, search for a title_detail text/plain
 - [ ] preserve youtube links somehow
+- [ ] ui search: consider scheme

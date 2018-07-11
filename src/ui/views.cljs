@@ -2,8 +2,12 @@
   (:require ui.events
             ui.subs
             [ui.url :as url]
+            [ui.util :refer [clear-str]]
 
             [clojure.string :as str]
+
+            [reagent.core :as r]
+            [reagent-forms.core :refer [bind-fields]]
             [re-frame.core :as rf]))
 
 
@@ -16,7 +20,6 @@
     #(rf/dispatch [:ui.events/api.subs])}
    "Sync"])
 
-(def clear-str (comp not-empty str/trim))
 
 (defn get-feed-title
   [feed sub]
@@ -245,7 +248,35 @@
 
   )
 
+(def form-search
+  [:input.form-control.search-input
+   {:field :text
+    :id :search
+    :validator
+    (fn [{:keys [search]}]
+      (when (and search (clear-str search))
+        (when-not (url/valid-url? search)
+          ["is-invalid"])))
+    :placeholder "Input a URL here" :name "search" :type "text"}])
 
+(defn view-search
+  []
+  (let [doc (r/atom {})
+        handler (fn [e]
+                  (.preventDefault e)
+                  (let [{:keys [search]} @doc]
+                    (rf/dispatch [:ui.events/api.preview search])))]
+
+    (fn []
+      [:form
+       {:on-submit handler}
+       [:div.input-group.input-group-sm
+        [bind-fields form-search doc]
+        [:span.input-group-btn
+         [:button.btn.btn-primary
+          {:type "button"
+           :on-click handler}
+          "Preview"]]]])))
 
 (defn view-content
   []

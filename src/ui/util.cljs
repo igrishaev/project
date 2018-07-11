@@ -6,6 +6,8 @@
 
             [clojure.string :as str]))
 
+(def clear-str (comp not-empty str/trim))
+
 (def format gstring/format)
 
 (defn uuid []
