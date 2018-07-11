@@ -132,25 +132,91 @@
 
      [:div.card-body
       [:div {:dangerouslySetInnerHTML {:__html (:summary entry)}}]]]]]
-
   )
 
-(defn fooo
-  []
-  [:div.be-aside-header
-   [:div.row
-    [:div.col-lg-6
-     [:div.be-aside-header-title
-      "Best Prices for You "
-      [:span.new-messages "(2 new sales)"]]]
-    [:div.col-lg-6
-     [:div.be-aside-header-search
-      [:div.input-group.input-search.input-group-sm
-       [:input.form-control {:placeholder "Search", :type "text"}]
-       [:span.input-group-btn
-        [:button.btn.btn-secondary
-         {:type "button"}
-         [:i.icon.mdi.mdi-search]]]]]]]])
+(defn feed-header
+  [feed sub]
+
+  [:div {:class "page-head"}
+   [:h2 {:class "page-head-title"}
+    (get-feed-title feed sub)]
+
+   (when-let [subtitle (:subtitle feed)]
+     [:p.display-description
+      {:style {:margin-bottom 0}}
+      subtitle])
+
+   [:div {:class "mt-4 mb-2"}
+    [:div {:class "btn-toolbar"}
+
+     [:div.btn-group.btn-space
+      [:a.btn.btn-secondary.dropdown-toggle
+       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
+       "Order "
+       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
+
+      [:div {:class "dropdown-menu" :role "menu" :x-placement "bottom-start"}
+       [:a {:class "dropdown-item" :href "#"} "Newest"]
+       [:a {:class "dropdown-item" :href "#"} "Oldest"]]]
+
+     [:div.btn-group.btn-space
+      [:a.btn.btn-secondary.dropdown-toggle
+       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
+       "Layout "
+       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
+
+      [:div {:class "dropdown-menu" :role "menu" :x-placement "bottom-start"}
+       [:a {:class "dropdown-item" :href "#"} "Full article"]
+       [:a {:class "dropdown-item" :href "#"} "Only titles"]
+       [:a {:class "dropdown-item" :href "#"} "Cards"]]]
+
+     [:div.btn-group.btn-space
+      [:a.btn.btn-secondary.dropdown-toggle
+       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
+       "Filters "
+       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
+
+      [:div {:class "dropdown-menu" :role "menu" :x-placement "bottom-start"}
+       [:a {:class "dropdown-item" :href "#"} "All"]
+       [:a {:class "dropdown-item" :href "#"} "Unread"]]]
+
+     #_
+     [:div {:class "btn-group btn-space float-right"}
+      [:a {:class "btn btn-secondary" :type "button"} "Unread only"]
+      [:a {:class "btn btn-secondary" :type "button"} "Show all"]]
+
+     #_
+     [:div {:class "btn-group btn-space"}
+      [:button {:class "btn btn-primary" :type "button"} "Left"]
+      [:button {:class "btn btn-primary" :type "button"} "Mid"]
+      [:button {:class "btn btn-primary" :type "button"} "Right"]]
+
+     [:div {:class "btn-group btn-space"}
+      [:a {:class "btn btn-secondary" :type "button"}
+       "Update"]]
+
+     [:div {:class "btn-group btn-space"}
+      [:a {:class "btn btn-secondary" :type "button"}
+       "Edit"]]
+
+     [:div {:class "btn-group btn-space"}
+      [:a {:class "btn btn-secondary" :type "button"}
+       "Unsubscribe"]]
+
+     #_
+     [:div {:class "btn-group btn-space"}
+      [:button {:class "btn btn-danger" :type "button"} "Left"]
+      [:button {:class "btn btn-danger" :type "button"} "Mid"]
+      [:button {:class "btn btn-danger" :type "button"} "Right"]]]]
+
+   #_
+   [:nav {:aria-label "breadcrumb" :role "navigation"}
+    [:ol {:class "breadcrumb page-head-nav"}
+     [:li {:class "breadcrumb-item"}
+      [:a {:href "#"} "Home"]]
+     [:li {:class "breadcrumb-item"}
+      [:a {:href "#"} "UI Elements"]]
+     [:li {:class "breadcrumb-item active"} "Buttons"]]]])
 
 (defn bar
   []
@@ -190,18 +256,22 @@
       {:type "button"}
       [:i.mdi.mdi-chevron-right]]]]])
 
+
 (defn view-sub
   [params]
   (let [{:keys [sub-id]} params
         sub-id (int sub-id)]
 
     (rf/dispatch [:ui.events/api.messages sub-id])
-    (let [msgs @(rf/subscribe [:ui.subs/messages sub-id])]
+    (let [msgs @(rf/subscribe [:ui.subs/messages sub-id])
+
+          sub @(rf/subscribe [:ui.subs/find-sub sub-id])
+          {:keys [sub feed]} sub
+          ]
 
       [:div.main-content.container-fluid
 
-       [fooo]
-       [bar]
+       [feed-header feed sub]
 
        (for [{:keys [entry message]} msgs
              :let [{msg-id :id} message]]

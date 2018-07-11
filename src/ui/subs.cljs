@@ -15,3 +15,14 @@
  ::messages
  (fn [db [_ sub_id]]
    (get-in db [:messages sub_id :messages])))
+
+;; todo might be slow
+
+(rf/reg-sub
+ ::find-sub
+ (fn [db [_ sub_id]]
+   (first
+    (filter
+     (fn [item]
+       (-> item :sub :id (= sub_id)))
+     (get-in db [:dashboard :subs])))))
