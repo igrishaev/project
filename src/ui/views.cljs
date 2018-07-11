@@ -218,44 +218,6 @@
       [:a {:href "#"} "UI Elements"]]
      [:li {:class "breadcrumb-item active"} "Buttons"]]]])
 
-(defn bar
-  []
-  [:div.be-aside-header-filters
-   [:div.be-aside-header-filters-left
-    [:div.btn-group
-     [:button.btn.btn-secondary.dropdown-toggle
-      {:aria-expanded "false",
-       :type "button",
-       :data-toggle "dropdown"}
-      "Order by "
-      [:span.caret]]
-     #_
-     [:div.dropdown-menu
-      {:style
-       "position: absolute; transform: translate3d(0px, 30px, 0px); top: 0px; left: 0px; will-change: transform;",
-       :x-placement "bottom-start",
-       :role "menu"}
-      [:a.dropdown-item {:href "#"} "Date"]
-      [:a.dropdown-item {:href "#"} "Price (lower to higher)"]
-      [:a.dropdown-item {:href "#"} "Price (higher to lower)"]
-      [:a.dropdown-item {:href "#"} "Items"]]]
-    [:div.btn-group
-     [:button.btn.btn-secondary
-      {:type "button"}
-      [:i.icon.mdi.mdi-view-list]]
-     [:button.btn.btn-secondary
-      {:type "button"}
-      [:i.icon.mdi.mdi-view-module]]]]
-   [:div.be-aside-header-filters-right
-    [:span.be-aside-pagination-indicator "1-50 of 253"]
-    [:div.btn-group.be-aside-pagination-nav
-     [:button.btn.btn-secondary
-      {:type "button"}
-      [:i.mdi.mdi-chevron-left]]
-     [:button.btn.btn-secondary
-      {:type "button"}
-      [:i.mdi.mdi-chevron-right]]]]])
-
 
 (defn view-sub
   [params]
