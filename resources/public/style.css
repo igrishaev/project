@@ -1,3 +1,57 @@
+
+.action-main {
+    padding: 10px;
+    margin-left: -10px;
+    border: 1px solid lightgray;
+}
+
+.action-vert {
+    display: block;
+    margin-bottom: 5px;
+
+}
+
+/* search */
+
+#search-result-list {
+    margin: 20px 0 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-result-item {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 15px;
+
+}
+
+.search-result-item-image {
+    margin-right: 15px;
+    width: 100px;
+}
+
+.search-result-item-image img {
+    width: 100px;
+}
+
+.search-result-item-content {
+    width: 500px;
+    margin-right: 20px;
+}
+
+.search-result-item-content h2 {
+    margin-top: 0;
+}
+
+
+/* search */
+
+.subtitle {
+    margin-top: -10px;
+}
+
+
 body {
     margin: 0;
     font-family: sans-serif;
@@ -89,14 +143,14 @@ h1, h2, h3, h4 {
 }
 
 #sidebar-content {
-    /* margin: 50px 20px 20px 20px; */
+    margin: 50px 20px 20px 20px;
 }
 
 #sidebar {
     height: 100%;
     width: 300px;
     position: fixed;
-    z-index: 1;
+    z-index: 20;
     top: 0;
     left: 0;
     overflow-x: hidden;
@@ -118,12 +172,11 @@ h1, h2, h3, h4 {
     min-height: 30px;
     padding: 0 20px 0 35px;
     align-items: center;
+    margin: 0 -20px 0 -20px;
 }
 
 .sidebar-tag {
-    margin: 25px 0 7px;
     font-weight: bold;
-    padding: 0 20px 0 20px;
 }
 
 .feed-image {
@@ -245,4 +298,21 @@ h1, h2, h3, h4 {
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {
     /* background-color: #3e8e41; */
+}
+
+.error-bar {
+    z-index: 10;
+    position: fixed;
+    padding-left: 345px;
+    bottom: 0;
+    width: 100%;
+    background-color: red;
+    color: white;
+}
+
+.error-close {
+    cursor: pointer;
+    border: 1px solid white;
+    padding: 3px 7px;
+    margin-right: 7px;
 }
