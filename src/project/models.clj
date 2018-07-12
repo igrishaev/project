@@ -249,7 +249,3 @@
     (if-let [feed (get-feed-by-url url)]
       feed
       (create-feed url))))
-
-;;
-;; Other
-;;
