@@ -2,19 +2,32 @@
   (:require [project.db :as db]
             [project.url :as url]))
 
+(def upsert-user
+  (partial db/upsert! :users "(email)"))
+
+(def upsert-feed
+  (partial db/upsert! :feeds "(url_source)"))
+
+(def upsert-entry
+  (partial db/upsert! :entries "(feed_id, guid)"))
+
+(def upsert-subs
+  (partial db/upsert! :subs "(feed_id, user_id)"))
+
+(def upsert-message
+  (partial db/upsert! :messages "(sub_id, entry_id)"))
+
 ;;
 ;; Common
 ;;
 
 (defn model-exists?
   [table params]
-  (first
-   (db/query
-    (db/format
-     {:select [:id]
-      :from [:subs]
-      :where (cons :and (for [[k v] params] [:= k v]))
-      :limit 1}))))
+  (db/query-hf
+   {:select [:id]
+    :from [:subs]
+    :where (cons :and (for [[k v] params] [:= k v]))
+    :limit 1}))
 
 ;;
 ;; User
@@ -39,7 +52,7 @@
                 picture]} params]
 
     (first
-     (db/upsert-user
+     (upsert-user
       {:email email
        :source "google"
        :source_id id
@@ -56,7 +69,7 @@
   [params]
   (let [{:keys [email]} params]
     (first
-     (db/upsert-user
+     (upsert-user
       {:email email
        :source "email"}))))
 
@@ -105,12 +118,10 @@
         values {:user_id (:id user)
                 :feed_id (:id feed)
                 :title title}]
-    (first
-     (db/query
-      (db/format
-       {:insert-into :subs
-        :values [values]
-        :returning [:*]})))))
+    (db/query-hf
+     {:insert-into :subs
+      :values [values]
+      :returning [:*]})))
 
 ;; todo dec subs count
 ;; todo mb not now?
@@ -120,12 +131,11 @@
 
 (defn unsubscribe
   [user sub_id]
-  (db/execute!
-   (db/format
-    {:delete-from :subs
-     :where [:and
-             [:= :id sub_id]
-             [:= :user_id (:id user)]]})))
+  (db/execute-h
+   {:delete-from :subs
+    :where [:and
+            [:= :id sub_id]
+            [:= :user_id (:id user)]]}))
 
 (def subs-query
   {:select
@@ -137,21 +147,18 @@
 
 (defn get-user-subs
   [user]
-  (db/query
-   (db/format
-    (-> subs-query
-        (update :where conj [:= :s.user_id (:id user)])
-        (assoc :order [[:s.id :desc]])))))
+  (db/query-h
+   (-> subs-query
+       (update :where conj [:= :s.user_id (:id user)])
+       (assoc :order [[:s.id :desc]]))))
 
 (defn get-user-sub
   [user sub]
-  (first
-   (db/query
-    (db/format
-     (-> subs-query
-         (update :where conj [:= :s.user_id (:id user)])
-         (update :where conj [:= :s.id (:id sub)])
-         (assoc :limit 1))))))
+  (db/query-hf
+   (-> subs-query
+       (update :where conj [:= :s.user_id (:id user)])
+       (update :where conj [:= :s.id (:id sub)])
+       (assoc :limit 1))))
 
 ;;
 ;; Messages
@@ -159,11 +166,11 @@
 
 (defn message
   [user entry & [params]]
-  (db/upsert-message
-     (merge
-      params
-      {:user_id (:id user)
-       :entry_id (:id entry)})))
+  (upsert-message
+   (merge
+    params
+    {:user_id (:id user)
+     :entry_id (:id entry)})))
 
 (def messages-query
   {:select
@@ -177,57 +184,50 @@
 
 (defn get-messages
   [sub & [from_id]]
-  (db/query
-   (db/format
-    (cond-> messages-query
-
-      true
-      (update :where conj [:= :m.sub_id (:id sub)])
-
-      true
-      (assoc :limit 10)
-
-      from_id
-      (update :where conj [:< :m.id from_id])))))
+  (db/query-h
+   (cond-> messages-query
+     true
+     (update :where conj [:= :m.sub_id (:id sub)])
+     true
+     (assoc :limit 10)
+     from_id
+     (update :where conj [:< :m.id from_id]))))
 
 ;; todo bump sub read counter
 ;; todo make batch?
 
 (defn mark-read
   [message_id sub_id is_read]
-  (db/execute!
-   (db/format
-    {:update :messages
-     :set {:is_read is_read
-           :date_read (when is_read :%now)
-           :updated_at :%now}
-     :where [:and
-             [:= :id message_id]
-             [:= :sub_id sub_id]]})))
+  (db/execute-h
+   {:update :messages
+    :set {:is_read is_read
+          :date_read (when is_read :%now)
+          :updated_at :%now}
+    :where [:and
+            [:= :id message_id]
+            [:= :sub_id sub_id]]}))
 
 ;;
 ;; Feed
 ;;
 
-(defn update-feed
-  [id params]
-  (db/execute!
-   (db/format
-    {:update :feeds
-     :set (assoc params :updated_at :%now)
-     :where [:= :id id]})))
+(def find-feed (partial db/find-first :feeds))
 
 (defn get-feed-by-id
   [id]
-  (first
-   (db/find-by-keys
-    :feeds {:id id})))
+  (find-feed {:id id}))
 
 (defn get-feed-by-url
   [url]
-  (first
-   (db/find-by-keys
-    :feeds {:url_source url})))
+  (find-feed {:url_source url}))
+
+(defn update-feed
+  [id params]
+  (db/query-h
+   {:update :feeds
+    :set (assoc params :updated_at :%now)
+    :where [:= :id id]
+    :returning [:*]}))
 
 (defn create-feed
   [url]
@@ -236,12 +236,12 @@
         params {:url_source url
                 :url_host url_host
                 :url_favicon url_favicon}]
-    (first
-     (db/query
-      (db/format
-       {:insert-into :feeds
-        :values [params]
-        :returning [:*]})))))
+    (db/query-h
+     {:insert-into :feeds
+      :values [params]
+      :returning [:*]})))
+
+;; todo upsert?
 
 (defn get-or-create-feed
   [url]

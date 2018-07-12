@@ -1,5 +1,5 @@
 (defproject project "0.1.0-SNAPSHOT"
-  :description "Feed reader"
+  :description "project"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -75,7 +75,7 @@
 
              :dev {:resource-paths ["profiles/dev/resources"]
                    :dependencies [[ring/ring-mock "0.3.2" :exclusions [cheshire]]
-                                  [re-frisk "0.5.3" :exclusions [org.clojure/tools.reader]]]}
+                                  [re-frisk "0.5.3"]]}
 
              :test {:resource-paths ["profiles/test/resources"]}}
 

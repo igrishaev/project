@@ -184,7 +184,7 @@ where
         (models/update-feed feed-id feed-db)
 
         (when-not (empty? entries)
-          (db/upsert-entry
+          (models/upsert-entry
            (for [e entries]
              (assoc e :feed_id feed-id))))
 

@@ -2,14 +2,13 @@
   (:require [project.env :refer [env]]
 
             [clojure.java.jdbc :as jdbc]
-            [clj-time.jdbc] ;; extends JDBC protocols
+            [clj-time.jdbc]
             [honeysql.core :as sql]
             [honeysql.format :as f :refer [format-clause]]
-            [cheshire.core :as json] ;; todo to json ns
+            [cheshire.core :as json]
             [clojure.tools.logging :as log]
             [migratus.core :as migratus])
 
-  (:refer-clojure :exclude [format])
   (:import org.postgresql.util.PGobject))
 
 (def ^:dynamic
@@ -20,16 +19,6 @@
    :dbname   (:db-database env)
    :user     (:db-user env)
    :password (:db-password env)})
-
-;;
-;; Extend HoneySql
-;;
-
-(defmethod format-clause :returning
-  [[_ fields] _]
-  (str
-   "RETURNING "
-   (f/comma-join (map f/to-sql fields))))
 
 ;;
 ;; DB types
@@ -80,11 +69,10 @@
 ;; Helpers
 ;;
 
-(def format sql/format)
 (def raw sql/raw)
 
 ;;
-;; DB API
+;; JDBC
 ;; Here and below: partial doesn't work with binding.
 ;;
 
@@ -96,6 +84,9 @@
 
 (defn find-by-keys [& args]
   (apply jdbc/find-by-keys *db* args))
+
+(defn find-first [& args]
+  (first (apply find-by-keys args)))
 
 (defn insert! [& args]
   (first (apply jdbc/insert! *db* args)))
@@ -125,6 +116,32 @@
   `(with-tx
      (jdbc/db-set-rollback-only! *db*)
      ~@body))
+
+;;
+;; HoneySQL
+;;
+
+(defmethod format-clause :returning
+  [[_ fields] _]
+  (str
+   "RETURNING "
+   (f/comma-join (map f/to-sql fields))))
+
+(defn query-h
+  [map]
+  (query (sql/format map)))
+
+(defn query-hf
+  [map]
+  (first (query-h map)))
+
+(defn query-hv
+  [map]
+  (second (ffirst (query-h map))))
+
+(defn execute-h
+  [map]
+  (execute! (sql/format map)))
 
 ;;
 ;; Upsert
@@ -163,21 +180,6 @@
            query1 constraint query2)
         q-vector (concat [q] params)]
     (query q-vector)))
-
-(def upsert-user
-  (partial upsert! :users "(email)"))
-
-(def upsert-feed
-  (partial upsert! :feeds "(url_source)"))
-
-(def upsert-entry
-  (partial upsert! :entries "(feed_id, guid)"))
-
-(def upsert-subs
-  (partial upsert! :subs "(feed_id, user_id)"))
-
-(def upsert-message
-  (partial upsert! :messages "(sub_id, entry_id)"))
 
 ;;
 ;; Migrations
