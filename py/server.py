@@ -9,21 +9,19 @@ from time import mktime, struct_time
 import feedparser
 from flask import Flask, request
 
-
-feedparser._HTMLSanitizer.acceptable_elements = {
-    'p', 'br', 'a', 'b', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'img', 'pre', 'span', 'strike', 'strong', 'sub', 'sup', 'i',
-    'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'tt', 'u', 'ul'
-}
-
 # todo how to deal with video
 
-feedparser._HTMLSanitizer.acceptable_attributes = {'href', 'src'}
+feedparser._HTMLSanitizer.acceptable_elements.add('iframe')
 
-feedparser._HTMLSanitizer.sanitize_style = lambda *args: ''
-
-feedparser._HTMLSanitizer.acceptable_css_keywords = set()
-feedparser._HTMLSanitizer.acceptable_css_properties = set()
+# feedparser._HTMLSanitizer.acceptable_elements = {
+#     'p', 'br', 'a', 'b', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+#     'img', 'pre', 'span', 'strike', 'strong', 'sub', 'sup', 'i',
+#     'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'tt', 'u', 'ul'
+# }
+# feedparser._HTMLSanitizer.acceptable_attributes = {'href', 'src'}
+# feedparser._HTMLSanitizer.sanitize_style = lambda *args: ''
+# feedparser._HTMLSanitizer.acceptable_css_keywords = set()
+# feedparser._HTMLSanitizer.acceptable_css_properties = set()
 
 
 def json_encoder(obj):
