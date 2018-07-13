@@ -7,7 +7,7 @@
    (:page db)))
 
 (rf/reg-sub
- ::subs
+ ::feeds
  (fn [db [_]]
    (get-in db [:dashboard :subs])))
 

@@ -27,7 +27,8 @@
    :link
    :date_updated_at
    :entry_count_total
-   :sub_count_total])
+   :sub_count_total
+   :sub])
 
 (def user-fields
   [:id
@@ -107,9 +108,7 @@
 (defn subscriptions
   [params user & _]
   (let [subs (models/get-user-subs user)]
-    (ok
-     (for [sub subs]
-       (update sub :feed clean-feed)))))
+    (ok (map clean-feed subs))))
 
 ;;
 ;; Messages

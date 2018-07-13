@@ -139,7 +139,7 @@
 
 (def subs-query
   {:select
-   [(db/raw "row_to_json(f) as feed")
+   [:f.*
     (db/raw "row_to_json(s) as sub")]
    :from [[:feeds :f] [:subs :s]]
    :where [:and

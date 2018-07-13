@@ -23,8 +23,8 @@
 
 
 (defn get-feed-title
-  [feed sub]
-  (or (some-> sub :title clear-str)
+  [feed]
+  (or (some-> feed :sub :title clear-str)
       (some-> feed :title clear-str)
       (some-> feed :subtitle clear-str)
       (-> feed :url_source url/get-short-url)))
@@ -37,20 +37,23 @@
 
 (defn left-sidebar
   []
-  (let [subs @(rf/subscribe [:ui.subs/subs])]
+  (let [feeds @(rf/subscribe [:ui.subs/feeds])]
     [:div
 
      [:div.sidebar-folder
       [:div.sidebar-section.sidebar-feed.sidebar-tag
        "Design ▾"]]
 
-     (for [{:keys [feed sub]} subs
-           :let [{sub-id :id :keys [message_count_unread]} sub]]
+     (for [feed feeds
+           :let [feed-id (-> feed :id)
+                 unread (-> feed :sub :message_count_unread)]]
 
-       ^{:key sub-id}
+       ^{:key feed-id}
        [:div.sidebar-section.sidebar-feed
+
         [:div.feed-image
          [:img {:src (get-fav-url feed)}]]
+
         [:div.feed-title.overflow-cut
          [:span
 
@@ -59,13 +62,15 @@
 
           {:on-click
            (fn [e]
-             (rf/dispatch [:ui.events/api.messages sub-id])
-             (rf/dispatch [:ui.events/page :sub {:sub-id sub-id}]))}
+             (rf/dispatch [:ui.events/api.messages feed-id])
+             (rf/dispatch [:ui.events/page :feed {:feed-id feed-id}]))}
 
-          (get-feed-title feed sub)]]
+          (get-feed-title feed)]]
+
         [:div.flex-separator]
-        (when (pos? message_count_unread)
-          [:div [:span.feed-count message_count_unread]])])]))
+
+        (when (pos? unread)
+          [:div [:span.feed-count unread]])])]))
 
 (defn view-message
   [entry message]
@@ -140,7 +145,7 @@
    [:h1.overflow-split
     [:a
      {:href (:link feed)}
-     (get-feed-title feed sub)]]
+     (get-feed-title feed)]]
 
    [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
 
@@ -272,7 +277,7 @@
         [:div.search-result-item-image
          [:img {:src (get-feed-image feed)}]]
         [:div.search-result-item-content
-         [:h2 (get-feed-title feed nil)]
+         [:h2 (get-feed-title feed)]
          [:p.subtitle subtitle]
          [:p.subtitle
           "55K followers | 279 articles per week | #tech #startups"]]
