@@ -1,8 +1,18 @@
 
+
+#auth-form {
+    padding: 70px 130px;
+}
+
 .action-main {
     padding: 10px;
-    margin-left: -10px;
     border: 1px solid lightgray;
+}
+
+.action-main-vert {
+    padding: 10px;
+    border: 1px solid lightgray;
+    margin-left: -10px;
 }
 
 .action-vert {
@@ -95,9 +105,7 @@ h1, h2, h3, h4 {
 }
 
 #search-field {
-    padding-left: 10px;
-    height: 30px;
-    font-size: 10pt;
+
 }
 
 .avatar {
@@ -107,7 +115,7 @@ h1, h2, h3, h4 {
     margin-right: 15px;
 }
 
-#search-button {
+.btn-submit {
     height: 35px;
     font-size: 10pt;
     border: none;
@@ -286,10 +294,9 @@ h1, h2, h3, h4 {
     display: block;
 }
 
-/* Change color of dropdown links on hover */
-/* .dropdown-content a:hover { */
-/*     background-color: #whitesmoke; */
-/* } */
+.dropdown-content a:hover {
+    background-color: #e7e7e7;
+}
 
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
@@ -316,4 +323,14 @@ h1, h2, h3, h4 {
     border: 1px solid white;
     padding: 3px 7px;
     margin-right: 7px;
+}
+
+input {
+    padding-left: 10px;
+    height: 30px;
+    font-size: 10pt;
+}
+
+a {
+    color: darkslategray;
 }
