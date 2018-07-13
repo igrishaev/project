@@ -216,7 +216,6 @@ h1, h2, h3, h4 {
 }
 
 .feed-items {
-
     display: flex;
     flex-direction: column;
 }
@@ -354,6 +353,10 @@ a {
 
 .feed-layout-titles .cell-actions {
 
+}
+
+#feed-layout-list {
+    margin-bottom: 35px;
 }
 
 .feed-layout-list-item {

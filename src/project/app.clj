@@ -22,6 +22,8 @@
 
 (defroutes app-naked
 
+  (GET "/dev" request (views/view-dev request))
+
   (GET "/" request (views/view-index request))
 
   (POST "/api" request (api/handler request))

@@ -6,3 +6,7 @@
 (defn view-index
   [request]
   (response (tpl/render "index.html")))
+
+(defn view-dev
+  [request]
+  (response (tpl/render "dev/test.html")))

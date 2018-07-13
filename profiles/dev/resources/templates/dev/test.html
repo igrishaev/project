@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Test</title>
+
+
+        <!-- <link href="/dev/style.css" rel="stylesheet" /> -->
+        <style>
+            {% include "dev/style.css" %}
+        </style>
+
+    </head>
+    <body>
+
+        <div id="container">
+
+            {# {% include "dev/error-bar.html" %} #}
+
+            {% include "dev/sidebar.html" %}
+
+            <div id="content">
+
+                <div id="content-align">
+
+                    {% include "dev/main-header.html" %}
+
+                    {# {% include "dev/auth-form.html" %} #}
+
+                    {# {% include "dev/search-results.html" %} #}
+
+                    {% include "dev/feed-header.html" %}
+
+                    {% include "dev/feed-list.html" %}
+
+                    {# <div id="feed-items"> #}
+                    {#     {% include "dev/full-entry.html" %} #}
+                    {#     {% include "dev/full-entry.html" %} #}
+                    {#     {% include "dev/full-entry.html" %} #}
+                    {#     {% include "dev/full-entry.html" %} #}
+                    {#     {% include "dev/full-entry.html" %} #}
+                    {# </div> #}
+
+                    {% include "dev/read-more.html" %}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </body>
+</html>
