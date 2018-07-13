@@ -79,8 +79,8 @@
 ;;
 
 (s/def ::api.messages
-  (s/keys :opt-un [::from_id
-                   ::sub_id]))
+  (s/keys :opt-un [::feed_id
+                   ::from_id]))
 
 ;;
 ;; Mark read

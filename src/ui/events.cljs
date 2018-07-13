@@ -117,9 +117,9 @@
 
 (rf/reg-event-fx
  ::api.messages
- (fn [_ [_ sub_id & [from_id]]]
+ (fn [_ [_ feed_id & [from_id]]]
    {:dispatch [::api.call :messages
-               {:sub_id sub_id :from_id from_id}
+               {:feed-id feed_id :from_id from_id}
                ::api.messages.ok]}))
 
 (rf/reg-event-db

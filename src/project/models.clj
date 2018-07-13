@@ -172,6 +172,7 @@
     {:user_id (:id user)
      :entry_id (:id entry)})))
 
+
 (def messages-query
   {:select
    [(db/raw "row_to_json(e) as entry")

@@ -116,7 +116,7 @@
 
 (defn messages
   [params user & _]
-  (let [{:keys [sub_id from_id]} params]
+  (let [{:keys [feed_id from_id]} params]
 
     (if-let [sub (models/get-sub-by-user-and-id
                   user sub_id)]
