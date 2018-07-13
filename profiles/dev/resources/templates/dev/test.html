@@ -3,44 +3,28 @@
     <head>
         <meta charset="utf-8">
         <title>Test</title>
-
         <!-- <link href="/dev/style.css" rel="stylesheet" /> -->
         <style>
             {% include "dev/style.css" %}
         </style>
-
     </head>
     <body>
-
         <div id="container">
-
             {# {% include "dev/error-bar.html" %} #}
-
             {% include "dev/sidebar.html" %}
-
             <div id="content">
-
                 <div id="content-align">
-
                     {% include "dev/main-header.html" %}
-
-                    {# {% include "dev/auth-form.html" %} #}
-
-                    {# {% include "dev/search-results.html" %} #}
-
-                    {% include "dev/feed-header.html" %}
-
-                    {# {% include "dev/feed-list.html" %} #}
-
-                    {% include "dev/feed-entries.html" %}
-
-                    {% include "dev/read-more.html" %}
-
+                    <div id="page">
+                        {% include "dev/auth-form.html" %}
+                        {# {% include "dev/search-results.html" %} #}
+                        {# {% include "dev/feed-header.html" %} #}
+                        {# {% include "dev/feed-list.html" %} #}
+                        {# {% include "dev/feed-entries.html" %} #}
+                        {# {% include "dev/read-more.html" %} #}
+                    </div>
                 </div>
-
             </div>
-
         </div>
-
     </body>
 </html>
