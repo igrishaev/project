@@ -72,6 +72,7 @@ h1, h2, h3, h4 {
 .user-block {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 #content {
@@ -81,7 +82,7 @@ h1, h2, h3, h4 {
 
 }
 
-.feed-controls {
+.menu-items {
     margin-bottom: 15px;
     display: flex;
     flex-direction: row;
@@ -132,7 +133,7 @@ h1, h2, h3, h4 {
     border-bottom: 1px solid lightgray;
 }
 
-.feed-control {
+.menu-item {
     margin-right: 25px;
 
 }
@@ -143,7 +144,7 @@ h1, h2, h3, h4 {
 }
 
 #sidebar-content {
-    margin: 50px 20px 20px 20px;
+    margin: 30px 20px 20px 20px;
 }
 
 #sidebar {
