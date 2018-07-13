@@ -145,3 +145,18 @@
  (fn [db [_ ]]
    ;; todo mark read in the db
    db))
+
+
+;;
+;; User info
+;;
+
+(rf/reg-event-fx
+ ::api.user-info
+ (fn [_ [_ ]]
+   {:dispatch [::api.call :user-info nil ::api.user-info.ok]}))
+
+(rf/reg-event-db
+ ::api.user-info-ok
+ (fn [db [_ user]]
+   (assoc db :user user)))

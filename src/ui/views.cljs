@@ -37,56 +37,34 @@
 (defn left-sidebar
   []
   (let [subs @(rf/subscribe [:ui.subs/subs])]
-    [:div.left-sidebar-wrapper
-     [:a.left-sidebar-toggle {:href "#"} "Fixed Sidebar"]
-     [:div.left-sidebar-spacer
-      [:div.left-sidebar-scroll.ps-container.ps-theme-default.ps-active-y
-       [:div.left-sidebar-content
+    [:div
 
-        [view-sync-button]
+     [:div.sidebar-folder
+      [:div.sidebar-section.sidebar-feed.sidebar-tag
+       "Design ▾"]]
 
-        [:ul.sidebar-elements
+     (for [{:keys [feed sub]} subs
+           :let [{sub-id :id :keys [message_count_unread]} sub]]
 
-         #_
-         [:li.divider "Menu"]
-         [:li
-          [:a
-           {:href "index.html"}
-           [:i.icon.mdi.mdi-home]
-           [:span "Dashboard"]]]
+       ^{:key sub-id}
+       [:div.sidebar-section.sidebar-feed
+        [:div.feed-image
+         [:img {:src (get-fav-url feed)}]]
+        [:div.feed-title.overflow-cut
+         [:span
 
-         [:li.parent.open
-          [:a {:href "#"} [:i.icon.mdi.mdi-face] [:span "Feeds"]]
-          [:ul.sub-menu
+          #_
+          {:href (str "#/subs/" sub-id)}
 
-           (for [{:keys [feed sub]} subs
-                 :let [{sub-id :id :keys [message_count_unread]} sub]]
+          {:on-click
+           (fn [e]
+             (rf/dispatch [:ui.events/api.messages sub-id])
+             (rf/dispatch [:ui.events/page :sub {:sub-id sub-id}]))}
 
-             ^{:key sub-id}
-             [:li [:a {:href (str "#/subs/" sub-id)}
-
-                   [:img {:style {:margin-right :10px}
-                          :src (get-fav-url feed)}]
-
-                   (get-feed-title feed sub)
-
-                   (when (pos? message_count_unread)
-                     [:span.badge.float-right
-                      message_count_unread])
-
-                   ]])
-
-           #_
-           [:li
-            [:a
-             {:href "ui-cards.html"}
-             [:span.badge.badge-primary.float-right "New"]
-             "Cards"]]
-
-]]]]]]]
-    )
-
-  )
+          (get-feed-title feed sub)]]
+        [:div.flex-separator]
+        (when (pos? message_count_unread)
+          [:div [:span.feed-count message_count_unread]])])]))
 
 (defn view-message
   [entry message]
@@ -140,86 +118,69 @@
 (defn feed-header
   [feed sub]
 
-  [:div {:class "page-head"}
-   [:h2 {:class "page-head-title"}
-    (get-feed-title feed sub)]
+  [:div#feed-header
+   [:h1.overflow-split
+    [:a
+     {:href (:link feed)}
+     (get-feed-title feed sub)]]
 
-   (when-let [subtitle (:subtitle feed)]
-     [:p.display-description
-      {:style {:margin-bottom 0}}
-      subtitle])
+   [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
+   [:div.menu-items
+    [:div.dropdown.menu-item
+     [:a.dropbtn {:href "#"} "Order by ▾"]
+     [:div.dropdown-content
+      [:a {:href "fff"} "Link 1"]
+      [:a {:href "aaa"} "Link 2"]
+      [:a {:href "ccc"} "Link 3"]]]
+    [:div.dropdown.menu-item
+     [:a.dropbtn {:href "#"} "Layout ▾"]
+     [:div.dropdown-content
+      [:a {:href "fff"} "Link 1"]
+      [:a {:href "aaa"} "Link 2"]
+      [:a {:href "ccc"} "Link 3"]]]
+    [:div.menu-item [:a {:href "#"} "Edit"]]
+    [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]]])
 
-   [:div {:class "mt-4 mb-2"}
-    [:div {:class "btn-toolbar"}
+(defn feed-entries
+  [msgs]
+  [:div#feed-items
 
-     [:div.btn-group.btn-space
-      [:a.btn.btn-secondary.dropdown-toggle
-       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
-       "Order "
-       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
+   (for [{:keys [entry message]} msgs
+         :let [{:keys [link summary title]} entry]]
 
-      [:div {:class "dropdown-menu" :role "menu"}
-       [:a {:class "dropdown-item" :href "#"} "Newest"]
-       [:a {:class "dropdown-item" :href "#"} "Oldest"]]]
+     [:div.entry.overflow-split
 
-     [:div.btn-group.btn-space
-      [:a.btn.btn-secondary.dropdown-toggle
-       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
-       "Layout "
-       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
+      [:h2.overflow-split
+       [:a {:href link} title]]
 
-      [:div {:class "dropdown-menu" :role "menu"}
-       [:a {:class "dropdown-item" :href "#"} "Full article"]
-       [:a {:class "dropdown-item" :href "#"} "Only titles"]
-       [:a {:class "dropdown-item" :href "#"} "Cards"]]]
+      [:p "Варламов // by Ivan Grishaev // 1 Jun 2018\n\n     "]
 
-     [:div.btn-group.btn-space
-      [:a.btn.btn-secondary.dropdown-toggle
-       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
-       "Filters "
-       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
+      [:div.menu-items
+       [:div.dropdown.menu-item
+        [:a.dropbtn {:href "#"} "Order by ▾"]
+        [:div.dropdown-content
+         [:a {:href "fff"} "Link 1"]
+         [:a {:href "aaa"} "Link 2"]
+         [:a {:href "ccc"} "Link 3"]]]
+       [:div.dropdown.menu-item
+        [:a.dropbtn {:href "#"} "Layout ▾"]
+        [:div.dropdown-content
+         [:a {:href "fff"} "Link 1"]
+         [:a {:href "aaa"} "Link 2"]
+         [:a {:href "ccc"} "Link 3"]]]
+       [:div.menu-item [:a {:href "#"} "Star"]]
+       [:div.menu-item [:a {:href "#"} "Bookmark"]]
+       [:div.menu-item [:a {:href "#"} "Hide"]]]
 
-      [:div {:class "dropdown-menu" :role "menu"}
-       [:a {:class "dropdown-item" :href "#"} "All"]
-       [:a {:class "dropdown-item" :href "#"} "Unread"]]]
+      [:div.entry-content.overflow-split
+       {:dangerouslySetInnerHTML {:__html summary}}
 
-     #_
-     [:div {:class "btn-group btn-space float-right"}
-      [:a {:class "btn btn-secondary" :type "button"} "Unread only"]
-      [:a {:class "btn btn-secondary" :type "button"} "Show all"]]
+       ]
+      [:div.entry-controls [:a {:href link} "Visit page →"]]]
 
-     #_
-     [:div {:class "btn-group btn-space"}
-      [:button {:class "btn btn-primary" :type "button"} "Left"]
-      [:button {:class "btn btn-primary" :type "button"} "Mid"]
-      [:button {:class "btn btn-primary" :type "button"} "Right"]]
+     )
 
-     [:div {:class "btn-group btn-space"}
-      [:a {:class "btn btn-secondary" :type "button"}
-       "Update"]]
-
-     [:div {:class "btn-group btn-space"}
-      [:a {:class "btn btn-secondary" :type "button"}
-       "Edit"]]
-
-     [:div {:class "btn-group btn-space"}
-      [:a {:class "btn btn-secondary" :type "button"}
-       "Unsubscribe"]]
-
-     #_
-     [:div {:class "btn-group btn-space"}
-      [:button {:class "btn btn-danger" :type "button"} "Left"]
-      [:button {:class "btn btn-danger" :type "button"} "Mid"]
-      [:button {:class "btn btn-danger" :type "button"} "Right"]]]]
-
-   #_
-   [:nav {:aria-label "breadcrumb" :role "navigation"}
-    [:ol {:class "breadcrumb page-head-nav"}
-     [:li {:class "breadcrumb-item"}
-      [:a {:href "#"} "Home"]]
-     [:li {:class "breadcrumb-item"}
-      [:a {:href "#"} "UI Elements"]]
-     [:li {:class "breadcrumb-item active"} "Buttons"]]]])
+   ])
 
 
 (defn view-sub
@@ -227,16 +188,29 @@
   (let [{:keys [sub-id]} params
         sub-id (int sub-id)]
 
+    #_
     (rf/dispatch [:ui.events/api.messages sub-id])
+
     (let [msgs @(rf/subscribe [:ui.subs/messages sub-id])
 
           sub @(rf/subscribe [:ui.subs/find-sub sub-id])
           {:keys [sub feed]} sub
+
           ]
 
+      [:div
+       [feed-header feed sub]
+       [feed-entries msgs]
+
+
+       ]
+
+
+
+      #_
       [:div.main-content.container-fluid
 
-       [feed-header feed sub]
+
 
        (for [{:keys [entry message]} msgs
              :let [{msg-id :id} message]]
@@ -395,16 +369,18 @@
 
   )
 
-(defn view-content
+(defn view-page
   []
 
+  #_
   (rf/dispatch [:ui.events/api.subs])
 
   (let [page @(rf/subscribe [:ui.subs/page])
         {:keys [page params]} page]
+
     (case page
       :sub [view-sub params]
-      :preview [view-preview]
+      ;; :preview [view-preview]
       ;; :index [page-dashboard]
       ;; :stats [page-hash params]
       ;; :profile [profile/page-profile params]

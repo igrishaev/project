@@ -177,7 +177,6 @@ h1, h2, h3, h4 {
 
 .sidebar-feed:hover {
     background-color: #e7e7e7;
-    cursor: pointer;
 }
 
 .sidebar-feed {
@@ -333,6 +332,10 @@ input {
 
 a {
     color: darkslategray;
+}
+
+.feed-title a {
+    text-decoration: none;
 }
 
 .feed-layout-titles {

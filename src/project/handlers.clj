@@ -9,41 +9,42 @@
 ;; API
 ;;
 
-(def feed-fields
-  [:id
-   :created_at
-
-   :updated_at
-
-   :url_source
-   :url_host
-   :url_favicon
-   :url_image
-
-   :language
-
-   :title
-   :subtitle
-
-   :link
-
-   :date_updated_at
-
-   :sync_interval
-   :sync_date_last
-   :sync_date_next
-   :sync_count_total
-   :sync_count_err
-
-   :entry_count_total
-   :sub_count_total])
-
-
 (defn clean-model
   [fields model]
   (select-keys model fields))
 
+(def feed-fields
+  [:id
+   :created_at
+   :updated_at
+   :url_source
+   :url_host
+   :url_favicon
+   :url_image
+   :language
+   :title
+   :subtitle
+   :link
+   :date_updated_at
+   :entry_count_total
+   :sub_count_total])
+
+(def user-fields
+  [:id
+   :created_at
+   :updated_at
+   :email
+   :name
+   :source
+   :source_id
+   :source_url
+   :locale
+   :avatar_url
+   :gender])
+
 (def clean-feed (partial clean-model feed-fields))
+
+(def clean-user (partial clean-model user-fields))
 
 ;; todo check if a URL points to a feed
 ;; todo handle a case when it's not a feed
@@ -146,3 +147,9 @@
           (r/ok-empty))
 
         (r/err-not-subscribed)))))
+
+
+(defn user-info
+  [params user & _]
+  (ok (when user
+        (clean-user user))))

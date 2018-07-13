@@ -68,4 +68,7 @@
               :spec :project.spec/api.messages}
 
    :mark-read {:handler :project.handlers/mark-read
-               :spec :project.spec/api.mark-read}})
+               :spec :project.spec/api.mark-read}
+
+   :user-info {:handler :project.handlers/user-info
+               :spec :project.spec/api.user-info}})

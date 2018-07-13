@@ -90,3 +90,10 @@
   (s/keys :req-un [::sub_id
                    ::message_id
                    ::is_read]))
+
+;;
+;; User info
+;;
+
+(s/def ::api.user-info
+  (s/keys :req-un []))
