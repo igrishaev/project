@@ -98,21 +98,40 @@
 
 
 ]]]
+)
 
+(def js-stub "javascript:;")
 
-  #_
-  [:div.row
-   [:div.col-lg-6
+(defn feed-controls
+  [feed sub]
 
-    [:div.card.card-contrast
-     [:div.card-header ;; .card-header-contrast
+  [:div.menu-items
+   [:div.dropdown.menu-item
+    [:a.dropbtn {:href "#"} "Order by ▾"]
+    [:div.dropdown-content
+     [:a {:href "fff"} "Link 1"]
+     [:a {:href "aaa"} "Link 2"]
+     [:a {:href "ccc"} "Link 3"]]]
 
-      [:span {:dangerouslySetInnerHTML {:__html (:title entry)}}]
+   [:div.dropdown.menu-item
+    [:a.dropbtn {:href "#"}
+     "Layout " [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]
 
-      [:span.card-subtitle "Card subtitle description"]]
+    [:div.dropdown-content
+     [:a {:href js-stub
+          :on-click
 
-     [:div.card-body
-      [:div {:dangerouslySetInnerHTML {:__html (:summary entry)}}]]]]]
+          (fn [e]
+            (prn "123"))
+          }
+      "Full article"]
+
+     [:a {:href "#"}
+      "Titles only"]]]
+
+   [:div.menu-item [:a {:href "#"} "Edit"]]
+   [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]]
+
   )
 
 (defn feed-header
@@ -125,29 +144,17 @@
      (get-feed-title feed sub)]]
 
    [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
-   [:div.menu-items
-    [:div.dropdown.menu-item
-     [:a.dropbtn {:href "#"} "Order by ▾"]
-     [:div.dropdown-content
-      [:a {:href "fff"} "Link 1"]
-      [:a {:href "aaa"} "Link 2"]
-      [:a {:href "ccc"} "Link 3"]]]
-    [:div.dropdown.menu-item
-     [:a.dropbtn {:href "#"} "Layout ▾"]
-     [:div.dropdown-content
-      [:a {:href "fff"} "Link 1"]
-      [:a {:href "aaa"} "Link 2"]
-      [:a {:href "ccc"} "Link 3"]]]
-    [:div.menu-item [:a {:href "#"} "Edit"]]
-    [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]]])
+
+   [feed-controls feed sub]])
 
 (defn feed-entries
   [msgs]
   [:div#feed-items
 
    (for [{:keys [entry message]} msgs
-         :let [{:keys [link summary title]} entry]]
+         :let [{entry-id :id :keys [link summary title]} entry]]
 
+     ^{:key entry-id}
      [:div.entry.overflow-split
 
       [:h2.overflow-split
@@ -162,12 +169,14 @@
          [:a {:href "fff"} "Link 1"]
          [:a {:href "aaa"} "Link 2"]
          [:a {:href "ccc"} "Link 3"]]]
+
        [:div.dropdown.menu-item
         [:a.dropbtn {:href "#"} "Layout ▾"]
         [:div.dropdown-content
          [:a {:href "fff"} "Link 1"]
          [:a {:href "aaa"} "Link 2"]
          [:a {:href "ccc"} "Link 3"]]]
+
        [:div.menu-item [:a {:href "#"} "Star"]]
        [:div.menu-item [:a {:href "#"} "Bookmark"]]
        [:div.menu-item [:a {:href "#"} "Hide"]]]
@@ -223,15 +232,16 @@
   )
 
 (def form-search
-  [:input.form-control.search-input
-   {:field :text
+  [:input#search-field
+   {:placeholder "Unput a URL here"
+    :type "text"
+    :field :text
     :id :search
     :validator
     (fn [{:keys [search]}]
       (when (and search (clear-str search))
         (when-not (url/valid-url? search)
-          ["is-invalid"])))
-    :placeholder "Input a URL here" :name "search" :type "text"}])
+          ["invalid"])))}])
 
 (defn view-search
   []
@@ -240,17 +250,14 @@
                   (.preventDefault e)
                   (let [{:keys [search]} @doc]
                     (rf/dispatch [:ui.events/api.preview search])))]
-
     (fn []
-      [:form
-       {:on-submit handler}
-       [:div.input-group.input-group-sm
+      [:div#search-block.menu-item
+       [:form
+        {:on-submit handler}
         [bind-fields form-search doc]
-        [:span.input-group-btn
-         [:button.btn.btn-primary
-          {:type "button"
-           :on-click handler}
-          "Preview"]]]])))
+        [:button.btn-submit
+         {:type "Button"
+          :on-click handler} "Search"]]])))
 
 (defn view-preview
   []

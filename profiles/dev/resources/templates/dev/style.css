@@ -124,12 +124,12 @@ h1, h2, h3, h4 {
 
 }
 
-.read-more {
-    text-align: center;
+.invalid {
+    border: 1px solid red;
 }
 
-.search-block {
-
+.read-more {
+    text-align: center;
 }
 
 .flex-separator {
@@ -328,6 +328,7 @@ input {
     padding-left: 10px;
     height: 30px;
     font-size: 10pt;
+    outline: none;
 }
 
 a {
