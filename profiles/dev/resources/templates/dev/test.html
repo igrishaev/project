@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <title>Test</title>
 
-
         <!-- <link href="/dev/style.css" rel="stylesheet" /> -->
         <style>
             {% include "dev/style.css" %}
@@ -31,15 +30,9 @@
 
                     {% include "dev/feed-header.html" %}
 
-                    {% include "dev/feed-list.html" %}
+                    {# {% include "dev/feed-list.html" %} #}
 
-                    {# <div id="feed-items"> #}
-                    {#     {% include "dev/full-entry.html" %} #}
-                    {#     {% include "dev/full-entry.html" %} #}
-                    {#     {% include "dev/full-entry.html" %} #}
-                    {#     {% include "dev/full-entry.html" %} #}
-                    {#     {% include "dev/full-entry.html" %} #}
-                    {# </div> #}
+                    {% include "dev/feed-entries.html" %}
 
                     {% include "dev/read-more.html" %}
 
@@ -47,9 +40,7 @@
 
             </div>
 
-
         </div>
-
 
     </body>
 </html>

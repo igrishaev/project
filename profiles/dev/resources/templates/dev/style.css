@@ -196,8 +196,6 @@ h1, h2, h3, h4 {
 }
 
 .feed-count {
-    border-radius: 3px;
-    background-color: lightgray;
     font-weight: bold;
     font-size: 8pt;
     padding: 4px;
@@ -353,6 +351,10 @@ a {
 
 .feed-layout-titles .cell-actions {
 
+}
+
+.sidebar-folder {
+    margin-bottom: 15px;
 }
 
 #feed-layout-list {
