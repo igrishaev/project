@@ -10,6 +10,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [re-frame.core :as rf]))
 
+(def js-stub "javascript:;")
 
 ;; todo move that
 
@@ -99,8 +100,6 @@
 
 ]]]
 )
-
-(def js-stub "javascript:;")
 
 (defn feed-controls
   [feed sub]
@@ -259,119 +258,43 @@
          {:type "Button"
           :on-click handler} "Search"]]])))
 
+(defn get-feed-image
+  [feed]
+  (or (:url_image feed)
+      (get-fav-url feed)))
+
 (defn view-preview
   []
-  [:div.col-12.col-lg-6
-    [:div.card
-     [:div.card-header "Latest Activity"]
-     [:div.card-body
-      [:ul.user-timeline.user-timeline-compact
-       [:li.latest
-        [:div.user-timeline-date "Just Now"]
-        [:div.user-timeline-title "Create New Page"]
-        [:div.user-timeline-description
-         "Vestibulum lectus nulla, maximus in eros non, tristique."]]
-       [:li
-        [:div.user-timeline-date "Today - 15:35"]
-        [:div.user-timeline-title "Back Up Theme"]
-        [:div.user-timeline-description
-         "Vestibulum lectus nulla, maximus in eros non, tristique."]]
-       [:li
-        [:div.user-timeline-date "Yesterday - 10:41"]
-        [:div.user-timeline-title "Changes In The Structure"]
-        [:div.user-timeline-description
-         "Vestibulum lectus nulla, maximus in eros non, tristique.      "]]
-       [:li
-        [:div.user-timeline-date "Yesterday - 3:02"]
-        [:div.user-timeline-title "Fix the Sidebar"]
-        [:div.user-timeline-description
-         "Vestibulum lectus nulla, maximus in eros non, tristique."]]]]]]
+  (when-let [feed @(rf/subscribe [:ui.subs/preview])]
+    (let [{feed-id :id :keys [subtitle link]} feed]
+      [:div#search-result-list
+       [:div.search-result-item
+        [:div.search-result-item-image
+         [:img {:src (get-feed-image feed)}]]
+        [:div.search-result-item-content
+         [:h2 (get-feed-title feed nil)]
+         [:p.subtitle subtitle]
+         [:p.subtitle
+          "55K followers | 279 articles per week | #tech #startups"]]
+        [:div.search-result-item-actions
+         [:a.action-vert.action-main-vert
+          {:href js-stub
+           :on-click
+           #(rf/dispatch [:ui.events/api.subscribe feed-id])}
+          "Follow"]
+         [:a.action-vert
+          {:href "#"}
+          "Similar"]]]
+       ])
 
 
 
-  #_
-  [:div {:class "page-head"}
-   [:h2 {:class "page-head-title"}
-    "test"]
-
-   #_
-   (when-let [subtitle (:subtitle feed)]
-     [:p.display-description
-      {:style {:margin-bottom 0}}
-      subtitle])
 
 
-   [:div {:class "mt-4 mb-2"}
-    [:div {:class "btn-toolbar"}
+    )
 
-     [:div.btn-group.btn-space
-      [:a.btn.btn-secondary.dropdown-toggle
-       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
-       "Order "
-       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
 
-      [:div {:class "dropdown-menu" :role "menu"}
-       [:a {:class "dropdown-item" :href "#"} "Newest"]
-       [:a {:class "dropdown-item" :href "#"} "Oldest"]]]
 
-     [:div.btn-group.btn-space
-      [:a.btn.btn-secondary.dropdown-toggle
-       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
-       "Layout "
-       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
-
-      [:div {:class "dropdown-menu" :role "menu"}
-       [:a {:class "dropdown-item" :href "#"} "Full article"]
-       [:a {:class "dropdown-item" :href "#"} "Only titles"]
-       [:a {:class "dropdown-item" :href "#"} "Cards"]]]
-
-     [:div.btn-group.btn-space
-      [:a.btn.btn-secondary.dropdown-toggle
-       {:type "button" :data-toggle "dropdown" :aria-expanded "false"}
-       "Filters "
-       [:span {:class "icon-dropdown mdi mdi-chevron-down"}]]
-
-      [:div {:class "dropdown-menu" :role "menu"}
-       [:a {:class "dropdown-item" :href "#"} "All"]
-       [:a {:class "dropdown-item" :href "#"} "Unread"]]]
-
-     #_
-     [:div {:class "btn-group btn-space float-right"}
-      [:a {:class "btn btn-secondary" :type "button"} "Unread only"]
-      [:a {:class "btn btn-secondary" :type "button"} "Show all"]]
-
-     #_
-     [:div {:class "btn-group btn-space"}
-      [:button {:class "btn btn-primary" :type "button"} "Left"]
-      [:button {:class "btn btn-primary" :type "button"} "Mid"]
-      [:button {:class "btn btn-primary" :type "button"} "Right"]]
-
-     [:div {:class "btn-group btn-space"}
-      [:a {:class "btn btn-secondary" :type "button"}
-       "Update"]]
-
-     [:div {:class "btn-group btn-space"}
-      [:a {:class "btn btn-secondary" :type "button"}
-       "Edit"]]
-
-     [:div {:class "btn-group btn-space"}
-      [:a {:class "btn btn-secondary" :type "button"}
-       "Unsubscribe"]]
-
-     #_
-     [:div {:class "btn-group btn-space"}
-      [:button {:class "btn btn-danger" :type "button"} "Left"]
-      [:button {:class "btn btn-danger" :type "button"} "Mid"]
-      [:button {:class "btn btn-danger" :type "button"} "Right"]]]]
-
-   #_
-   [:nav {:aria-label "breadcrumb" :role "navigation"}
-    [:ol {:class "breadcrumb page-head-nav"}
-     [:li {:class "breadcrumb-item"}
-      [:a {:href "#"} "Home"]]
-     [:li {:class "breadcrumb-item"}
-      [:a {:href "#"} "UI Elements"]]
-     [:li {:class "breadcrumb-item active"} "Buttons"]]]]
 
 
   )
@@ -387,7 +310,7 @@
 
     (case page
       :sub [view-sub params]
-      ;; :preview [view-preview]
+      :preview [view-preview]
       ;; :index [page-dashboard]
       ;; :stats [page-hash params]
       ;; :profile [profile/page-profile params]

@@ -26,3 +26,8 @@
      (fn [item]
        (-> item :sub :id (= sub_id)))
      (get-in db [:dashboard :subs])))))
+
+(rf/reg-sub
+ ::preview
+ (fn [db [_ ]]
+   (get-in db [:preview])))
