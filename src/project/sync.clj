@@ -238,8 +238,10 @@ select
 
 from
   subs s
-  join entries e on e.feed_id = s.feed_id
-  left join messages m on m.entry_id = e.id and m.user_id = s.user_id
+  join entries e
+    on e.feed_id = s.feed_id
+  left join messages m
+    on m.entry_id = e.id and m.user_id = s.user_id
 
 where
   s.user_id = ?
