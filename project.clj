@@ -18,7 +18,7 @@
                  [org.clojure/java.jdbc "0.6.1"]
                  [org.postgresql/postgresql "42.1.3"]
                  [migratus "0.9.8"]
-                 [honeysql "0.9.3"]
+                 [conman "0.8.1"]
 
                  ;; http
                  [compojure "1.6.0"]

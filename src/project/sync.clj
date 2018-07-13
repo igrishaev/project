@@ -228,26 +228,7 @@ where
 
 (defn sync-subs-messages
   [user_id]
-  (db/execute!
-   ["
-insert into messages (user_id, entry_id)
-
-select
-  s.user_id as user_id,
-  e.id as entry_id
-
-from
-  subs s
-  join entries e
-    on e.feed_id = s.feed_id
-  left join messages m
-    on m.entry_id = e.id and m.user_id = s.user_id
-
-where
-  s.user_id = ?
-  and m.id is null
-
-" user_id]))
+  (db/sync-subs-messages {:user_id user_id}))
 
 (defn sync-subs-counters
   [user_id]

@@ -3,8 +3,6 @@
 
             [clojure.java.jdbc :as jdbc]
             [clj-time.jdbc]
-            [honeysql.core :as sql]
-            [honeysql.format :as f :refer [format-clause]]
             [cheshire.core :as json]
             [clojure.tools.logging :as log]
             [migratus.core :as migratus])
@@ -66,12 +64,6 @@
     (clj->pgobject val)))
 
 ;;
-;; Helpers
-;;
-
-(def raw sql/raw)
-
-;;
 ;; JDBC
 ;; Here and below: partial doesn't work with binding.
 ;;
@@ -118,47 +110,23 @@
      ~@body))
 
 ;;
-;; HoneySQL
-;;
-
-(defmethod format-clause :returning
-  [[_ fields] _]
-  (str
-   "RETURNING "
-   (f/comma-join (map f/to-sql fields))))
-
-(defn query-h
-  [map]
-  (query (sql/format map)))
-
-(defn query-hf
-  [map]
-  (first (query-h map)))
-
-(defn query-hv
-  [map]
-  (second (ffirst (query-h map))))
-
-(defn execute-h
-  [map]
-  (execute! (sql/format map)))
-
-;;
 ;; Upsert
 ;;
 
 (def into-map (partial into {}))
 
+#_
 (defn values-excluded [fields]
   (into-map
    (for [field fields]
      [field (sql/raw (clojure.core/format
                       "EXCLUDED.%s" (name field)))])))
-
+#_
 (defn get-fields
   [values]
   (-> values first keys set (disj :id)))
 
+#_
 (defn to-vect
   [values]
   (if (map? values)
@@ -167,6 +135,9 @@
 
 (defn upsert!
   [table constraint values]
+
+  ;; todo!!!
+  #_
   (let [values (to-vect values)
         map-insert {:insert-into table :values values}
         [query1 & params] (sql/format map-insert)
