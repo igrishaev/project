@@ -15,7 +15,7 @@
   (partial db/upsert! :subs "(feed_id, user_id)"))
 
 (def upsert-message
-  (partial db/upsert! :messages "(sub_id, entry_id)"))
+  (partial db/upsert! :messages "(user_id, entry_id)"))
 
 ;;
 ;; Common

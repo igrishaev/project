@@ -119,11 +119,11 @@
   (let [{:keys [feed_id from_id]} params]
 
     (if-let [sub (models/get-sub-by-user-and-id
-                  user sub_id)]
+                  user feed_id)] ;; todo!!!!
 
       (let [msgs (models/get-messages sub from_id)]
         (ok {:messages msgs
-             :sub_id sub_id
+             :sub_id feed_id ;; todo!!
              :from_id from_id}))
 
       (r/err-not-subscribed))))

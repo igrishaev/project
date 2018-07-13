@@ -119,12 +119,12 @@ create table messages (
     updated_at  timestamp with time zone,
 
     entry_id    integer references entries(id),
-    sub_id      integer references subs(id),
+    user_id     integer references users(id),
 
     is_read     boolean not null default false,
     date_read   timestamp with time zone,
 
-    unique (sub_id, entry_id)
+    unique (user_id, entry_id)
 );
 
 commit;
