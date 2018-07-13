@@ -334,3 +334,67 @@ input {
 a {
     color: darkslategray;
 }
+
+.feed-layout-titles {
+    width: 100%;
+}
+
+
+.feed-layout-titles .cell-date {
+    width: 100px;
+}
+
+
+.feed-layout-titles .cell-title {
+    width: 100%;
+}
+
+.feed-layout-titles .cell-actions {
+
+}
+
+.feed-layout-list-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.feed-layout-list-item ._date {
+    width: 70px;
+    min-width: 70px;
+    font-size: 9pt;
+    text-decoration: none;
+}
+
+.feed-layout-list-item ._title {
+    padding-right: 25px;
+}
+
+.feed-layout-list-item ._actions {
+    font-size: 9pt;
+    display: flex;
+}
+
+.feed-layout-list-item ._actions a {
+    margin-right: 10px;
+}
+
+
+.loader {
+    margin-left: -20px;
+    border: 5px solid #f3f3f3; /* Light grey */
+    border-top: 5px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    animation: spin 2s linear infinite;
+}
+
+.loader-wrapper {
+    margin: auto;
+    width: 1px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
