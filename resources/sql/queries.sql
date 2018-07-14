@@ -52,3 +52,15 @@ set
 where
   id = :message_id
   and user_id = :user_id
+
+
+-- :name upsert3 :<!
+insert into :i:table (
+/*~ (let [[fields values] (apply map vector (:values params))] */
+/*~ "a, b, c" */
+)
+/*~ ) ~*/
+where true
+
+-- :name test
+select 1

@@ -63,7 +63,9 @@
 
       (let [feed (models/create-feed url)
             {feed-id :id} feed]
+
         (sync/sync-feed-safe feed)
+
         (let [feed (models/get-feed-by-id feed-id)]
           (ok (clean-feed feed)))))))
 
@@ -74,10 +76,16 @@
   (db/with-tx
     (let [{:keys [feed_id title]} params
           fields {:title title}]
+
       (db/with-tx
 
         (if-let [feed (models/get-feed-by-id feed_id)]
 
+;; todo!!!
+
+          (r/err-feed-404 feed_id)
+
+          #_
           (if (models/subscribed? user feed)
 
             (r/err-subscribed)
@@ -91,7 +99,7 @@
                   ]
               (ok (update res :feed clean-feed))))
 
-          (r/err-feed-404 feed_id))))))
+          )))))
 
 
 (defn unsubscribe

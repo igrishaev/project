@@ -39,6 +39,8 @@
          "Wrong input parameters"
          debug)))
 
+;; todo remove unused
+
 (defn err-anon
   []
   (err 403

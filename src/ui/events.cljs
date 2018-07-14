@@ -77,7 +77,7 @@
 
 (rf/reg-event-db
  ::api.subscribe.ok
- (fn [db [_ feed]] ;; todo put in a proper place
+ (fn [db [_ feed]]
    (assoc-in db [:feeds (:id feed)] feed)))
 
 ;;
