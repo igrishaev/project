@@ -130,9 +130,7 @@
 (defn subscriptions
   [params user & _]
   (let [feeds (db/get-user-feeds {:user_id (:id user)})]
-    (ok (into-map
-         (for [feed feeds]
-           [(:id feed) (clean-feed feed)])))))
+    (ok (map clean-feed feeds))))
 
 ;;
 ;; Messages

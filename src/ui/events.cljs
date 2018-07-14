@@ -88,10 +88,15 @@
  (fn [_ [_]]
    {:dispatch [::api.call :subscriptions nil ::api.feeds.ok]}))
 
+(def into-map (partial into {}))
+
 (rf/reg-event-db
  ::api.feeds.ok
  (fn [db [_ feeds]]
-   (assoc-in db [:feeds] feeds)))
+   (let [zipped (into-map
+                 (for [feed feeds]
+                   [(:id feed) feed]))]
+     (assoc-in db [:feeds] zipped))))
 
 ;;
 ;; Unsubscribe
