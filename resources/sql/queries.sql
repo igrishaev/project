@@ -54,15 +54,16 @@ where
     and s.id = :sub_id
 
 
--- :name mark-read :! :n
-update messages
-set
-  is_read = :is_read
-  date_read = now(), -- todo
-  updated_at = now()
-where
-  id = :message_id
-  and user_id = :user_id
+-- todo remove that?
+-- -- :name mark-read :! :n
+-- update messages
+-- set
+--   is_read = :is_read
+--   date_read = now(), -- todo
+--   updated_at = now()
+-- where
+--   id = :message_id
+--   and user_id = :user_id
 
 
 -- :name upsert3 :<!

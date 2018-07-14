@@ -167,3 +167,13 @@
     (if-let [feed (get-feed-by-url url)]
       feed
       (create-feed url))))
+
+;;
+;; Entries
+;;
+
+(def find-entry (partial db/find-first :entries))
+
+(defn get-entry-by-id
+  [id]
+  (find-entry {:id id}))

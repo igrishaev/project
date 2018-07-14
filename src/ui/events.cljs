@@ -137,19 +137,17 @@
 
 (rf/reg-event-fx
  ::api.mark-read
- (fn [_ [_ sub_id message_id is_read]]
+ (fn [_ [_ entry_id is_read]]
    {:dispatch [::api.call :mark-read
-               {:sub_id sub_id
-                :message_id message_id
+               {:entry_id entry_id
                 :is_read is_read}
                ::api.mark-read.ok]}))
 
 (rf/reg-event-db
  ::api.mark-read.ok
- (fn [db [_ ]]
-   ;; todo mark read in the db
-   db))
-
+ (fn [db [_ sub]]
+   (let [{:keys [feed_id]} sub]
+     (assoc-in db [:feeds feed_id :sub] sub))))
 
 ;;
 ;; User info

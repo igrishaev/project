@@ -190,7 +190,11 @@
 
        [:div.menu-item [:a {:href "#"} "Star"]]
        [:div.menu-item [:a {:href "#"} "Bookmark"]]
-       [:div.menu-item [:a {:href "#"} "Hide"]]]
+       [:div.menu-item
+        [:a {:href js-stub
+             :on-click
+             #(rf/dispatch [:ui.events/api.mark-read entry-id true])}
+         "Mark read"]]]
 
       [:div.entry-content.overflow-split
        {:dangerouslySetInnerHTML {:__html summary}}

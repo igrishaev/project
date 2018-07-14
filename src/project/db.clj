@@ -189,26 +189,27 @@
         to-vec (partial apply vector)
         [fields values] (apply map vector params)
         fields (map name fields)]
-    (query
-     (to-vec
-      (join-lines
-       ""
-       (format "insert into %s (" (name table))
-       (join-comma fields)
-       ")"
-       "values ("
-       (join-comma (repeat (count fields) "?"))
-       ")"
-       (format "on conflict %s" conflict)
-       "do update"
-       "set"
-       "updated_at = now(),"
-       (join-comma
-        (for [field fields
-              :when (not= field "id")]
-          (format "%s = excluded.%s" field field)))
-       "returning *")
-      values))))
+    (first
+     (query
+      (to-vec
+       (join-lines
+        ""
+        (format "insert into %s (" (name table))
+        (join-comma fields)
+        ")"
+        "values ("
+        (join-comma (repeat (count fields) "?"))
+        ")"
+        (format "on conflict %s" conflict)
+        "do update"
+        "set"
+        "updated_at = now(),"
+        (join-comma
+         (for [field fields
+               :when (not= field "id")]
+           (format "%s = excluded.%s" field field)))
+        "returning *")
+       values)))))
 
 ;;
 ;; Main

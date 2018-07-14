@@ -87,8 +87,7 @@
 ;;
 
 (s/def ::api.mark-read
-  (s/keys :req-un [::sub_id
-                   ::message_id
+  (s/keys :req-un [::entry_id
                    ::is_read]))
 
 ;;

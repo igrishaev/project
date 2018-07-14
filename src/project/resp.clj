@@ -51,6 +51,11 @@
   (err 404
        (format "No such a feed was found: %s" artifact)))
 
+(defn err-entry-404
+  [artifact]
+  (err 404
+       (format "No such an entry was found: %s" artifact)))
+
 (defn err-server
   [e]
   (err 500

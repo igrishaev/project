@@ -3,6 +3,7 @@
   (:require [project.models :as models]
             [project.db :as db]
             [project.sync :as sync]
+            [project.time :as t]
             [project.resp :refer [ok] :as r]))
 
 ;;
@@ -147,25 +148,29 @@
          :from_id from_id})))
 
 
-;; todo re-calc unread count
 
 (defn mark-read
   [params user & _]
-  (let [{:keys [sub_id message_id is_read]} params
+
+  ;; TODO re-calc unread count
+
+  (let [{:keys [entry_id is_read]} params
         {user_id :id} user]
 
-    (db/with-tx
+    (if-let [entry (models/get-entry-by-id entry_id)]
 
-      (if nil
+      (let [date_read (when is_read (t/now))
+            params {:entry_id entry_id
+                    :user_id user_id
+                    :is_read is_read
+                    :date_read date_read}
+            message (models/upsert-message params)]
 
-        #_(models/sub-exists?
-           {:id sub_id :user_id user_id})
+        ;; todo udpate response
+        (ok {:entry entry
+             :message message}))
 
-        (do
-          (db/mark-read message_id sub_id is_read)
-          (r/ok-empty))
-
-        (r/err-not-subscribed)))))
+      (r/err-entry-404 entry_id))))
 
 
 (defn user-info
