@@ -1,6 +1,7 @@
 (ns project.db
   (:require [project.env :refer [env]]
 
+            [conman.core :as conman]
             [clojure.java.jdbc :as jdbc]
             [clj-time.jdbc]
             [cheshire.core :as json]
@@ -176,3 +177,9 @@
 
 (defn init []
   (migrate))
+
+;;
+;; Main
+;;
+
+(conman/bind-connection *db* "queries.sql")

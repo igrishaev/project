@@ -116,14 +116,6 @@
 ;; todo delete messages?
 ;; or do that later?
 
-(def subs-query
-  {:select
-   [:f.*
-    (db/raw "row_to_json(s) as sub")]
-   :from [[:feeds :f] [:subs :s]]
-   :where [:and
-           [:= :s.feed_id :f.id]]})
-
 ;;
 ;; Messages
 ;;
@@ -139,16 +131,6 @@
 ;; todo bump sub read counter
 ;; todo make batch?
 
-(defn mark-read
-  [message_id sub_id is_read]
-  (db/execute-h
-   {:update :messages
-    :set {:is_read is_read
-          :date_read (when is_read :%now)
-          :updated_at :%now}
-    :where [:and
-            [:= :id message_id]
-            [:= :sub_id sub_id]]}))
 
 ;;
 ;; Feed

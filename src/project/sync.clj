@@ -3,7 +3,7 @@
             [project.db :as db]
             [project.models :as models]
             [project.error :as e]
-            [project.time :refer [parse-iso-now]]
+            [project.time :as t]
             [project.util :as u]
 
             [clojure.tools.logging :as log]
@@ -81,7 +81,7 @@
      :upd_period sy_updateperiod
      :upd_freq sy_updatefrequency
 
-     :date_updated_at (parse-iso-now updated_parsed)
+     :date_updated_at (t/parse-iso-now updated_parsed)
 
      :last_entry_count (count entries)
 
@@ -120,8 +120,8 @@
      :enclosure_url enc_url
      :enclosure_mime enc_mime
 
-     :date_published_at (parse-iso-now published_parsed)
-     :date_updated_at (parse-iso-now updated_parsed)
+     :date_published_at (t/parse-iso-now published_parsed)
+     :date_updated_at (t/parse-iso-now updated_parsed)
 
      }))
 
@@ -151,7 +151,12 @@
 
 (defn sync-feed-safe
   [feed]
-  (let [{url :url_source id :id} feed
+  (let [{:keys [id
+                url_source
+                sync_count_err
+                sync_count_total
+                sync_date_next
+                sync_interval]} feed
         fields (transient {})]
 
     (try
@@ -160,21 +165,20 @@
       (catch Throwable e
         (let [err-msg (e/exc-msg e)]
 
-          (log/errorf "Sync error, feed: %s, e: %s" url err-msg)
+          (log/errorf "Sync error, feed: %s, e: %s"
+                      url_source err-msg)
           (assoc!
            fields
-           :sync_count_err (db/raw "sync_count_err + 1")
+           :sync_count_err (inc sync_count_err)
            :sync_error_msg err-msg)))
 
       (finally
         (assoc!
          fields
-         :updated_at :%now
-         :sync_date_last :%now
-         :sync_date_next
-         (db/raw "now() + sync_interval * interval '1 second'")
-
-         :sync_count_total (db/raw "sync_count_total + 1"))
+         :updated_at (t/now)
+         :sync_date_last (t/now)
+         :sync_date_next (t/ahead sync_interval)
+         :sync_count_total (inc sync_count_total))
 
         (let [fields (persistent! fields)]
           (models/update-feed id fields))))))

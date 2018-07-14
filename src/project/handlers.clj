@@ -83,7 +83,12 @@
             (r/err-subscribed)
 
             (let [sub (models/subscribe user feed fields)
-                  res (models/get-user-sub user sub)]
+
+                  res nil ;; todo
+
+                  ;; res (models/get-user-sub user sub)
+
+                  ]
               (ok (update res :feed clean-feed))))
 
           (r/err-feed-404 feed_id))))))
@@ -99,6 +104,7 @@
       (if (models/has-sub? user sub_id)
 
         (do
+          #_ ;; todo
           (models/unsubscribe user sub_id)
           (r/ok-empty))
 
@@ -107,7 +113,7 @@
 
 (defn subscriptions
   [params user & _]
-  (let [subs (models/get-user-subs user)]
+  (let [subs nil  #_(models/get-user-subs user)]
     (ok (map clean-feed subs))))
 
 ;;
@@ -121,7 +127,11 @@
     (if-let [sub (models/get-sub-by-user-and-id
                   user feed_id)] ;; todo!!!!
 
-      (let [msgs (models/get-messages sub from_id)]
+      (let [msgs nil
+
+            #_
+
+            (models/get-messages sub from_id)]
         (ok {:messages msgs
              :sub_id feed_id ;; todo!!
              :from_id from_id}))
@@ -138,11 +148,13 @@
 
     (db/with-tx
 
-      (if (models/sub-exists?
+      (if nil
+
+        #_(models/sub-exists?
            {:id sub_id :user_id user_id})
 
         (do
-          (models/mark-read message_id sub_id is_read)
+          (db/mark-read message_id sub_id is_read)
           (r/ok-empty))
 
         (r/err-not-subscribed)))))
