@@ -125,48 +125,6 @@
 
      }))
 
-(defn update-feed-entry-count
-  [feed_id]
-  (db/execute!
-   ["
-update feeds
-set
-  updated_at = now(),
-  entry_count_total = q.entry_count
-from (
-  select
-    e.feed_id as feed_id,
-    count(e.id) as entry_count
-  from entries e
-  where
-    e.feed_id = ?
-  group by e.feed_id
-) as q
-where
-  id = q.feed_id
-" feed_id]))
-
-(defn update-feed-sub-count
-  [feed_id]
-  (db/execute!
-   ["
-update feeds
-set
-  updated_at = now(),
-  sub_count_total = q.sub_count
-from (
-  select
-    s.feed_id as feed_id,
-    count(s.id) as sub_count
-  from subs s
-  where
-    s.feed_id = ?
-  group by s.feed_id
-) as q
-where
-  id = q.feed_id
-" feed_id]))
-
 (defn sync-feed
   [feed]
   (let [{feed-url :url_source feed-id :id} feed
@@ -188,8 +146,8 @@ where
            (for [e entries]
              (assoc e :feed_id feed-id))))
 
-        (update-feed-entry-count feed-id)
-        (update-feed-sub-count feed-id)))))
+        (db/sync-feed-entry-count {:feed_id feed-id})
+        (db/sync-feed-sub-count {:feed_id feed-id})))))
 
 (defn sync-feed-safe
   [feed]
@@ -226,82 +184,13 @@ where
   (let [feed (models/get-or-create-feed url)]
     (sync-feed-safe feed)))
 
-(defn sync-subs-messages
-  [user_id]
-  (db/sync-subs-messages {:user_id user_id}))
-
-(defn sync-subs-counters
-  [user_id]
-  (db/execute!
-   ["
-update subs
-set
-  updated_at = now(),
-  message_count_total = q.count_total,
-  message_count_unread = q.count_unread
-from (
-  select
-    s.id as sub_id,
-    count(m.id) as count_total,
-    count(m.id) filter (where not m.is_read) as count_unread
-  from subs s
-  join messages m on m.sub_id = s.id
-  where
-    s.user_id = ?
-  group by s.id
-) as q
-where
-  id = q.sub_id
-" user_id]))
-
-(defn sync-user-counters
-  [user_id]
-  (db/execute!
-   ["
-update users
-set
-  updated_at = now(),
-  sync_date_last = now(),
-  sync_date_next = now() + sync_interval * interval '1 second',
-  sync_count_total = sync_count_total + 1
-where id = ?
-" user_id]))
-
-(defn get-users-to-sync
-  []
-  (db/query
-   "
-select *
-from users
-where
-  and (sync_date_next is null
-       or sync_date_next < now())
-order by
-  sync_date_next asc nulls first
-limit 100
-"))
-
-(defn get-feeds-to-sync
-  []
-  (db/query
-   "
-select *
-from feeds
-where
-  and (sync_date_next is null
-       or sync_date_next < now())
-order by
-  sync_date_next asc nulls first
-limit 100
-"))
-
 (defn sync-user
   ;; todo wrap with log etc
   [user_id]
   (db/with-tx
-    (sync-subs-messages user_id)
-    (sync-subs-counters user_id)
-    (sync-user-counters user_id)))
+    (db/sync-subs-messages {:user_id user_id})
+    (db/sync-subs-counters {:user_id user_id})
+    (db/sync-user-counters {:user_id user_id})))
 
 (defn sync-user-safe
   ;; todo wrap with log etc
