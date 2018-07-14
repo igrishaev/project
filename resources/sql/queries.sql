@@ -6,6 +6,7 @@ where e.feed_id = :feed_id
 order by e.id desc
 limit 5
 
+
 -- :name get-user-feeds :? :*
 select
     f.*,
@@ -15,6 +16,9 @@ from
     join subs s on s.feed_id = f.id
 where
     s.user_id = :user_id
+    /*~ (when (:feed_id params) */
+    and f.id = :feed_id
+    /*~ ) ~*/
 
 
 -- :name get-subscribed-entries :? :*

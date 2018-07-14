@@ -104,7 +104,7 @@ create table subs (
     feed_id     integer references feeds(id),
     user_id     integer references users(id),
 
-    title       text not null,
+    title       text,
 
     message_count_total integer not null default 0,
     message_count_unread integer not null default 0,

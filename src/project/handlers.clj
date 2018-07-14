@@ -80,31 +80,32 @@
   [params user & _]
   (db/with-tx
     (let [{:keys [feed_id title]} params
-          fields {:title title}]
+          {user_id :id} user]
 
       (db/with-tx
 
         (if-let [feed (models/get-feed-by-id feed_id)]
 
-;; todo!!!
+          (do ;; todo transaction?
 
-          (r/err-feed-404 feed_id)
+            ;; create subscription
+            (models/upsert-sub {:feed_id feed_id
+                                :user_id user_id
+                                :title "test"})
 
-          #_
-          (if (models/subscribed? user feed)
+            ;; todo title!
 
-            (r/err-subscribed)
+            ;; subscribe to the latest N entries
+            (db/sync-subs-messages {:user_id user_id
+                                    :feed_id feed_id
+                                    :limit 10})
 
-            (let [sub (models/subscribe user feed fields)
+            (let [feed (first
+                        (db/get-user-feeds
+                         {:feed_id feed_id :user_id user_id}))]
+              (ok (clean-feed feed))))
 
-                  res nil ;; todo
-
-                  ;; res (models/get-user-sub user sub)
-
-                  ]
-              (ok (update res :feed clean-feed))))
-
-          )))))
+          (r/err-feed-404 feed_id))))))
 
 
 (defn unsubscribe
