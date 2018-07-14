@@ -52,14 +52,19 @@
 ;; entries are empty
 ;; http >= 400
 
-(defn preview
+(defn search-wrap-feed
+  [feed]
+  (let [entries (db/get-last-entries {:feed_id (:id feed)})]
+    (-> (clean-feed feed)
+        (assoc :entries entries))))
+
+(defn search-feeds
   [params & _]
   (let [{:keys [url]} params
         feed (models/get-feed-by-url url)]
 
     (if feed
-
-      (ok (clean-feed feed))
+      (ok (map search-wrap-feed [feed]))
 
       (let [feed (models/create-feed url)
             {feed-id :id} feed]
@@ -67,7 +72,7 @@
         (sync/sync-feed-safe feed)
 
         (let [feed (models/get-feed-by-id feed-id)]
-          (ok (clean-feed feed)))))))
+          (ok (map search-wrap-feed [feed])))))))
 
 ;; todo add some messages
 

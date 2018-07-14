@@ -1,4 +1,11 @@
 
+-- :name get-last-entries :? :*
+select e.*
+from entries e
+where e.feed_id = :feed_id
+order by e.id desc
+limit 5
+
 -- :name get-user-feeds :? :*
 select
     f.*,

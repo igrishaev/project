@@ -22,6 +22,6 @@
    (get-in db [:feeds feed_id])))
 
 (rf/reg-sub
- ::preview
+ ::search-feeds
  (fn [db [_ ]]
-   (get-in db [:preview])))
+   (get-in db [:search-feeds])))

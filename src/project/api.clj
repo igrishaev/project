@@ -52,8 +52,8 @@
 
 (def actions
 
-  {:preview {:handler :project.handlers/preview
-             :spec :project.spec/api.preview}
+  {:search-feeds {:handler :project.handlers/search-feeds
+                  :spec :project.spec/api.search-feeds}
 
    :subscribe {:handler :project.handlers/subscribe
                :spec :project.spec/api.subscribe}

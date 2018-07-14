@@ -51,17 +51,16 @@
 ;;
 
 (rf/reg-event-fx
- ::api.preview
+ ::api.search-feeds
  (fn [_ [_ url]]
-   {:dispatch [::api.call :preview
+   {:dispatch [::api.call :search-feeds
                {:url url}
-               ::api.preview.ok]}))
+               ::api.search-feeds.ok]}))
 
-(rf/reg-event-fx
- ::api.preview.ok
- (fn [{db :db} [_ feed]]
-   {:db (assoc-in db [:preview] feed)
-    :dispatch [::page :preview]}))
+(rf/reg-event-db
+ ::api.search-feeds.ok
+ (fn [db [_ feed]]
+   (assoc-in db [:search-feeds] feed)))
 
 ;;
 ;; Subscribe

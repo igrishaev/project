@@ -49,7 +49,7 @@
 ;; Preview
 ;;
 
-(s/def ::api.preview
+(s/def ::api.search-feeds
   (s/keys :req-un [::url]))
 
 ;;

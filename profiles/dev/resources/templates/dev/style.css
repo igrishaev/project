@@ -190,6 +190,10 @@ h1, h2, h3, h4 {
     font-weight: bold;
 }
 
+.small {
+    font-size: 9pt;
+}
+
 .feed-image {
     margin: 0px 7px;
     padding-top: 5px;
