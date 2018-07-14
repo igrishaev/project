@@ -5,7 +5,8 @@ where
     feed_id = :feed_id
     and user_id = :user_id
 
--- :name get-user-subs :? :n
+
+-- :name get-user-feeds :? :*
 select
     f.*,
     row_to_json(s) as sub
@@ -27,7 +28,7 @@ where
     s.user_id = :user_id
     and s.id = :sub_id
 
--- :name get-messages :? :n
+-- :name get-messages :? :*
 -- :doc todo add from_id
 select
   e.*,
@@ -104,7 +105,7 @@ where
   id = q.feed_id
 
 
--- :name get-feeds-to-sync :? :n
+-- :name get-feeds-to-sync :? :*
 select *
   from feeds
 where
@@ -147,7 +148,7 @@ set
 where id = :user_id
 
 
--- :name get-users-to-sync :? :n
+-- :name get-users-to-sync :? :*
 select *
 from users
 where

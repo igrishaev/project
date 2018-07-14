@@ -183,3 +183,5 @@
 ;;
 
 (conman/bind-connection *db* "queries.sql")
+
+nil

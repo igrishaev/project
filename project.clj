@@ -81,7 +81,7 @@
 
   :cljsbuild
   {:builds [{:id "dev"
-             :source-paths ["src"]
+             :source-paths ["src/ui"]
              :figwheel true
              :compiler {:main ui.core
                         :preloads [re-frisk.preload]
@@ -92,7 +92,7 @@
                         :pretty-print true}}
 
             {:id "prod"
-             :source-paths ["src"]
+             :source-paths ["src/ui"]
              :compiler {:main ui.core
                         :pretty-print false
                         :optimizations :advanced

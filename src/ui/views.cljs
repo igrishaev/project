@@ -40,6 +40,8 @@
   (let [feeds @(rf/subscribe [:ui.subs/feeds])]
     [:div
 
+     [view-sync-button]
+
      [:div.sidebar-folder
       [:div.sidebar-section.sidebar-feed.sidebar-tag
        "Design ▾"]]
