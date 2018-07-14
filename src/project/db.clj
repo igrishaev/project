@@ -182,6 +182,7 @@
 ;; Main
 ;;
 
-(conman/bind-connection *db* "queries.sql")
+(conman/bind-connection *db* "sql/queries.sql")
+(conman/bind-connection *db* "sql/sync.sql")
 
 nil

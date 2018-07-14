@@ -77,22 +77,22 @@
 
 (rf/reg-event-db
  ::api.subscribe.ok
- (fn [db [_ sub]] ;; todo put in a proper place
-   (update-in db [:dashboard :subs] conj sub)))
+ (fn [db [_ feed]] ;; todo put in a proper place
+   (assoc-in db [:feeds (:id feed)] feed)))
 
 ;;
 ;; Subscriptions
 ;;
 
 (rf/reg-event-fx
- ::api.subs
+ ::api.feeds
  (fn [_ [_]]
-   {:dispatch [::api.call :subscriptions nil ::api.subs.ok]}))
+   {:dispatch [::api.call :subscriptions nil ::api.feeds.ok]}))
 
 (rf/reg-event-db
- ::api.subs.ok
- (fn [db [_ subs]]
-   (assoc-in db [:dashboard :subs] subs)))
+ ::api.feeds.ok
+ (fn [db [_ feeds]]
+   (assoc-in db [:feeds] feeds)))
 
 ;;
 ;; Unsubscribe
@@ -119,13 +119,13 @@
  ::api.messages
  (fn [_ [_ feed_id & [from_id]]]
    {:dispatch [::api.call :messages
-               {:feed-id feed_id :from_id from_id}
+               {:feed_id feed_id :from_id from_id}
                ::api.messages.ok]}))
 
 (rf/reg-event-db
  ::api.messages.ok
- (fn [db [_ {:keys [messages sub_id] :as resp}]]
-   (assoc-in db [:messages sub_id] resp)))
+ (fn [db [_ {:keys [feed_id] :as resp}]]
+   (assoc-in db [:entries feed_id] resp)))
 
 ;;
 ;; Mark (un)read

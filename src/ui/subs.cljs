@@ -9,23 +9,17 @@
 (rf/reg-sub
  ::feeds
  (fn [db [_]]
-   (get-in db [:dashboard :subs])))
+   (vals (get-in db [:feeds]))))
 
 (rf/reg-sub
- ::messages
- (fn [db [_ sub_id]]
-   (get-in db [:messages sub_id :messages])))
-
-;; todo might be slow
+ ::entries
+ (fn [db [_ feed_id]]
+   (get-in db [:entries feed_id])))
 
 (rf/reg-sub
- ::find-sub
- (fn [db [_ sub_id]]
-   (first
-    (filter
-     (fn [item]
-       (-> item :sub :id (= sub_id)))
-     (get-in db [:dashboard :subs])))))
+ ::find-feed
+ (fn [db [_ feed_id]]
+   (get-in db [:feeds feed_id])))
 
 (rf/reg-sub
  ::preview

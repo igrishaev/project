@@ -34,7 +34,7 @@
   (init-mount)
   ;; (init-urls)
 
-  (rf/dispatch [:ui.events/api.subs])
+  (rf/dispatch [:ui.events/api.feeds])
 
   )
 

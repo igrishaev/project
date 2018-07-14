@@ -111,11 +111,14 @@
         (r/err-not-subscribed)))))
 
 
+(def into-map (partial into {}))
+
 (defn subscriptions
   [params user & _]
   (let [feeds (db/get-user-feeds {:user_id (:id user)})]
-    (ok
-     (map clean-feed feeds))))
+    (ok (into-map
+         (for [feed feeds]
+           [(:id feed) (clean-feed feed)])))))
 
 ;;
 ;; Messages
@@ -123,21 +126,13 @@
 
 (defn messages
   [params user & _]
-  (let [{:keys [feed_id from_id]} params]
-
-    (if-let [sub (models/get-sub-by-user-and-id
-                  user feed_id)] ;; todo!!!!
-
-      (let [msgs nil
-
-            #_
-
-            (models/get-messages sub from_id)]
-        (ok {:messages msgs
-             :sub_id feed_id ;; todo!!
-             :from_id from_id}))
-
-      (r/err-not-subscribed))))
+  (let [{:keys [feed_id from_id]} params
+        {user_id :id} user
+        params {:feed_id feed_id :user_id user_id}
+        entries (db/get-subscribed-entries params)]
+    (ok {:entries entries
+         :feed_id feed_id
+         :from_id from_id})))
 
 
 ;; todo re-calc unread count

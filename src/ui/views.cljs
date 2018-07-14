@@ -18,7 +18,7 @@
   []
   [:button
    {:on-click
-    #(rf/dispatch [:ui.events/api.subs])}
+    #(rf/dispatch [:ui.events/api.feeds])}
    "Sync"])
 
 
@@ -38,6 +38,7 @@
 (defn left-sidebar
   []
   (let [feeds @(rf/subscribe [:ui.subs/feeds])]
+
     [:div
 
      [view-sync-button]
@@ -109,7 +110,7 @@
 )
 
 (defn feed-controls
-  [feed sub]
+  [feed]
 
   [:div.menu-items
    [:div.dropdown.menu-item
@@ -121,14 +122,14 @@
 
    [:div.dropdown.menu-item
     [:a.dropbtn {:href "#"}
-     "Layout " [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]
+     "Layout "
+     [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]
 
     [:div.dropdown-content
      [:a {:href js-stub
           :on-click
-
           (fn [e]
-            (prn "123"))
+            (js/alert "todo"))
           }
       "Full article"]
 
@@ -141,24 +142,28 @@
   )
 
 (defn feed-header
-  [feed sub]
+  [feed]
 
-  [:div#feed-header
-   [:h1.overflow-split
-    [:a
-     {:href (:link feed)}
-     (get-feed-title feed)]]
+  (let [{:keys [link]} feed]
 
-   [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
 
-   [feed-controls feed sub]])
+    [:div#feed-header
+     [:h1.overflow-split
+      [:a
+       {:href link}
+       (get-feed-title feed)]]
+
+     [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
+
+     [feed-controls feed]]))
 
 (defn feed-entries
-  [msgs]
+  [entries]
   [:div#feed-items
 
-   (for [{:keys [entry message]} msgs
-         :let [{entry-id :id :keys [link summary title]} entry]]
+   (for [entry entries
+         :let [{entry-id :id
+                :keys [link summary title]} entry]]
 
      ^{:key entry-id}
      [:div.entry.overflow-split
@@ -198,44 +203,18 @@
    ])
 
 
-(defn view-sub
+(defn view-feed
   [params]
-  (let [{:keys [sub-id]} params
-        sub-id (int sub-id)]
+  (let [{:keys [feed-id]} params
+        feed-id (int feed-id)
 
-    #_
-    (rf/dispatch [:ui.events/api.messages sub-id])
+        entries @(rf/subscribe [:ui.subs/entries feed-id])
+        {:keys [feed_id entries]} entries
+        feed @(rf/subscribe [:ui.subs/find-feed feed_id])]
 
-    (let [msgs @(rf/subscribe [:ui.subs/messages sub-id])
-
-          sub @(rf/subscribe [:ui.subs/find-sub sub-id])
-          {:keys [sub feed]} sub
-
-          ]
-
-      [:div
-       [feed-header feed sub]
-       [feed-entries msgs]
-
-
-       ]
-
-
-
-      #_
-      [:div.main-content.container-fluid
-
-
-
-       (for [{:keys [entry message]} msgs
-             :let [{msg-id :id} message]]
-
-         ^{:key msg-id}
-         [view-message entry message])
-
-       ]))
-
-  )
+    [:div
+     [feed-header feed]
+     [feed-entries entries]]))
 
 (def form-search
   [:input#search-field
@@ -308,15 +287,11 @@
 
 (defn view-page
   []
-
-  #_
-  (rf/dispatch [:ui.events/api.subs])
-
   (let [page @(rf/subscribe [:ui.subs/page])
         {:keys [page params]} page]
 
     (case page
-      :sub [view-sub params]
+      :feed [view-feed params]
       :preview [view-preview]
       ;; :index [page-dashboard]
       ;; :stats [page-hash params]
