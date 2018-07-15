@@ -92,14 +92,13 @@
             ;; create subscription
             (models/upsert-sub {:feed_id feed_id
                                 :user_id user_id
-                                :title "test"})
-
-            ;; todo title!
+                                :title title})
 
             ;; subscribe to the latest N entries
-            (db/sync-subs-messages {:user_id user_id
-                                    :feed_id feed_id
-                                    :limit 10})
+            (db/subscribe-user-to-the-last-feed-entries
+             {:user_id user_id
+              :feed_id feed_id
+              :limit 10})
 
             (let [feed (first
                         (db/get-user-feeds
@@ -167,8 +166,7 @@
             message (models/upsert-message params)]
 
         ;; todo udpate response
-        (ok {:entry entry
-             :message message}))
+        (ok (assoc entry :message message)))
 
       (r/err-entry-404 entry_id))))
 

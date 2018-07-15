@@ -113,49 +113,6 @@
      ~@body))
 
 ;;
-;; Upsert
-;;
-
-(def into-map (partial into {}))
-
-#_
-(defn values-excluded [fields]
-  (into-map
-   (for [field fields]
-     [field (sql/raw (clojure.core/format
-                      "EXCLUDED.%s" (name field)))])))
-#_
-(defn get-fields
-  [values]
-  (-> values first keys set (disj :id)))
-
-#_
-(defn to-vect
-  [values]
-  (if (map? values)
-    [values]
-    values))
-
-(defn upsert!
-  [table constraint values]
-
-  ;; todo!!!
-  #_
-  (let [values (to-vect values)
-        map-insert {:insert-into table :values values}
-        [query1 & params] (sql/format map-insert)
-        fields (get-fields values)
-        vals-exc (values-excluded fields)
-        vals-exc (assoc vals-exc :updated_at :%now)
-        map-update {:set vals-exc}
-        [query2] (sql/format map-update)
-        q (clojure.core/format
-           "%s ON CONFLICT %s DO UPDATE %s RETURNING id"
-           query1 constraint query2)
-        q-vector (concat [q] params)]
-    (query q-vector)))
-
-;;
 ;; Migrations
 ;;
 
@@ -174,12 +131,8 @@
   (migratus/rollback mg-cfg))
 
 ;;
-;; Init part
+;; Upsert
 ;;
-
-(defn init []
-  (migrate))
-
 
 (defn upsert!
   [table conflict params]
@@ -210,6 +163,13 @@
            (format "%s = excluded.%s" field field)))
         "returning *")
        values)))))
+
+;;
+;; Init part
+;;
+
+(defn init []
+  (migrate))
 
 ;;
 ;; Main

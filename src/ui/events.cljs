@@ -145,9 +145,12 @@
 
 (rf/reg-event-db
  ::api.mark-read.ok
- (fn [db [_ sub]]
-   (let [{:keys [feed_id]} sub]
-     (assoc-in db [:feeds feed_id :sub] sub))))
+ (fn [db [_ entry]]
+   (let [{:keys [feed_id]} entry]
+     db
+     ;; todo
+     #_
+     (assoc-in db [:entries feed_id] entry))))
 
 ;;
 ;; User info

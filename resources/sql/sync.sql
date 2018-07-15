@@ -13,14 +13,8 @@ from
 where
   s.user_id = :user_id
   and m.id is null
-/*~ (when (:feed_id params) */
-  and e.feed_id = :feed_id
-/*~ ) ~*/
 
 order by e.id desc
-/*~ (when (:limit params) */
-limit :limit
-/*~ ) ~*/
 
 
 -- :name sync-feed-entry-count :! :n

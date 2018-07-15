@@ -1,4 +1,26 @@
 
+-- :name subscribe-user-to-the-last-feed-entries :! :n
+insert into
+  messages (user_id, entry_id)
+
+select
+  :user_id as user_id,
+  e.id as entry_id
+from
+  entries e
+where
+  e.feed_id = :feed_id
+order by
+  e.id desc
+limit :limit
+
+on conflict (user_id, entry_id)
+do update set
+  is_read = false,
+  date_read = null,
+  updated_at = now()
+
+
 -- :name get-last-entries :? :*
 select e.*
 from entries e

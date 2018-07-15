@@ -26,6 +26,9 @@
                  [ring/ring-json "0.4.0"]
                  [metosin/ring-http-response "0.9.0"] ;; delete
 
+                 ;; todo
+                 [com.rpl/specter "1.1.1"]
+
                  ;; misc
                  [clj-time "0.14.0"]
                  [clj-http "3.6.1"]
