@@ -212,9 +212,7 @@ h1, h2, h3, h4 {
 }
 
 .overflow-split {
-    overflow-x: hidden;
-    text-overflow: ellipsis;
-    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .feed-items {

@@ -98,7 +98,7 @@
        {:dangerouslySetInnerHTML {:__html (:summary entry)}}]
 
       ;;btn.btn-primary
-]
+      ]
 
      [:div.card-footer.card-footer-contra__.text-center__
       [:a.card-link {:href (:link entry)}
@@ -106,8 +106,8 @@
        [:span {:dangerouslySetInnerHTML {:__html "&rarr;"}}]]]
 
 
-]]]
-)
+     ]]]
+  )
 
 (defn feed-controls
   [feed]
@@ -157,6 +157,13 @@
 
      [feed-controls feed]]))
 
+(defn read-more
+  []
+  [:div.read-more
+   [:div.load-wrapper
+    [:div.loader]
+    [:span "Loading..."]]])
+
 (defn feed-entries
   [entries]
   [:div#feed-items
@@ -166,7 +173,7 @@
                 :keys [link summary title]} entry]]
 
      ^{:key entry-id}
-     [:div.entry.overflow-split
+     [:div.entry ;; .overflow-split
 
       [:h2.overflow-split
        [:a {:href link} title]]
@@ -197,14 +204,11 @@
          "Mark read"]]]
 
       [:div.entry-content.overflow-split
-       {:dangerouslySetInnerHTML {:__html summary}}
+       {:dangerouslySetInnerHTML {:__html summary}}]
 
-       ]
-      [:div.entry-controls [:a {:href link} "Visit page →"]]]
+      [:div.entry-controls [:a {:href link} "Visit page →"]]])
 
-     )
-
-   ])
+   [read-more]])
 
 
 (defn view-feed
