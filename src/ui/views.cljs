@@ -203,12 +203,9 @@
     [:span "Loading..."]]])
 
 (defn entry-scroll
-  [entry-id]
-  [:div "test"]
-  #_
-  (let [
-        {entry-id :id} entry
-        node (atom nil)]
+  [feed-id entry-id]
+
+  (let [node (atom nil)]
 
     (r/create-class
 
@@ -218,7 +215,8 @@
 
       :reagent-render
       (fn []
-        (let [entry @(rf/subscribe [:entry entry-id])
+        (let [entry @(rf/subscribe [:ui.subs/find-entry
+                                    feed-id  entry-id])
               scroll @(rf/subscribe [:scroll])
               {:keys [scroll]} scroll]
 
@@ -236,11 +234,14 @@
   ;; todo track scroll in a separate view!
   [entry]
   (let [{entry-id :id
+         feed-id :feed_id
          :keys [link title summary]} entry]
 
     [:div.entry
+     {:style (when (-> entry :message :is_read)
+               {:background-color "#000"})}
 
-     [entry-scroll entry]
+     [entry-scroll feed-id entry-id]
 
      #_
      (prn (-> entry :id) (-> entry :message :is_read))

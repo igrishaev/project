@@ -33,7 +33,9 @@
 
 (js/window.addEventListener
  "scroll"
- (goog.functions/rateLimit on-scroll scroll-delta))
+ (goog.functions/throttle on-scroll scroll-delta))
+
+;; todo init
 
 #_
 (defn foo
