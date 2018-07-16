@@ -182,6 +182,9 @@
 (rf/reg-event-db
  ::api.update-subscription.ok
  (fn [db [_ feed]]
-   db
-   ;; todo update feeds
-))
+   (assoc-in db [:feeds (:id feed)] feed)
+   #_
+   (db/upsert db
+              [:feeds]
+              :id
+              feed)))

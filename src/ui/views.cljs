@@ -135,7 +135,8 @@
      ;;
 
      [:div.dropdown.menu-item
-      [:a.dropbtn {:href "#"} "Auto mark read ▾"]
+      [:a.dropbtn {:href js-stub}
+       "Auto mark read ▾"]
       [:div.dropdown-content
        [:a {:href js-stub
             :on-click #(api-mark-read true)}
@@ -232,16 +233,20 @@
 
 (defn view-entry
   ;; todo track scroll in a separate view!
-  [entry]
+  [feed entry]
   (let [{entry-id :id
          feed-id :feed_id
-         :keys [link title summary]} entry]
+         :keys [link title summary]} entry
+
+        is_read (-> entry :message :is_read)
+        auto_read (-> feed :sub :auto_read)]
 
     [:div.entry
-     {:style (when (-> entry :message :is_read)
+     {:style (when is_read
                {:background-color "#000"})}
 
-     [entry-scroll feed-id entry-id]
+     (when auto_read
+       [entry-scroll feed-id entry-id])
 
      #_
      (prn (-> entry :id) (-> entry :message :is_read))
@@ -280,14 +285,14 @@
      [:div.entry-controls [:a {:href link} "Visit page →"]]]))
 
 (defn feed-entries
-  [entries]
+  [feed entries]
   [:div#feed-items
 
    (for [entry entries
          :let [{entry-id :id} entry]]
 
      ^{:key entry-id}
-     [view-entry entry])
+     [view-entry feed entry])
 
    ;; (js/console.log (r/children (r/current-component)))
 
@@ -305,7 +310,7 @@
 
     [:div
      [feed-header feed]
-     [feed-entries entries]]))
+     [feed-entries feed entries]]))
 
 (def form-search
   [:input#search-field

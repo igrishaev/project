@@ -187,7 +187,9 @@
         where ["feed_id = ? and user_id = ?" feed_id user_id]]
 
     (when values
-      (db/update! :subs params where))
+      (db/update! :subs values where))
+
+    ;; todo shortcut
 
     (let [feed (db/get-single-full-feed
                 {:feed_id feed_id :user_id user_id})]
