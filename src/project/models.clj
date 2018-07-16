@@ -8,8 +8,8 @@
 (def upsert-feed
   (partial db/upsert! :feeds "(url_source)"))
 
-(def upsert-entry
-  (partial db/upsert! :entries "(feed_id, guid)"))
+(def upsert-entries
+  (partial db/upsert-multi! :entries "(feed_id, guid)"))
 
 (def upsert-sub
   (partial db/upsert! :subs "(feed_id, user_id)"))
@@ -94,13 +94,6 @@
    :subs
    {:user_id (:id user)
     :feed_id (:id feed)}))
-
-(defn has-sub?
-  [user sub_id]
-  (db/find-first
-   :subs
-   {:id sub_id
-    :user_id (:id user)}))
 
 (defn subscribe
   [user feed & [params]]

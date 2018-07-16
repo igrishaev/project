@@ -32,7 +32,6 @@
 (s/def ::action ->keyword)
 (s/def ::url ->url)
 (s/def ::feed_id foreign-key)
-(s/def ::sub_id foreign-key)
 (s/def ::message_id foreign-key)
 (s/def ::from_id (s/nilable foreign-key))
 (s/def ::title not-empty-string)
@@ -65,7 +64,7 @@
 ;;
 
 (s/def ::api.unsubscribe
-  (s/keys :req-un [::sub_id]))
+  (s/keys :req-un [::feed_id]))
 
 ;;
 ;; Subscriptions

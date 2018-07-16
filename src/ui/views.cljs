@@ -109,6 +109,9 @@
      ]]]
   )
 
+(def arr-down
+  [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}])
+
 (defn feed-controls
   [feed]
   (let [{feed-id :id} feed
@@ -136,7 +139,7 @@
 
      [:div.dropdown.menu-item
       [:a.dropbtn {:href js-stub}
-       "Auto mark read ▾"]
+       "Auto mark read " arr-down]
       [:div.dropdown-content
        [:a {:href js-stub
             :on-click #(api-mark-read true)}
@@ -151,7 +154,7 @@
      ;;
 
      [:div.dropdown.menu-item
-      [:a.dropbtn {:href "#"} "Order by ▾"]
+      [:a.dropbtn {:href "#"} "Order by " arr-down]
       [:div.dropdown-content
        [:a {:href "todo"} "todo"]]]
 
@@ -160,9 +163,8 @@
      ;;
 
      [:div.dropdown.menu-item
-      [:a.dropbtn {:href "#"}
-       "Layout "
-       [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]
+      [:a.dropbtn {:href js-stub}
+       "Layout " arr-down]
 
       [:div.dropdown-content
 
@@ -179,7 +181,11 @@
         "Cards"]]]
 
      [:div.menu-item [:a {:href "#"} "Edit"]]
-     [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]]))
+     [:div.menu-item
+      [:a {:href js-stub
+           :on-click
+           #(rf/dispatch [:ui.events/api.unsubscribe feed-id])}
+       "Unsubscribe"]]]))
 
 (defn feed-header
     [feed]

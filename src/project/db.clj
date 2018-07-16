@@ -1,7 +1,6 @@
 (ns project.db
   (:require [project.env :refer [env]]
 
-
             [hugsql.core :as hug]
             [conman.core :as conman]
             [clojure.java.jdbc :as jdbc]
@@ -134,13 +133,19 @@
 ;; Upsert
 ;;
 
+(def join-comma (partial clojure.string/join ", "))
+
+(defn join-lines
+  [& lines]
+  (clojure.string/join "\n" lines))
+
+(def to-vec (partial apply vector))
+
 (defn upsert!
-  [table conflict params]
-  (let [join-comma (partial clojure.string/join ", ")
-        join-lines (fn [& lines]
-                     (clojure.string/join "\n" lines))
-        to-vec (partial apply vector)
-        [fields values] (apply map vector params)
+  [table conflict model]
+  (let [fields (keys model)
+        juxter (apply juxt fields)
+        values (juxter model)
         fields (map name fields)]
     (first
      (query
@@ -158,11 +163,41 @@
         "set"
         "updated_at = now(),"
         (join-comma
-         (for [field fields
-               :when (not= field "id")]
+         (for [field fields :when (not= field "id")]
            (format "%s = excluded.%s" field field)))
         "returning *")
        values)))))
+
+
+(defn upsert-multi!
+  [table conflict models]
+  (let [fields (keys (first models))
+        juxter (apply juxt fields)
+        values (mapcat juxter models)
+        fields (map name fields)]
+    (query
+     (to-vec
+      (join-lines
+       ""
+       (format "insert into %s (" (name table))
+       (join-comma fields)
+       ")"
+       "values ("
+       (join-comma
+        (repeat
+         (count models)
+         (format "(%s)"
+                 (join-comma (repeat (count fields) "?")))))
+       ")"
+       (format "on conflict %s" conflict)
+       "do update"
+       "set"
+       "updated_at = now(),"
+       (join-comma
+        (for [field fields :when (not= field "id")]
+          (format "%s = excluded.%s" field field)))
+       "returning *")
+      values))))
 
 ;;
 ;; Init part

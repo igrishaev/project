@@ -142,7 +142,7 @@
         (models/update-feed feed-id feed-db)
 
         (when-not (empty? entries)
-          (models/upsert-entry
+          (models/upsert-entries
            (for [e entries]
              (assoc e :feed_id feed-id))))
 

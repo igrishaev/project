@@ -105,16 +105,17 @@
 
 (rf/reg-event-fx
  ::api.unsubscribe
- (fn [_ [_ sub_id]]
+ (fn [_ [_ feed_id]]
    {:dispatch [::api.call :unsubscribe
-               {:sub_id sub_id}
+               {:feed_id feed_id}
                ::api.unsubscribe.ok]}))
+
+;; todo redirect somewhere!
 
 (rf/reg-event-db
  ::api.unsubscribe.ok
- (fn [db [_ _]]
-   ;; todo remove from subs
-   db))
+ (fn [db [_ {feed_id :feed_id}]]
+   (update-in db [:feeds] dissoc feed_id)))
 
 ;;
 ;; Messages

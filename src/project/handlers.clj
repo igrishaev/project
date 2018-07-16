@@ -110,18 +110,14 @@
 (defn unsubscribe
   [params user & _]
 
-  (let [{:keys [sub_id]} params]
+  (let [{:keys [feed_id]} params
+        {user_id :id} user]
 
-    (db/with-tx
+    (db/delete!
+     :subs ["feed_id = ? and user_id = ?"
+            feed_id user_id])
 
-      (if (models/has-sub? user sub_id)
-
-        (do
-          #_ ;; todo
-          (models/unsubscribe user sub_id)
-          (r/ok-empty))
-
-        (r/err-not-subscribed)))))
+    (ok {:feed_id feed_id})))
 
 
 (def into-map (partial into {}))
