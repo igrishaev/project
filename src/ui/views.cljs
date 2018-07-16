@@ -1,6 +1,7 @@
 (ns ui.views
   (:require ui.events
             ui.subs
+            [ui.time :as t]
             [ui.url :as url]
             [ui.util :refer [clear-str]]
 
@@ -249,12 +250,17 @@
   (let [entry @(rf/subscribe [:ui.subs/find-entry
                               feed-id entry-id])
         feed @(rf/subscribe [:ui.subs/find-feed feed-id])
-        {:keys [link title summary]} entry
+        {:keys [link title summary author]} entry
         is_read (-> entry :message :is_read)
-        auto_read (-> feed :sub :auto_read)]
+        auto_read (-> feed :sub :auto_read)
+        entry-date (or (:date_published_at entry)
+                       (:date_updated_at entry)
+                       (:updated_at entry)
+                       (:created_at entry))]
 
     [:div.entry
 
+     ;; todo read style
      {:style (when is_read
                {:background-color "#000"})}
 
@@ -264,7 +270,12 @@
      [:h2.overflow-split
       [:a {:href link} title]]
 
-     [:p "Варламов // by Ivan Grishaev // 1 Jun 2018\n\n     "]
+     [:p
+      (get-feed-title feed)
+      " // "
+      author
+      " // "
+      (t/humanize entry-date)]
 
      [:div.menu-items
       [:div.dropdown.menu-item
