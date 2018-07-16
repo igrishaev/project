@@ -38,7 +38,6 @@ from
     join subs s on s.feed_id = f.id
 where
     s.user_id = :user_id
-    and f.id = :feed_id
 
 
 -- :name get-single-full-feed :? :1
@@ -105,6 +104,3 @@ insert into :i:table (
 )
 /*~ ) ~*/
 where true
-
--- :name test
-select 1

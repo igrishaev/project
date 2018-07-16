@@ -178,15 +178,12 @@
         "Cards"]]]
 
      [:div.menu-item [:a {:href "#"} "Edit"]]
-     [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]])
+     [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]]))
 
-
-
-  (defn feed-header
+(defn feed-header
     [feed]
 
     (let [{:keys [link]} feed]
-
 
       [:div#feed-header
        [:h1.overflow-split
@@ -196,7 +193,7 @@
 
        [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
 
-       [feed-controls feed]])))
+       [feed-controls feed]]))
 
 (defn read-more
   []
@@ -210,110 +207,43 @@
   ;; todo track scroll in a separate view!
 
   [entry]
-  (let [__node (atom nil)]
+  (let [{entry-id :id
+         :keys [link title summary]} entry]
 
-    (r/create-class
+    [:div.entry
 
-     {
-      :component-will-mount
-      (fn [this]
-        #_
-        (prn "will mount"))
+     [:h2.overflow-split
+      [:a {:href link} title]]
 
-      :component-did-mount
-      (fn [this]
-        (reset! __node (r/dom-node this))
-        #_
-        (prn "did mount")
-        )
+     [:p "Варламов // by Ivan Grishaev // 1 Jun 2018\n\n     "]
 
-      :component-did-update
-      (fn [this]
-        #_
-        (prn "did update")
+     [:div.menu-items
+      [:div.dropdown.menu-item
+       [:a.dropbtn {:href "#"} "Order by ▾"]
+       [:div.dropdown-content
+        [:a {:href "fff"} "Link 1"]
+        [:a {:href "aaa"} "Link 2"]
+        [:a {:href "ccc"} "Link 3"]]]
 
+      [:div.dropdown.menu-item
+       [:a.dropbtn {:href "#"} "Layout ▾"]
+       [:div.dropdown-content
+        [:a {:href "fff"} "Link 1"]
+        [:a {:href "aaa"} "Link 2"]
+        [:a {:href "ccc"} "Link 3"]]]
 
-        )
+      [:div.menu-item [:a {:href "#"} "Star"]]
+      [:div.menu-item [:a {:href "#"} "Bookmark"]]
+      [:div.menu-item
+       [:a {:href js-stub
+            :on-click
+            #(rf/dispatch [:ui.events/api.mark-read entry-id true])}
+        "Mark read"]]]
 
-      :reagent-render
-      (fn [entry]
+     [:div.entry-content.overflow-split
+      {:dangerouslySetInnerHTML {:__html summary}}]
 
-        #_
-        (prn "render")
-
-        ;; @(rf/subscribe [:scroll])
-
-
-        (let [scroll @(rf/subscribe [:scroll])
-              {entry-id :id
-               :keys [link summary title]} entry
-
-              out (when-let [node @__node]
-                    (let [offset (.-offsetTop node)
-                          scroll (:scroll scroll)
-                          res (> scroll offset)
-
-                          ]
-                      (when res (prn title))
-                      res
-                      ))]
-
-          [:div.entry
-           {:id (str "entry" entry-id)
-            :style (when out {:background-color "#000"})
-
-            }
-
-           #_
-           (js/console.log (.getElementById js/document (str "entry" entry-id)))
-
-           #_
-           {:ref (fn [this]
-                   (when this
-                     (reset! node this)))}
-
-           #_
-           (prn @node)
-
-           #_
-           (prn (.-offsetTop  @node )
-
-                #_(:scroll scroll)
-                )
-
-           [:h2.overflow-split
-            [:a {:href link} title]]
-
-           [:p "Варламов // by Ivan Grishaev // 1 Jun 2018\n\n     "]
-
-           [:div.menu-items
-            [:div.dropdown.menu-item
-             [:a.dropbtn {:href "#"} "Order by ▾"]
-             [:div.dropdown-content
-              [:a {:href "fff"} "Link 1"]
-              [:a {:href "aaa"} "Link 2"]
-              [:a {:href "ccc"} "Link 3"]]]
-
-            [:div.dropdown.menu-item
-             [:a.dropbtn {:href "#"} "Layout ▾"]
-             [:div.dropdown-content
-              [:a {:href "fff"} "Link 1"]
-              [:a {:href "aaa"} "Link 2"]
-              [:a {:href "ccc"} "Link 3"]]]
-
-            [:div.menu-item [:a {:href "#"} "Star"]]
-            [:div.menu-item [:a {:href "#"} "Bookmark"]]
-            [:div.menu-item
-             [:a {:href js-stub
-                  :on-click
-                  #(rf/dispatch [:ui.events/api.mark-read entry-id true])}
-              "Mark read"]]]
-
-           [:div.entry-content.overflow-split
-            {:dangerouslySetInnerHTML {:__html summary}}]
-
-           [:div.entry-controls [:a {:href link} "Visit page →"]]]))}))
-  )
+     [:div.entry-controls [:a {:href link} "Visit page →"]]]))
 
 (defn feed-entries
   [entries]
@@ -323,6 +253,7 @@
 
      ^{:key entry-id}
      [view-entry entry])
+
    [read-more]])
 
 
