@@ -66,7 +66,8 @@
           {:on-click
            (fn [e]
              (rf/dispatch [:ui.events/api.messages feed-id])
-             (rf/dispatch [:ui.events/page :feed {:feed-id feed-id}]))}
+             (rf/dispatch [:ui.events/page
+                           :feed {:feed-id feed-id}]))}
 
           (get-feed-title feed)]]
 
@@ -188,19 +189,20 @@
        "Unsubscribe"]]]))
 
 (defn feed-header
-    [feed]
+  [feed-id]
 
-    (let [{:keys [link]} feed]
+  (let [feed @(rf/subscribe [:ui.subs/find-feed feed-id])
+        {:keys [link]} feed]
 
-      [:div#feed-header
-       [:h1.overflow-split
-        [:a
-         {:href link}
-         (get-feed-title feed)]]
+    [:div#feed-header
+     [:h1.overflow-split
+      [:a
+       {:href link}
+       (get-feed-title feed)]]
 
-       [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
+     [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
 
-       [feed-controls feed]]))
+     [feed-controls feed]]))
 
 (defn read-more
   []
@@ -208,6 +210,7 @@
    [:div.load-wrapper
     [:div.loader]
     [:span "Loading..."]]])
+
 
 (defn entry-scroll
   [feed-id entry-id]
@@ -222,16 +225,19 @@
 
       :reagent-render
       (fn []
-        (let [entry @(rf/subscribe [:ui.subs/find-entry
-                                    feed-id  entry-id])
-              scroll @(rf/subscribe [:scroll])
-              {:keys [scroll]} scroll]
+        (let [entry
+              @(rf/subscribe
+                [:ui.subs/find-entry feed-id entry-id])
+
+              is_read (-> entry :message :is_read)
+
+              {:keys [scroll]}
+              @(rf/subscribe [:scroll])]
 
           (when-let [node @node]
             (let [offset (.. node -offsetTop)]
-              (when (and
-                     (-> entry :message :is_read not)
-                     (> scroll offset))
+              (when (and (not is_read)
+                         (> scroll offset))
                 (rf/dispatch [:ui.events/api.mark-read
                               entry-id
                               true])))))
@@ -239,23 +245,21 @@
 
 (defn view-entry
   ;; todo track scroll in a separate view!
-  [feed entry]
-  (let [{entry-id :id
-         feed-id :feed_id
-         :keys [link title summary]} entry
-
+  [feed-id entry-id]
+  (let [entry @(rf/subscribe [:ui.subs/find-entry
+                              feed-id entry-id])
+        feed @(rf/subscribe [:ui.subs/find-feed feed-id])
+        {:keys [link title summary]} entry
         is_read (-> entry :message :is_read)
         auto_read (-> feed :sub :auto_read)]
 
     [:div.entry
+
      {:style (when is_read
                {:background-color "#000"})}
 
      (when auto_read
        [entry-scroll feed-id entry-id])
-
-     #_
-     (prn (-> entry :id) (-> entry :message :is_read))
 
      [:h2.overflow-split
       [:a {:href link} title]]
@@ -279,10 +283,12 @@
 
       [:div.menu-item [:a {:href "#"} "Star"]]
       [:div.menu-item [:a {:href "#"} "Bookmark"]]
+
       [:div.menu-item
        [:a {:href js-stub
             :on-click
-            #(rf/dispatch [:ui.events/api.mark-read entry-id true])}
+            #(rf/dispatch [:ui.events/api.mark-read
+                           entry-id true])}
         "Mark read"]]]
 
      [:div.entry-content.overflow-split
@@ -290,33 +296,28 @@
 
      [:div.entry-controls [:a {:href link} "Visit page →"]]]))
 
+#_[{entry-id :id} entry]
+
 (defn feed-entries
-  [feed entries]
-  [:div#feed-items
-
-   (for [entry entries
-         :let [{entry-id :id} entry]]
-
-     ^{:key entry-id}
-     [view-entry feed entry])
-
-   ;; (js/console.log (r/children (r/current-component)))
-
-   [read-more]])
-
+  [feed-id]
+  (let [entry-ids @(rf/subscribe [:ui.subs/entry-ids feed-id])]
+    [:div#feed-items
+     (for [entry-id entry-ids]
+       ^{:key entry-id}
+       [view-entry feed-id entry-id])
+     [read-more]]))
 
 (defn view-feed
   [params]
   (let [{:keys [feed-id]} params
         feed-id (int feed-id)
 
-        entries @(rf/subscribe [:ui.subs/entries feed-id])
-        {:keys [feed_id entries]} entries
-        feed @(rf/subscribe [:ui.subs/find-feed feed_id])]
+
+        ]
 
     [:div
-     [feed-header feed]
-     [feed-entries feed entries]]))
+     [feed-header feed-id]
+     [feed-entries feed-id]]))
 
 (def form-search
   [:input#search-field

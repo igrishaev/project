@@ -5,6 +5,13 @@
             [re-frame.core :as rf]
             [ajax.core :as ajax]))
 
+(defn vec->map
+  [items]
+  (into {} (for [item items]
+             [(:id item) item])))
+
+(def into-map (partial into {}))
+
 ;;
 ;; Navigation
 ;;
@@ -74,10 +81,6 @@
 (rf/reg-event-db
  ::api.subscribe.ok
  (fn [db [_ feed]]
-
-
-
-
    (assoc-in db [:feeds (:id feed)] feed)))
 
 ;;
@@ -89,15 +92,11 @@
  (fn [_ [_]]
    {:dispatch [::api.call :subscriptions nil ::api.feeds.ok]}))
 
-(def into-map (partial into {}))
 
 (rf/reg-event-db
  ::api.feeds.ok
  (fn [db [_ feeds]]
-   (let [zipped (into-map
-                 (for [feed feeds]
-                   [(:id feed) feed]))]
-     (assoc-in db [:feeds] zipped))))
+   (assoc db :feeds (vec->map feeds))))
 
 ;;
 ;; Unsubscribe
@@ -115,7 +114,7 @@
 (rf/reg-event-db
  ::api.unsubscribe.ok
  (fn [db [_ {feed_id :feed_id}]]
-   (update-in db [:feeds] dissoc feed_id)))
+   (update db :feeds dissoc feed_id)))
 
 ;;
 ;; Messages
@@ -130,8 +129,8 @@
 
 (rf/reg-event-db
  ::api.messages.ok
- (fn [db [_ {:keys [feed_id] :as resp}]]
-   (assoc-in db [:entries feed_id] resp)))
+ (fn [db [_ {:keys [feed_id entries] :as resp}]]
+   (assoc-in db [:entries feed_id] (vec->map entries))))
 
 ;;
 ;; Mark (un)read
@@ -148,11 +147,8 @@
 (rf/reg-event-db
  ::api.mark-read.ok
  (fn [db [_ entry]]
-   (let [{:keys [feed_id]} entry]
-     (db/upsert db
-                [:entries feed_id :entries]
-                :id
-                entry))))
+   (let [{entry_id :id :keys [feed_id]} entry]
+     (assoc-in db [:entries feed_id entry_id] entry))))
 
 ;;
 ;; User info

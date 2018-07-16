@@ -29,13 +29,14 @@
                    :scroll scroll}])))
 
 
-(def scroll-delta 100)
+(def scroll-delta 300)
 
-(js/window.addEventListener
- "scroll"
- (goog.functions/throttle on-scroll scroll-delta))
 
-;; todo init
+(defn init
+  []
+  (js/window.addEventListener
+   "scroll"
+   (goog.functions/debounce on-scroll scroll-delta)))
 
 #_
 (defn foo

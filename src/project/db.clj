@@ -182,13 +182,12 @@
        (format "insert into %s (" (name table))
        (join-comma fields)
        ")"
-       "values ("
+       "values"
        (join-comma
         (repeat
          (count models)
          (format "(%s)"
                  (join-comma (repeat (count fields) "?")))))
-       ")"
        (format "on conflict %s" conflict)
        "do update"
        "set"

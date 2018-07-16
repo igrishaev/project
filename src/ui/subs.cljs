@@ -13,17 +13,22 @@
 (rf/reg-sub
  ::feeds
  (fn [db [_]]
-   (vals (get-in db [:feeds]))))
+   (-> db :feeds vals))) ;; todo sorting?
 
 (rf/reg-sub
  ::entries
  (fn [db [_ feed_id]]
-   (get-in db [:entries feed_id])))
+   (-> db :entries (get feed_id) vals))) ;; todo sorting?
+
+(rf/reg-sub
+ ::entry-ids
+ (fn [db [_ feed_id]]
+   (-> db :entries (get feed_id) keys)))
 
 (rf/reg-sub
  ::find-entry
  (fn [db [_ feed_id entry_id]]
-   (db/find-map db [:entries feed_id :entries] {:id entry_id})))
+   (get-in db [:entries feed_id entry_id])))
 
 (rf/reg-sub
  ::find-feed
@@ -33,4 +38,4 @@
 (rf/reg-sub
  ::search-feeds
  (fn [db [_ ]]
-   (get-in db [:search-feeds])))
+   (get db :search-feeds)))

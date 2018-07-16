@@ -19,7 +19,7 @@
   (quot (System/currentTimeMillis) 1000))
 
 (defn ahead [secs]
-  (java.util.Date. (+ (System/currentTimeMillis) (* secs 1000))))
+  (t/plus (t/now) (t/seconds secs)))
 
 (def now t/now)
 

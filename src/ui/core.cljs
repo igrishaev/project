@@ -1,8 +1,7 @@
 (ns ui.core
   (:require [ui.views :as views]
             [ui.routes :as routes]
-
-            ui.scroll
+            [ui.scroll :as scroll]
 
             [reagent.core :as r]
             [re-frame.core :as rf]))
@@ -34,6 +33,7 @@
   ;; (init-db)
   (routes/init)
   (init-mount)
+  (scroll/init)
   ;; (init-urls)
 
   (rf/dispatch [:ui.events/api.feeds])
