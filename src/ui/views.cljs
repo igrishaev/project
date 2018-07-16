@@ -202,15 +202,34 @@
     [:div.loader]
     [:span "Loading..."]]])
 
+(defn entry-scroll
+  [entry]
+  (let [node (atom nil)]
+    (r/create-class
+
+     {:component-did-mount
+      (fn [this]
+        (reset! node (r/dom-node this)))
+
+      :reagent-render
+      (fn []
+        (let [{:keys [scroll]} @(rf/subscribe [:scroll])]
+          (when-let [node @node]
+            (let [offset (.. node -offsetTop)]
+              (when (> scroll offset)
+                (js/console.log (:id entry))))))
+        [:div])})))
+
 (defn view-entry
-
   ;; todo track scroll in a separate view!
-
   [entry]
   (let [{entry-id :id
          :keys [link title summary]} entry]
 
+    (prn "card")
     [:div.entry
+
+     [entry-scroll entry]
 
      [:h2.overflow-split
       [:a {:href link} title]]
@@ -248,11 +267,14 @@
 (defn feed-entries
   [entries]
   [:div#feed-items
+
    (for [entry entries
          :let [{entry-id :id} entry]]
 
      ^{:key entry-id}
      [view-entry entry])
+
+   ;; (js/console.log (r/children (r/current-component)))
 
    [read-more]])
 
