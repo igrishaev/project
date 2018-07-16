@@ -155,6 +155,8 @@
   (let [{:keys [entry_id is_read]} params
         {user_id :id} user]
 
+    ;; todo just update
+
     (if-let [entry (models/get-entry-by-id entry_id)]
 
       (let [date_read (when is_read (t/now))

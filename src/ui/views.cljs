@@ -203,8 +203,13 @@
     [:span "Loading..."]]])
 
 (defn entry-scroll
-  [entry]
-  (let [node (atom nil)]
+  [entry-id]
+  [:div "test"]
+  #_
+  (let [
+        {entry-id :id} entry
+        node (atom nil)]
+
     (r/create-class
 
      {:component-did-mount
@@ -213,11 +218,18 @@
 
       :reagent-render
       (fn []
-        (let [{:keys [scroll]} @(rf/subscribe [:scroll])]
+        (let [entry @(rf/subscribe [:entry entry-id])
+              scroll @(rf/subscribe [:scroll])
+              {:keys [scroll]} scroll]
+
           (when-let [node @node]
             (let [offset (.. node -offsetTop)]
-              (when (> scroll offset)
-                (js/console.log (:id entry))))))
+              (when (and
+                     (-> entry :message :is_read not)
+                     (> scroll offset))
+                (rf/dispatch [:ui.events/api.mark-read
+                              entry-id
+                              true])))))
         [:div])})))
 
 (defn view-entry
@@ -226,10 +238,12 @@
   (let [{entry-id :id
          :keys [link title summary]} entry]
 
-    (prn "card")
     [:div.entry
 
      [entry-scroll entry]
+
+     #_
+     (prn (-> entry :id) (-> entry :message :is_read))
 
      [:h2.overflow-split
       [:a {:href link} title]]

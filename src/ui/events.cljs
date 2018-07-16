@@ -1,5 +1,7 @@
 (ns ui.events
-  (:require [day8.re-frame.http-fx]
+  (:require [ui.db :as db]
+
+            [day8.re-frame.http-fx]
             [re-frame.core :as rf]
             [ajax.core :as ajax]))
 
@@ -146,10 +148,10 @@
  ::api.mark-read.ok
  (fn [db [_ entry]]
    (let [{:keys [feed_id]} entry]
-     db
-     ;; todo
-     #_
-     (assoc-in db [:entries feed_id] entry))))
+     (db/upsert db
+                [:entries feed_id :entries]
+                :id
+                entry))))
 
 ;;
 ;; User info
