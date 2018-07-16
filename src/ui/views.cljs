@@ -111,51 +111,92 @@
 
 (defn feed-controls
   [feed]
+  (let [{feed-id :id} feed
 
-  [:div.menu-items
-   [:div.dropdown.menu-item
-    [:a.dropbtn {:href "#"} "Order by ▾"]
-    [:div.dropdown-content
-     [:a {:href "fff"} "Link 1"]
-     [:a {:href "aaa"} "Link 2"]
-     [:a {:href "ccc"} "Link 3"]]]
+        api-layout
+        (fn [layout]
+          (rf/dispatch
+           [:ui.events/api.update-subscription
+            feed-id
+            {:layout layout}]))
 
-   [:div.dropdown.menu-item
-    [:a.dropbtn {:href "#"}
-     "Layout "
-     [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]
+        api-mark-read
+        (fn [flag]
+          (rf/dispatch
+           [:ui.events/api.update-subscription
+            feed-id
+            {:auto_read flag}]))
+        ]
 
-    [:div.dropdown-content
-     [:a {:href js-stub
-          :on-click
-          (fn [e]
-            (js/alert "todo"))
-          }
-      "Full article"]
+    [:div.menu-items
 
-     [:a {:href "#"}
-      "Titles only"]]]
+     ;;
+     ;; Auto read
+     ;;
 
-   [:div.menu-item [:a {:href "#"} "Edit"]]
-   [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]]
+     [:div.dropdown.menu-item
+      [:a.dropbtn {:href "#"} "Auto mark read ▾"]
+      [:div.dropdown-content
+       [:a {:href js-stub
+            :on-click #(api-mark-read true)}
+        "On scroll"]
 
-  )
+       [:a {:href js-stub
+            :on-click #(api-mark-read false)}
+        "Off"]]]
 
-(defn feed-header
-  [feed]
+     ;;
+     ;; Ordering
+     ;;
 
-  (let [{:keys [link]} feed]
+     [:div.dropdown.menu-item
+      [:a.dropbtn {:href "#"} "Order by ▾"]
+      [:div.dropdown-content
+       [:a {:href "todo"} "todo"]]]
+
+     ;;
+     ;; Layout
+     ;;
+
+     [:div.dropdown.menu-item
+      [:a.dropbtn {:href "#"}
+       "Layout "
+       [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]
+
+      [:div.dropdown-content
+
+       [:a {:href js-stub
+            :on-click #(api-layout "full_article")}
+        "Full article"]
+
+       [:a {:href js-stub
+            :on-click #(api-layout "titles_only")}
+        "Titles only"]
+
+       [:a {:href js-stub
+            :on-click #(api-layout "cards")}
+        "Cards"]]]
+
+     [:div.menu-item [:a {:href "#"} "Edit"]]
+     [:div.menu-item [:a {:href "#"} "Unsubscribe!"]]])
 
 
-    [:div#feed-header
-     [:h1.overflow-split
-      [:a
-       {:href link}
-       (get-feed-title feed)]]
 
-     [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
+  (defn feed-header
+    [feed]
 
-     [feed-controls feed]]))
+    (let [{:keys [link]} feed]
+
+
+      [:div#feed-header
+       [:h1.overflow-split
+        [:a
+         {:href link}
+         (get-feed-title feed)]]
+
+       [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
+
+       [feed-controls feed]])))
 
 (defn read-more
   []
@@ -164,50 +205,124 @@
     [:div.loader]
     [:span "Loading..."]]])
 
+(defn view-entry
+
+  ;; todo track scroll in a separate view!
+
+  [entry]
+  (let [__node (atom nil)]
+
+    (r/create-class
+
+     {
+      :component-will-mount
+      (fn [this]
+        #_
+        (prn "will mount"))
+
+      :component-did-mount
+      (fn [this]
+        (reset! __node (r/dom-node this))
+        #_
+        (prn "did mount")
+        )
+
+      :component-did-update
+      (fn [this]
+        #_
+        (prn "did update")
+
+
+        )
+
+      :reagent-render
+      (fn [entry]
+
+        #_
+        (prn "render")
+
+        ;; @(rf/subscribe [:scroll])
+
+
+        (let [scroll @(rf/subscribe [:scroll])
+              {entry-id :id
+               :keys [link summary title]} entry
+
+              out (when-let [node @__node]
+                    (let [offset (.-offsetTop node)
+                          scroll (:scroll scroll)
+                          res (> scroll offset)
+
+                          ]
+                      (when res (prn title))
+                      res
+                      ))]
+
+          [:div.entry
+           {:id (str "entry" entry-id)
+            :style (when out {:background-color "#000"})
+
+            }
+
+           #_
+           (js/console.log (.getElementById js/document (str "entry" entry-id)))
+
+           #_
+           {:ref (fn [this]
+                   (when this
+                     (reset! node this)))}
+
+           #_
+           (prn @node)
+
+           #_
+           (prn (.-offsetTop  @node )
+
+                #_(:scroll scroll)
+                )
+
+           [:h2.overflow-split
+            [:a {:href link} title]]
+
+           [:p "Варламов // by Ivan Grishaev // 1 Jun 2018\n\n     "]
+
+           [:div.menu-items
+            [:div.dropdown.menu-item
+             [:a.dropbtn {:href "#"} "Order by ▾"]
+             [:div.dropdown-content
+              [:a {:href "fff"} "Link 1"]
+              [:a {:href "aaa"} "Link 2"]
+              [:a {:href "ccc"} "Link 3"]]]
+
+            [:div.dropdown.menu-item
+             [:a.dropbtn {:href "#"} "Layout ▾"]
+             [:div.dropdown-content
+              [:a {:href "fff"} "Link 1"]
+              [:a {:href "aaa"} "Link 2"]
+              [:a {:href "ccc"} "Link 3"]]]
+
+            [:div.menu-item [:a {:href "#"} "Star"]]
+            [:div.menu-item [:a {:href "#"} "Bookmark"]]
+            [:div.menu-item
+             [:a {:href js-stub
+                  :on-click
+                  #(rf/dispatch [:ui.events/api.mark-read entry-id true])}
+              "Mark read"]]]
+
+           [:div.entry-content.overflow-split
+            {:dangerouslySetInnerHTML {:__html summary}}]
+
+           [:div.entry-controls [:a {:href link} "Visit page →"]]]))}))
+  )
+
 (defn feed-entries
   [entries]
   [:div#feed-items
-
    (for [entry entries
-         :let [{entry-id :id
-                :keys [link summary title]} entry]]
+         :let [{entry-id :id} entry]]
 
      ^{:key entry-id}
-     [:div.entry ;; .overflow-split
-
-      [:h2.overflow-split
-       [:a {:href link} title]]
-
-      [:p "Варламов // by Ivan Grishaev // 1 Jun 2018\n\n     "]
-
-      [:div.menu-items
-       [:div.dropdown.menu-item
-        [:a.dropbtn {:href "#"} "Order by ▾"]
-        [:div.dropdown-content
-         [:a {:href "fff"} "Link 1"]
-         [:a {:href "aaa"} "Link 2"]
-         [:a {:href "ccc"} "Link 3"]]]
-
-       [:div.dropdown.menu-item
-        [:a.dropbtn {:href "#"} "Layout ▾"]
-        [:div.dropdown-content
-         [:a {:href "fff"} "Link 1"]
-         [:a {:href "aaa"} "Link 2"]
-         [:a {:href "ccc"} "Link 3"]]]
-
-       [:div.menu-item [:a {:href "#"} "Star"]]
-       [:div.menu-item [:a {:href "#"} "Bookmark"]]
-       [:div.menu-item
-        [:a {:href js-stub
-             :on-click
-             #(rf/dispatch [:ui.events/api.mark-read entry-id true])}
-         "Mark read"]]]
-
-      [:div.entry-content.overflow-split
-       {:dangerouslySetInnerHTML {:__html summary}}]
-
-      [:div.entry-controls [:a {:href link} "Visit page →"]]])
-
+     [view-entry entry])
    [read-more]])
 
 

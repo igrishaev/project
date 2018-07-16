@@ -2,6 +2,8 @@
   (:require [ui.views :as views]
             [ui.routes :as routes]
 
+            ui.scroll
+
             [reagent.core :as r]
             [re-frame.core :as rf]))
 

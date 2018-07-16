@@ -100,9 +100,8 @@
               :feed_id feed_id
               :limit 10})
 
-            (let [feed (first
-                        (db/get-user-feeds
-                         {:feed_id feed_id :user_id user_id}))]
+            (let [feed (db/get-single-full-feed
+                        {:feed_id feed_id :user_id user_id})]
               (ok (clean-feed feed))))
 
           (r/err-feed-404 feed_id))))))
@@ -175,3 +174,19 @@
   [params user & _]
   (ok (when user
         (clean-user user))))
+
+
+(defn update-subscription
+  [params user & _]
+  (let [{:keys [feed_id]} params
+        {user_id :id} user
+        fields [:layout :auto_read]
+        values (not-empty (select-keys params fields))
+        where ["feed_id = ? and user_id = ?" feed_id user_id]]
+
+    (when values
+      (db/update! :subs params where))
+
+    (let [feed (db/get-single-full-feed
+                {:feed_id feed_id :user_id user_id})]
+      (ok (clean-feed feed)))))

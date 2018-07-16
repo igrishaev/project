@@ -1,12 +1,7 @@
 (ns ui.events
-  (:require
-
-            ;; [ui.url :as url]
-            ;; [ui.util :refer [format to-text]]
-
-   [day8.re-frame.http-fx]
-   [re-frame.core :as rf]
-   [ajax.core :as ajax]))
+  (:require [day8.re-frame.http-fx]
+            [re-frame.core :as rf]
+            [ajax.core :as ajax]))
 
 ;;
 ;; Navigation
@@ -77,6 +72,10 @@
 (rf/reg-event-db
  ::api.subscribe.ok
  (fn [db [_ feed]]
+
+
+
+
    (assoc-in db [:feeds (:id feed)] feed)))
 
 ;;
@@ -165,3 +164,22 @@
  ::api.user-info-ok
  (fn [db [_ user]]
    (assoc db :user user)))
+
+;;
+;; Update subscription
+;;
+
+(rf/reg-event-fx
+ ::api.update-subscription
+ (fn [_ [_ feed_id params]]
+   {:dispatch [::api.call
+               :update-subscription
+               (assoc params :feed_id feed_id)
+               ::api.update-subscription.ok]}))
+
+(rf/reg-event-db
+ ::api.update-subscription.ok
+ (fn [db [_ feed]]
+   db
+   ;; todo update feeds
+))

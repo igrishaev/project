@@ -96,3 +96,17 @@
 
 (s/def ::api.user-info
   (s/keys :req-un []))
+
+
+;;
+;; Update subscription
+;;
+
+(s/def ::auto_read boolean?)
+
+(s/def ::layout
+  #{"full_article" "titles_only" "cards"})
+
+(s/def ::api.update-subscription
+  (s/keys :opt-un [::layout
+                   ::auto_read]))

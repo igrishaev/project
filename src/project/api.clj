@@ -55,6 +55,9 @@
   {:search-feeds {:handler :project.handlers/search-feeds
                   :spec :project.spec/api.search-feeds}
 
+   :update-subscription {:handler :project.handlers/update-subscription
+                         :spec :project.spec/api.update-subscription}
+
    :subscribe {:handler :project.handlers/subscribe
                :spec :project.spec/api.subscribe}
 

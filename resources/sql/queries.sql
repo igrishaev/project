@@ -38,9 +38,19 @@ from
     join subs s on s.feed_id = f.id
 where
     s.user_id = :user_id
-    /*~ (when (:feed_id params) */
     and f.id = :feed_id
-    /*~ ) ~*/
+
+
+-- :name get-single-full-feed :? :1
+select
+    f.*,
+    row_to_json(s) as sub
+from
+    feeds f
+    join subs s on s.feed_id = f.id
+where
+    s.user_id = :user_id
+    and f.id = :feed_id
 
 
 -- :name get-subscribed-entries :? :*
