@@ -20,3 +20,6 @@
 - [ ] preserve youtube links somehow
 - [ ] ui search: consider scheme
 - [ ] add db pool
+- [ ] scroll to the next record ofter mark as read
+- [ ] css classes to quotes
+- [ ] show enclosure
