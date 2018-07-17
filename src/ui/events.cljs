@@ -1,16 +1,13 @@
 (ns ui.events
-  (:require [ui.db :as db]
-
-            [day8.re-frame.http-fx]
+  (:require [day8.re-frame.http-fx]
             [re-frame.core :as rf]
             [ajax.core :as ajax]))
 
+;; todo remove that
 (defn vec->map
   [items]
   (into {} (for [item items]
              [(:id item) item])))
-
-(def into-map (partial into {}))
 
 ;;
 ;; Navigation
@@ -41,7 +38,7 @@
  ::api.error
  (fn [_ [& args]]
    (js/console.log args #_(clj->js data))
-
+   ;; todo show bar
    nil
    #_
    {:dispatch-n
@@ -215,9 +212,4 @@
 (rf/reg-event-db
  ::api.update-subscription.ok
  (fn [db [_ feed]]
-   (assoc-in db [:feeds (:id feed)] feed)
-   #_
-   (db/upsert db
-              [:feeds]
-              :id
-              feed)))
+   (assoc-in db [:feeds (:id feed)] feed)))
