@@ -255,19 +255,20 @@
 
      [feed-controls feed]]))
 
+(defn rf-partial
+  [event & init]
+  (fn [& more]
+    (rf/dispatch
+     (into (into [event] init) more))))
+
 (defn read-more
   [feed-id]
 
-  ;; todo scroll and read-more: there is no sence in entry subs
-
   (let [node (atom nil)
         delta 1000
-        event (rateLimit
-               (fn [entry-id]
-                 (rf/dispatch
-                  [:ui.events/api.read-more
-                   feed-id entry-id]))
-               delta)]
+        trigger (rateLimit
+                 (rf-partial :ui.events/api.read-more)
+                 delta)]
 
     (r/create-class
 
@@ -276,7 +277,7 @@
         (reset! node (r/dom-node this)))
 
       :reagent-render
-      (fn []
+      (fn [feed-id]
         (let [{:keys [scroll height-viewport]}
               @(rf/subscribe [:scroll])
 
@@ -289,7 +290,7 @@
             (let [offset (.. node -offsetTop)]
               (when (< offset (+ scroll height-viewport))
                 (when-not loader
-                  (event entry-id)))))
+                  (trigger feed-id entry-id)))))
 
           (if loader
             [:div.read-more
@@ -297,14 +298,13 @@
               [:div.loader]
               [:span "Loading..."]]]
 
-            [:div])))}))
-
-  )
+            [:div])))})))
 
 (defn entry-scroll
   [feed-id index]
 
-  (let [node (atom nil)]
+  (let [node (atom nil)
+        trigger (rf-partial :ui.events/api.mark-read)]
 
     (r/create-class
 
@@ -313,17 +313,12 @@
         (reset! node (r/dom-node this)))
 
       :reagent-render
-      (fn []
+      (fn [feed-id index]
         (let [entry
               @(rf/subscribe
                 [:ui.subs/find-entry feed-id index])
 
               {entry-id :id} entry
-
-              api-mark-read
-              (fn [flag]
-                (rf/dispatch [:ui.events/api.mark-read
-                              index entry-id true]))
 
               is_read (-> entry :message :is_read)
 
@@ -335,7 +330,7 @@
                   mark? (and (not is_read)
                              (> scroll offset))]
               (when mark?
-                (api-mark-read true)))))
+                (trigger index entry-id true)))))
 
         [:div])})))
 
@@ -407,8 +402,9 @@
       )
 
     [:div#feed-items
-     (for [[index entry-id] entries]
-       ^{:key entry-id}
+     (for [pair entries
+           :let [[index entry-id] pair]]
+       ^{:key pair}
        [view-entry feed-id index])
      [read-more feed-id]]))
 
