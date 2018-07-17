@@ -207,9 +207,10 @@
    {:dispatch [::api.call
                :update-subscription
                (assoc params :feed_id feed_id)
-               [::api.update-subscription.ok]]}))
+               [::api.update-subscription.ok feed_id]]}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::api.update-subscription.ok
- (fn [db [_ feed]]
-   (assoc-in db [:feeds (:id feed)] feed)))
+ (fn [{db :db} [_ feed_id feed]]
+   {:db (assoc-in db [:feeds feed_id] feed)
+    :dispatch [::api.messages feed_id]}))

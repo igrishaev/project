@@ -1,9 +1,5 @@
 (ns ui.subs
-  (:require [re-frame.core :as rf]
-
-            [ui.db :as db]
-
-            ))
+  (:require [re-frame.core :as rf]))
 
 (re-frame.core/reg-sub
  ::page

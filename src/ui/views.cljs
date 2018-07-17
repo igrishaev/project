@@ -224,6 +224,16 @@
             :on-click #(api-layout "cards")}
         "Cards"]]]
 
+     ;;
+     ;; Refresh
+     ;;
+
+     [:div.menu-item
+      [:a {:href js-stub
+           :on-click
+           #(rf/dispatch [:ui.events/api.messages feed-id])}
+       "Refresh"]]
+
      [:div.menu-item
       [:a {:href js-stub
            :on-click
