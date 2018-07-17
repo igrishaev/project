@@ -57,14 +57,20 @@ select
   e.*,
   row_to_json(m) as message
 from
-  entries e
-join messages m
-  on m.entry_id = e.id and not m.is_read
+  messages m, entries e
 where
   e.feed_id = :feed_id
-order by
-  e.id desc
-
+  and m.entry_id = e.id
+  and m.user_id = :user_id
+/*~ (when (:unread_only params) */
+  and not m.is_read
+/*~ ) ~*/
+/*~ (when (= (:ordering params) "new_first") */
+  order by e.id asc
+/*~ ) ~*/
+/*~ (when (= (:ordering params) "old_first") */
+  order by e.id desc
+/*~ ) ~*/
 
 -- :name unsubscribe :! :n
 delete from subs

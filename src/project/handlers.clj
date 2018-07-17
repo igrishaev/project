@@ -135,11 +135,23 @@
   [params user & _]
   (let [{:keys [feed_id from_id]} params
         {user_id :id} user
-        params {:feed_id feed_id :user_id user_id}
-        entries (db/get-subscribed-entries params)]
-    (ok {:entries entries
-         :feed_id feed_id
-         :from_id from_id})))
+        sub (models/find-sub
+             {:feed_id feed_id :user_id user_id})
+
+        {:keys [ordering unread_only]} sub
+
+        ordering (or ordering "old_first")
+
+        query {:feed_id feed_id
+               :user_id user_id
+               :ordering ordering
+               :unread_only unread_only
+               :limit 5}
+
+        entries (db/get-subscribed-entries query)]
+
+    (ok {:feed_id feed_id
+         :entries entries})))
 
 
 
@@ -178,7 +190,7 @@
   [params user & _]
   (let [{:keys [feed_id]} params
         {user_id :id} user
-        fields [:layout :auto_read]
+        fields [:layout :auto_read :ordering :unread_only]
         values (not-empty (select-keys params fields))
         where ["feed_id = ? and user_id = ?" feed_id user_id]]
 

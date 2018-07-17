@@ -32,9 +32,10 @@
                  :uri "/api"
                  :format (ajax/json-request-format)
                  :params (merge params {:action action})
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [event-ok]
-                 :on-failure [(or event-err ::api.error)]}}))
+                 :response-format (ajax/json-response-format
+                                   {:keywords? true})
+                 :on-success event-ok
+                 :on-failure (or event-err [::api.error])}}))
 
 (rf/reg-event-fx
  ::api.error
@@ -59,7 +60,7 @@
  (fn [_ [_ url]]
    {:dispatch [::api.call :search-feeds
                {:url url}
-               ::api.search-feeds.ok]}))
+               [::api.search-feeds.ok]]}))
 
 (rf/reg-event-db
  ::api.search-feeds.ok
@@ -76,7 +77,7 @@
  (fn [_ [_ feed_id title]]
    {:dispatch [::api.call :subscribe
                {:feed_id feed_id :title title}
-               ::api.subscribe.ok]}))
+               [::api.subscribe.ok]]}))
 
 (rf/reg-event-db
  ::api.subscribe.ok
@@ -90,7 +91,9 @@
 (rf/reg-event-fx
  ::api.feeds
  (fn [_ [_]]
-   {:dispatch [::api.call :subscriptions nil ::api.feeds.ok]}))
+   {:dispatch [::api.call
+               :subscriptions nil
+               [::api.feeds.ok]]}))
 
 
 (rf/reg-event-db
@@ -107,7 +110,7 @@
  (fn [_ [_ feed_id]]
    {:dispatch [::api.call :unsubscribe
                {:feed_id feed_id}
-               ::api.unsubscribe.ok]}))
+               [::api.unsubscribe.ok]]}))
 
 ;; todo redirect somewhere!
 
@@ -125,12 +128,12 @@
  (fn [_ [_ feed_id & [from_id]]]
    {:dispatch [::api.call :messages
                {:feed_id feed_id :from_id from_id}
-               ::api.messages.ok]}))
+               [::api.messages.ok]]}))
 
 (rf/reg-event-db
  ::api.messages.ok
  (fn [db [_ {:keys [feed_id entries] :as resp}]]
-   (assoc-in db [:entries feed_id] (vec->map entries))))
+   (assoc-in db [:entries feed_id] entries)))
 
 ;;
 ;; Mark (un)read
@@ -138,17 +141,17 @@
 
 (rf/reg-event-fx
  ::api.mark-read
- (fn [_ [_ entry_id is_read]]
+ (fn [_ [_ index entry_id is_read]]
    {:dispatch [::api.call :mark-read
                {:entry_id entry_id
                 :is_read is_read}
-               ::api.mark-read.ok]}))
+               [::api.mark-read.ok index]]}))
 
 (rf/reg-event-db
  ::api.mark-read.ok
- (fn [db [_ entry]]
-   (let [{entry_id :id :keys [feed_id]} entry]
-     (assoc-in db [:entries feed_id entry_id] entry))))
+ (fn [db [_ index entry]]
+   (let [{:keys [feed_id]} entry]
+     (assoc-in db [:entries feed_id index] entry))))
 
 ;;
 ;; User info
@@ -157,7 +160,9 @@
 (rf/reg-event-fx
  ::api.user-info
  (fn [_ [_ ]]
-   {:dispatch [::api.call :user-info nil ::api.user-info.ok]}))
+   {:dispatch [::api.call
+               :user-info nil
+               [::api.user-info.ok]]}))
 
 (rf/reg-event-db
  ::api.user-info-ok
@@ -174,7 +179,7 @@
    {:dispatch [::api.call
                :update-subscription
                (assoc params :feed_id feed_id)
-               ::api.update-subscription.ok]}))
+               [::api.update-subscription.ok]]}))
 
 (rf/reg-event-db
  ::api.update-subscription.ok

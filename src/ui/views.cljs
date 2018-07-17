@@ -131,6 +131,21 @@
            [:ui.events/api.update-subscription
             feed-id
             {:auto_read flag}]))
+
+        api-unread-only
+        (fn [flag]
+          (rf/dispatch
+           [:ui.events/api.update-subscription
+            feed-id
+            {:unread_only flag}]))
+
+        api-ordering
+        (fn [ordering]
+          (rf/dispatch
+           [:ui.events/api.update-subscription
+            feed-id
+            {:ordering ordering}]))
+
         ]
 
     [:div.menu-items
@@ -156,9 +171,32 @@
      ;;
 
      [:div.dropdown.menu-item
-      [:a.dropbtn {:href "#"} "Order by " arr-down]
+      [:a.dropbtn {:href js-stub} "Order by " arr-down]
       [:div.dropdown-content
-       [:a {:href "todo"} "todo"]]]
+
+       [:a {:href js-stub
+            :on-click #(api-ordering "new_first")}
+        "Newest first"]
+
+       [:a {:href js-stub
+            :on-click #(api-ordering "old_first")}
+        "Oldest first"]]]
+
+     ;;
+     ;; Unread only
+     ;;
+
+     [:div.dropdown.menu-item
+      [:a.dropbtn {:href js-stub} "Unread only " arr-down]
+      [:div.dropdown-content
+
+       [:a {:href js-stub
+            :on-click #(api-unread-only true)}
+        "True"]
+
+       [:a {:href js-stub
+            :on-click #(api-unread-only false)}
+        "False"]]]
 
      ;;
      ;; Layout
@@ -182,7 +220,6 @@
             :on-click #(api-layout "cards")}
         "Cards"]]]
 
-     [:div.menu-item [:a {:href "#"} "Edit"]]
      [:div.menu-item
       [:a {:href js-stub
            :on-click
@@ -214,7 +251,7 @@
 
 
 (defn entry-scroll
-  [feed-id entry-id]
+  [feed-id index]
 
   (let [node (atom nil)]
 
@@ -228,7 +265,14 @@
       (fn []
         (let [entry
               @(rf/subscribe
-                [:ui.subs/find-entry feed-id entry-id])
+                [:ui.subs/find-entry feed-id index])
+
+              {entry-id :id} entry
+
+              api-mark-read
+              (fn [flag]
+                (rf/dispatch [:ui.events/api.mark-read
+                              index entry-id true]))
 
               is_read (-> entry :message :is_read)
 
@@ -239,24 +283,31 @@
             (let [offset (.. node -offsetTop)]
               (when (and (not is_read)
                          (> scroll offset))
-                (rf/dispatch [:ui.events/api.mark-read
-                              entry-id
-                              true])))))
+                (api-mark-read true)))))
         [:div])})))
 
 (defn view-entry
   ;; todo track scroll in a separate view!
-  [feed-id entry-id]
+  [feed-id index]
   (let [entry @(rf/subscribe [:ui.subs/find-entry
-                              feed-id entry-id])
+                              feed-id index])
+
         feed @(rf/subscribe [:ui.subs/find-feed feed-id])
-        {:keys [link title summary author]} entry
+        {entry-id :id
+         :keys [link title summary author]} entry
         is_read (-> entry :message :is_read)
         auto_read (-> feed :sub :auto_read)
         entry-date (or (:date_published_at entry)
                        (:date_updated_at entry)
                        (:updated_at entry)
-                       (:created_at entry))]
+                       (:created_at entry))
+
+        api-mark-read
+        (fn [flag]
+          (rf/dispatch [:ui.events/api.mark-read
+                        index entry-id true]))
+
+        ]
 
     [:div.entry
 
@@ -265,7 +316,7 @@
                {:background-color "#000"})}
 
      (when auto_read
-       [entry-scroll feed-id entry-id])
+       [entry-scroll feed-id index])
 
      [:h2.overflow-split
       [:a {:href link} title]]
@@ -297,9 +348,7 @@
 
       [:div.menu-item
        [:a {:href js-stub
-            :on-click
-            #(rf/dispatch [:ui.events/api.mark-read
-                           entry-id true])}
+            :on-click #(api-mark-read true)}
         "Mark read"]]]
 
      [:div.entry-content.overflow-split
@@ -311,11 +360,11 @@
 
 (defn feed-entries
   [feed-id]
-  (let [entry-ids @(rf/subscribe [:ui.subs/entry-ids feed-id])]
+  (let [entries @(rf/subscribe [:ui.subs/entries feed-id])]
     [:div#feed-items
-     (for [entry-id entry-ids]
+     (for [[index entry-id] entries]
        ^{:key entry-id}
-       [view-entry feed-id entry-id])
+       [view-entry feed-id index])
      [read-more]]))
 
 (defn view-feed

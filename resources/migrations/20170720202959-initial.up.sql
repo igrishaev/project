@@ -107,7 +107,9 @@ create table subs (
     title       text,
 
     layout      text,
+    ordering    text,
     auto_read   boolean not null default true,
+    unread_only boolean not null default true,
 
     message_count_total integer not null default 0,
     message_count_unread integer not null default 0,

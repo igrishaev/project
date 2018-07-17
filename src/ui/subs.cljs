@@ -18,17 +18,16 @@
 (rf/reg-sub
  ::entries
  (fn [db [_ feed_id]]
-   (-> db :entries (get feed_id) vals))) ;; todo sorting?
-
-(rf/reg-sub
- ::entry-ids
- (fn [db [_ feed_id]]
-   (-> db :entries (get feed_id) keys)))
+   (vec
+    (map-indexed
+     (fn [index entry]
+       [index (:id entry)])
+     (get-in db [:entries feed_id])))))
 
 (rf/reg-sub
  ::find-entry
- (fn [db [_ feed_id entry_id]]
-   (get-in db [:entries feed_id entry_id])))
+ (fn [db [_ feed_id index]]
+   (get-in db [:entries feed_id index])))
 
 (rf/reg-sub
  ::find-feed

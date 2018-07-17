@@ -106,6 +106,13 @@
 (s/def ::layout
   #{"full_article" "titles_only" "cards"})
 
+(s/def ::ordering
+  #{"new_first" "old_first"})
+
+(s/def ::unread_only boolean?)
+
 (s/def ::api.update-subscription
   (s/keys :opt-un [::layout
-                   ::auto_read]))
+                   ::auto_read
+                   ::ordering
+                   ::unread_only]))

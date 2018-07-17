@@ -65,19 +65,7 @@
 ;; Subs
 ;;
 
-;; todo bump subs count
-
-(def sub-exists? (partial db/find-first :subs))
-
-(defn get-sub-by-id
-  [id]
-  (db/get-by-id :subs id))
-
-;; todo delete
-(defn get-sub-by-user-and-id
-  [user id]
-  (db/find-first
-   :subs {:id id :user_id (:id user)}))
+(def find-sub (partial db/find-first :subs))
 
 (defn get-sub-title
   [params feed]
@@ -85,23 +73,6 @@
       (:title feed)
       (:subtitle feed)
       (:url_source feed)))
-
-;; todo delete?
-
-(defn subscribed?
-  [user feed]
-  (db/find-first
-   :subs
-   {:user_id (:id user)
-    :feed_id (:id feed)}))
-
-(defn subscribe
-  [user feed & [params]]
-  (let [title (get-sub-title params feed)
-        values {:user_id (:id user)
-                :feed_id (:id feed)
-                :title title}]
-    (db/insert! :subs values)))
 
 ;; todo dec subs count
 ;; todo mb not now?
