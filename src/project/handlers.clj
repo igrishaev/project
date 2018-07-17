@@ -150,9 +150,7 @@
 
         entries (db/get-subscribed-entries query)]
 
-    (ok {:feed_id feed_id
-         :entries entries})))
-
+    (ok entries)))
 
 
 (defn mark-read

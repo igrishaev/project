@@ -128,11 +128,11 @@
  (fn [_ [_ feed_id & [from_id]]]
    {:dispatch [::api.call :messages
                {:feed_id feed_id :from_id from_id}
-               [::api.messages.ok]]}))
+               [::api.messages.ok feed_id]]}))
 
 (rf/reg-event-db
  ::api.messages.ok
- (fn [db [_ {:keys [feed_id entries] :as resp}]]
+ (fn [db [_ feed_id entries]]
    (assoc-in db [:entries feed_id] entries)))
 
 ;;

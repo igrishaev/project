@@ -13,6 +13,12 @@
 
 (def js-stub "javascript:;")
 
+(def arr-down
+  [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}])
+
+(def arr-right
+  [:span {:dangerouslySetInnerHTML {:__html "&rarr;"}}])
+
 ;; todo move that
 
 (defn view-sync-button
@@ -102,17 +108,13 @@
       ;;btn.btn-primary
       ]
 
-     [:div.card-footer.card-footer-contra__.text-center__
+     [:div.card-footer
       [:a.card-link {:href (:link entry)}
        "Visit the page "
-       [:span {:dangerouslySetInnerHTML {:__html "&rarr;"}}]]]
-
+       [arr-right]]]
 
      ]]]
   )
-
-(def arr-down
-  [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}])
 
 (defn feed-controls
   [feed]
@@ -330,14 +332,14 @@
 
      [:div.menu-items
       [:div.dropdown.menu-item
-       [:a.dropbtn {:href "#"} "Order by ▾"]
+       [:a.dropbtn {:href "#"} "Order by " arr-down]
        [:div.dropdown-content
         [:a {:href "fff"} "Link 1"]
         [:a {:href "aaa"} "Link 2"]
         [:a {:href "ccc"} "Link 3"]]]
 
       [:div.dropdown.menu-item
-       [:a.dropbtn {:href "#"} "Layout ▾"]
+       [:a.dropbtn {:href "#"} "Layout " arr-down]
        [:div.dropdown-content
         [:a {:href "fff"} "Link 1"]
         [:a {:href "aaa"} "Link 2"]
