@@ -133,7 +133,7 @@
 
 (defn messages
   [params user & _]
-  (let [{:keys [feed_id from_id]} params
+  (let [{:keys [feed_id last_id]} params
         {user_id :id} user
         sub (models/find-sub
              {:feed_id feed_id :user_id user_id})
@@ -146,6 +146,7 @@
                :user_id user_id
                :ordering ordering
                :unread_only unread_only
+               :last_id last_id
                :limit 5}
 
         entries (db/get-subscribed-entries query)]

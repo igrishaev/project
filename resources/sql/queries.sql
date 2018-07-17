@@ -62,15 +62,27 @@ where
   e.feed_id = :feed_id
   and m.entry_id = e.id
   and m.user_id = :user_id
+
 /*~ (when (:unread_only params) */
   and not m.is_read
 /*~ ) ~*/
-/*~ (when (= (:ordering params) "new_first") */
-  order by e.id asc
-/*~ ) ~*/
-/*~ (when (= (:ordering params) "old_first") */
-  order by e.id desc
-/*~ ) ~*/
+
+/*~
+(when (:last_id params)
+  (case (:ordering params)
+    "new_first" */ and e.id > :last_id  /*~
+    "old_first" */ and e.id < :last_id /*~
+))
+~*/
+
+/*~
+(case (:ordering params)
+  "new_first" */ order by e.id asc  /*~
+  "old_first" */ order by e.id desc /*~
+)
+~*/
+
+limit :limit
 
 -- :name unsubscribe :! :n
 delete from subs
