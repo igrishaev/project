@@ -74,9 +74,10 @@
 
           {:on-click
            (fn [e]
+             #_
              (rf/dispatch [:ui.events/api.messages feed-id])
-             (rf/dispatch [:ui.events/page
-                           :feed {:feed-id feed-id}]))}
+             (rf/dispatch
+              [:ui.events/page :feed {:feed-id feed-id}]))}
 
           (get-feed-title feed)]]
 
@@ -387,6 +388,10 @@
 (defn feed-entries
   [feed-id]
   (let [entries @(rf/subscribe [:ui.subs/entries feed-id])]
+
+    (when (empty? entries)
+      (rf/dispatch [:ui.events/api.messages feed-id]))
+
     [:div#feed-items
      (for [[index entry-id] entries]
        ^{:key entry-id}
@@ -397,7 +402,6 @@
   [params]
   (let [{:keys [feed-id]} params
         feed-id (int feed-id)]
-
     [:div
      [feed-header feed-id]
      [feed-entries feed-id]]))
