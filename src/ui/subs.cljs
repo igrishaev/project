@@ -16,6 +16,16 @@
    (-> db :feeds vals))) ;; todo sorting?
 
 (rf/reg-sub
+ ::loader
+ (fn [db [_]]
+   (:loader db)))
+
+(rf/reg-sub
+ ::last-entry
+ (fn [db [_ feed_id]]
+   (-> db :entries (get feed_id) peek)))
+
+(rf/reg-sub
  ::entries
  (fn [db [_ feed_id]]
    (vec

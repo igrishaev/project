@@ -52,6 +52,15 @@
        :class_name "color danger"}]]}))
 
 ;;
+;; Loader
+;;
+
+(rf/reg-event-db
+ ::loader
+ (fn [db [_ data]]
+   (assoc db :loader data)))
+
+;;
 ;; Preview
 ;;
 
@@ -125,15 +134,38 @@
 
 (rf/reg-event-fx
  ::api.messages
- (fn [_ [_ feed_id & [from_id]]]
+ (fn [_ [_ feed_id]]
    {:dispatch [::api.call :messages
-               {:feed_id feed_id :from_id from_id}
+               {:feed_id feed_id}
                [::api.messages.ok feed_id]]}))
 
 (rf/reg-event-db
  ::api.messages.ok
  (fn [db [_ feed_id entries]]
    (assoc-in db [:entries feed_id] entries)))
+
+;;
+;; Read more
+;;
+
+(rf/reg-event-fx
+ ::api.read-more
+ (fn [_ [_ feed_id last_id]]
+   {:dispatch-n
+    [[::api.call :messages
+      {:feed_id feed_id :last_id last_id}
+      [::api.read-more.ok feed_id]]
+     [::loader {:works true}]]}))
+
+(rf/reg-event-fx
+ ::api.read-more.ok
+ (fn [{db :db} [_ feed_id entries]]
+   (let [is-empty (empty? entries)]
+     {:db (if-not is-empty
+            (update-in db [:entries feed_id] into entries)
+            db)
+      :dispatch [::loader {:works false
+                           :is-empty is-empty}]})))
 
 ;;
 ;; Mark (un)read

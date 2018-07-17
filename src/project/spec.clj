@@ -33,7 +33,7 @@
 (s/def ::url ->url)
 (s/def ::feed_id foreign-key)
 (s/def ::message_id foreign-key)
-(s/def ::from_id (s/nilable foreign-key))
+(s/def ::last_id (s/nilable foreign-key))
 (s/def ::title not-empty-string)
 (s/def ::is_read boolean?)
 
@@ -79,7 +79,7 @@
 
 (s/def ::api.messages
   (s/keys :opt-un [::feed_id
-                   ::from_id]))
+                   ::last_id]))
 
 ;;
 ;; Mark read

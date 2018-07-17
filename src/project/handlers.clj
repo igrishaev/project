@@ -147,7 +147,7 @@
                :ordering ordering
                :unread_only unread_only
                :last_id last_id
-               :limit 5}
+               :limit 3}
 
         entries (db/get-subscribed-entries query)]
 

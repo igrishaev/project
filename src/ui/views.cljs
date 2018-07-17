@@ -7,6 +7,8 @@
 
             [clojure.string :as str]
 
+            [goog.functions :refer [rateLimit]]
+
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [re-frame.core :as rf]))
@@ -245,12 +247,46 @@
      [feed-controls feed]]))
 
 (defn read-more
-  []
-  [:div.read-more
-   [:div.load-wrapper
-    [:div.loader]
-    [:span "Loading..."]]])
+  [feed-id]
+  (let [node (atom nil)]
 
+    (r/create-class
+
+     {:component-did-mount
+      (fn [this]
+        (reset! node (r/dom-node this)))
+
+      :reagent-render
+      (fn []
+        (let [{:keys [scroll height-viewport]}
+              @(rf/subscribe [:scroll])
+
+              entry @(rf/subscribe [:ui.subs/last-entry feed-id])
+              {entry-id :id} entry
+
+              loader @(rf/subscribe [:ui.subs/loader])
+              {:keys [works is-empty]} loader
+
+              event (rateLimit
+                     (fn [] (rf/dispatch
+                             [:ui.events/api.read-more
+                              feed-id entry-id]))
+                     2000)]
+
+          (if-let [node @node]
+            (let [offset (.. node -offsetTop)]
+              (when (< offset (+ scroll height-viewport))
+                (when-not works
+                  (when-not is-empty
+                    (event))))))
+
+          (if works
+            [:div.read-more
+             [:div.load-wrapper
+              [:div.loader]
+              [:span "Loading..."]]]
+
+            [:div])))})))
 
 (defn entry-scroll
   [feed-id index]
@@ -286,6 +322,7 @@
               (when (and (not is_read)
                          (> scroll offset))
                 (api-mark-read true)))))
+
         [:div])})))
 
 (defn view-entry
@@ -331,22 +368,10 @@
       (t/humanize entry-date)]
 
      [:div.menu-items
-      [:div.dropdown.menu-item
-       [:a.dropbtn {:href "#"} "Order by " arr-down]
-       [:div.dropdown-content
-        [:a {:href "fff"} "Link 1"]
-        [:a {:href "aaa"} "Link 2"]
-        [:a {:href "ccc"} "Link 3"]]]
 
-      [:div.dropdown.menu-item
-       [:a.dropbtn {:href "#"} "Layout " arr-down]
-       [:div.dropdown-content
-        [:a {:href "fff"} "Link 1"]
-        [:a {:href "aaa"} "Link 2"]
-        [:a {:href "ccc"} "Link 3"]]]
-
-      [:div.menu-item [:a {:href "#"} "Star"]]
-      [:div.menu-item [:a {:href "#"} "Bookmark"]]
+      [:div.menu-item
+       [:a {:href js-stub}
+        "Bookmark"]]
 
       [:div.menu-item
        [:a {:href js-stub
@@ -358,7 +383,6 @@
 
      [:div.entry-controls [:a {:href link} "Visit page →"]]]))
 
-#_[{entry-id :id} entry]
 
 (defn feed-entries
   [feed-id]
@@ -367,15 +391,12 @@
      (for [[index entry-id] entries]
        ^{:key entry-id}
        [view-entry feed-id index])
-     [read-more]]))
+     [read-more feed-id]]))
 
 (defn view-feed
   [params]
   (let [{:keys [feed-id]} params
-        feed-id (int feed-id)
-
-
-        ]
+        feed-id (int feed-id)]
 
     [:div
      [feed-header feed-id]
