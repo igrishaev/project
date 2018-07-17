@@ -145,6 +145,8 @@
 ;; Read more
 ;;
 
+;; todo separated event
+
 (rf/reg-event-fx
  ::api.read-more
  (fn [_ [_ feed_id last_id]]
@@ -153,6 +155,8 @@
       {:feed_id feed_id :last_id last_id}
       [::api.read-more.ok feed_id]]
      [::loader true]]}))
+
+;; todo separated event
 
 (rf/reg-event-fx
  ::api.read-more.ok
@@ -208,6 +212,8 @@
                :update-subscription
                (assoc params :feed_id feed_id)
                [::api.update-subscription.ok feed_id]]}))
+
+;; todo separate
 
 (rf/reg-event-fx
  ::api.update-subscription.ok

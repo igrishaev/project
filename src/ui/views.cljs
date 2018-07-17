@@ -66,14 +66,13 @@
          [:img {:src (get-fav-url feed)}]]
 
         [:div.feed-title.overflow-cut
-         [:span
+         [:a
+
+          {:href (str "#/feeds/" feed-id)}
 
           #_
-          {:href (str "#/subs/" sub-id)}
-
           {:on-click
            (fn [e]
-             #_
              (rf/dispatch [:ui.events/api.messages feed-id])
              (rf/dispatch
               [:ui.events/page :feed {:feed-id feed-id}]))}
@@ -404,7 +403,8 @@
   (let [entries @(rf/subscribe [:ui.subs/entries feed-id])]
 
     (when (empty? entries)
-      (rf/dispatch [:ui.events/api.messages feed-id]))
+      ;; todo show message
+      )
 
     [:div#feed-items
      (for [[index entry-id] entries]
@@ -414,8 +414,12 @@
 
 (defn view-feed
   [params]
+
   (let [{:keys [feed-id]} params
         feed-id (int feed-id)]
+
+    (rf/dispatch [:ui.events/api.messages feed-id])
+
     [:div
      [feed-header feed-id]
      [feed-entries feed-id]]))

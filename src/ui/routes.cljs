@@ -8,10 +8,10 @@
 ;;
 
 (def routes-pages
-  [["/"             :index]
-   ["/subs/:sub-id" :sub]
-   ["/profile"      :profile]
-   ["*"             :index]])
+  [["/"                :index]
+   ["/feeds/:feed-id"  :feed]
+   ["/profile"         :profile]
+   ["*"                :index]])
 
 ;;
 ;; Inits
