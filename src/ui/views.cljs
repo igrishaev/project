@@ -5,9 +5,8 @@
             [ui.url :as url]
             [ui.util :refer [clear-str]]
 
-            [clojure.string :as str]
-
             [goog.functions :refer [rateLimit]]
+            [clojure.string :as str]
 
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -249,7 +248,17 @@
 
 (defn read-more
   [feed-id]
-  (let [node (atom nil)]
+
+  ;; todo scroll and read-more: there is no sence in entry subs
+
+  (let [node (atom nil)
+        delta 1000
+        event (rateLimit
+               (fn [entry-id]
+                 (rf/dispatch
+                  [:ui.events/api.read-more
+                   feed-id entry-id]))
+               delta)]
 
     (r/create-class
 
@@ -265,29 +274,23 @@
               entry @(rf/subscribe [:ui.subs/last-entry feed-id])
               {entry-id :id} entry
 
-              loader @(rf/subscribe [:ui.subs/loader])
-              {:keys [works is-empty]} loader
-
-              event (rateLimit
-                     (fn [] (rf/dispatch
-                             [:ui.events/api.read-more
-                              feed-id entry-id]))
-                     2000)]
+              loader @(rf/subscribe [:ui.subs/loader])]
 
           (if-let [node @node]
             (let [offset (.. node -offsetTop)]
               (when (< offset (+ scroll height-viewport))
-                (when-not works
-                  (when-not is-empty
-                    (event))))))
+                (when-not loader
+                  (event entry-id)))))
 
-          (if works
+          (if loader
             [:div.read-more
              [:div.load-wrapper
               [:div.loader]
               [:span "Loading..."]]]
 
-            [:div])))})))
+            [:div])))}))
+
+  )
 
 (defn entry-scroll
   [feed-id index]
@@ -319,9 +322,10 @@
               @(rf/subscribe [:scroll])]
 
           (when-let [node @node]
-            (let [offset (.. node -offsetTop)]
-              (when (and (not is_read)
-                         (> scroll offset))
+            (let [offset (.. node -offsetTop)
+                  mark? (and (not is_read)
+                             (> scroll offset))]
+              (when mark?
                 (api-mark-read true)))))
 
         [:div])})))

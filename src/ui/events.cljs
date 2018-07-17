@@ -155,7 +155,7 @@
     [[::api.call :messages
       {:feed_id feed_id :last_id last_id}
       [::api.read-more.ok feed_id]]
-     [::loader {:works true}]]}))
+     [::loader true]]}))
 
 (rf/reg-event-fx
  ::api.read-more.ok
@@ -164,8 +164,7 @@
      {:db (if-not is-empty
             (update-in db [:entries feed_id] into entries)
             db)
-      :dispatch [::loader {:works false
-                           :is-empty is-empty}]})))
+      :dispatch [::loader false]})))
 
 ;;
 ;; Mark (un)read
