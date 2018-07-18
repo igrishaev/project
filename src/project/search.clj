@@ -7,7 +7,7 @@
 
   )
 
-(defn term->url)
+
 
 (def types
   #{"application/rss+xml"
