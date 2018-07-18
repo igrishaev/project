@@ -33,6 +33,9 @@
                  [oauth-clj "0.1.16"]
                  [cheshire "5.6.3"]
 
+                 ;; parsing
+                 [hickory "0.7.1"]
+
                  ;; html
                  [selmer "1.11.7"]
                  [markdown-clj "1.0.2"]
