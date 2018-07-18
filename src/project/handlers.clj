@@ -157,26 +157,45 @@
 (defn mark-read
   [params user & _]
 
-  ;; TODO re-calc unread count
-
   (let [{:keys [entry_id is_read]} params
         {user_id :id} user]
 
-    ;; todo just update
+    (db/with-tx
 
-    (if-let [entry (models/get-entry-by-id entry_id)]
+      (if-let [entry (models/get-entry-by-id entry_id)]
 
-      (let [date_read (when is_read (t/now))
-            params {:entry_id entry_id
-                    :user_id user_id
-                    :is_read is_read
-                    :date_read date_read}
-            message (models/upsert-message params)]
+        (let [{entry_id :id :keys [feed_id]} entry
 
-        ;; todo udpate response
-        (ok (assoc entry :message message)))
+              message (models/find-message
+                       {:entry_id entry_id :user_id user_id})
 
-      (r/err-entry-404 entry_id))))
+              {message_id :id} message
+
+              date_read (when is_read (t/now))
+              delta_unread (if is_read -1 1)
+              delta_total (if message 0 1)]
+
+          (if message
+            (db/update! :messages
+                        {:updated_at (t/now)
+                         :is_read is_read
+                         :date_read date_read}
+                        ["id = ?" message_id])
+
+            (db/insert! :messages
+                        {:entry_id entry_id
+                         :user_id user_id
+                         :is_read is_read
+                         :date_read date_read}))
+
+          (db/bump-subs-counters
+           {:feed_id feed_id
+            :delta_unread delta_unread
+            :delta_total delta_total})
+
+          (ok (db/get-full-entry {:entry_id entry_id})))
+
+        (r/err-entry-404 entry_id)))))
 
 
 (defn user-info

@@ -81,7 +81,7 @@
 
         [:div.flex-separator]
 
-        (when (pos? unread)
+        (when (>= unread 0)
           [:div [:span.feed-count unread]])])]))
 
 (defn view-message
@@ -330,7 +330,9 @@
                   mark? (and (not is_read)
                              (> scroll offset))]
               (when mark?
-                (trigger index entry-id true)))))
+                (trigger index entry-id true)
+                (rf/dispatch [:ui.events/feed-read-count-dec
+                              feed-id])))))
 
         [:div])})))
 

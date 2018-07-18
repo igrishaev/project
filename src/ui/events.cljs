@@ -220,3 +220,15 @@
  (fn [{db :db} [_ feed_id feed]]
    {:db (assoc-in db [:feeds feed_id] feed)
     :dispatch [::api.messages feed_id]}))
+
+;; todo rename
+
+(rf/reg-event-db
+ ::feed-read-count-inc
+ (fn [db [_ feed_id]]
+   (update-in db [:feeds feed_id :sub :message_count_unread] inc)))
+
+(rf/reg-event-db
+ ::feed-read-count-dec
+ (fn [db [_ feed_id]]
+   (update-in db [:feeds feed_id :sub :message_count_unread] dec)))

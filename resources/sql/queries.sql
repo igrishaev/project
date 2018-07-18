@@ -1,4 +1,12 @@
 
+-- :name bump-subs-counters :! :n
+update subs s
+set
+  message_count_total = message_count_total + :delta_total,
+  message_count_unread = message_count_unread + :delta_unread
+where
+  s.feed_id = :feed_id
+
 -- :name subscribe-user-to-the-last-feed-entries :! :n
 insert into
   messages (user_id, entry_id)
@@ -50,6 +58,16 @@ from
 where
     s.user_id = :user_id
     and f.id = :feed_id
+
+-- :name get-full-entry :? :1
+select
+  e.*,
+  row_to_json(m) as message
+from
+  messages m, entries e
+where
+  e.id = :entry_id
+  and m.entry_id = e.id
 
 
 -- :name get-subscribed-entries :? :*

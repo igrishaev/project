@@ -74,27 +74,11 @@
       (:subtitle feed)
       (:url_source feed)))
 
-;; todo dec subs count
-;; todo mb not now?
-
-;; todo delete messages?
-;; or do that later?
-
 ;;
 ;; Messages
 ;;
 
-(defn message
-  [user entry & [params]]
-  (upsert-message
-   (merge
-    params
-    {:user_id (:id user)
-     :entry_id (:id entry)})))
-
-;; todo bump sub read counter
-;; todo make batch?
-
+(def find-message (partial db/find-first :messages))
 
 ;;
 ;; Feed
@@ -140,4 +124,4 @@
 
 (defn get-entry-by-id
   [id]
-  (find-entry {:id id}))
+  (db/get-by-id :entries id))
