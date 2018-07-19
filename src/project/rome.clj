@@ -19,14 +19,22 @@
 (defprotocol ToClojure
   (->clj [obj]))
 
-
-(defn parse
+(defn parse-internal
   [source]
-  (let [url (URL. source)
+  (let [reader (new XmlReader source)
         input (new SyndFeedInput)
-        reader (new XmlReader url)
         feed (.build input reader)]
     (->clj feed)))
+
+
+(defn parse-url
+  [url]
+  (parse-internal (URL. url)))
+
+
+(defn parse-stream
+  [stream]
+  (parse-internal stream))
 
 
 (extend-type SyndContent
