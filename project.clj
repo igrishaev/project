@@ -36,6 +36,8 @@
                  ;; parsing
                  [hickory "0.7.1"]
 
+                 [com.rometools/rome "1.11.0"]
+
                  ;; html
                  [selmer "1.11.7"]
                  [markdown-clj "1.0.2"]
