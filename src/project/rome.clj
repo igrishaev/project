@@ -19,6 +19,7 @@
 (defprotocol ToClojure
   (->clj [obj]))
 
+
 (defn parse-internal
   [source]
   (let [reader (new XmlReader source)
