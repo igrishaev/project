@@ -60,7 +60,7 @@
 
         (if-let [feed (models/get-feed-by-id feed_id)]
 
-          (do ;; todo transaction?
+          (do
 
             ;; create subscription
             (models/upsert-sub {:feed_id feed_id
@@ -72,6 +72,12 @@
              {:user_id user_id
               :feed_id feed_id
               :limit 10})
+
+            ;; TODO take the number from the last update
+
+            (db/sync-subs-counters
+             {:user_id user_id
+              :feed_id feed_id})
 
             (let [feed (db/get-single-full-feed
                         {:feed_id feed_id :user_id user_id})]
@@ -94,6 +100,7 @@
 
 
 (def into-map (partial into {}))
+
 
 (defn subscriptions
   [params user & _]

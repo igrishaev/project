@@ -188,9 +188,11 @@
   (let [feed (models/get-or-create-feed url)]
     (sync-feed-safe feed)))
 
+
 (defn sync-user
   ;; todo wrap with log etc
   [user_id]
+  #_
   (db/with-tx
     (db/sync-subs-messages {:user_id user_id})
     (db/sync-subs-counters {:user_id user_id})

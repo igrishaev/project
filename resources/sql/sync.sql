@@ -1,21 +1,3 @@
--- :name sync-subs-messages :! :n
-insert into messages (user_id, entry_id)
-
-select
-  s.user_id as user_id,
-  e.id as entry_id
-
-from
-  subs s
-  join entries e on e.feed_id = s.feed_id
-  left join messages m on m.entry_id = e.id and m.user_id = s.user_id
-
-where
-  s.user_id = :user_id
-  and m.id is null
-
-order by e.id desc
-
 
 -- :name sync-feed-entry-count :! :n
 update feeds
@@ -33,6 +15,7 @@ from (
 ) as q
 where
   id = q.feed_id
+
 
 -- :name sync-feed-sub-count :! :n
 update feeds
@@ -60,11 +43,10 @@ where
   or sync_date_next < now()
 order by
   sync_date_next asc nulls first
-limit 100
+limit :limit
 
 
 -- :name sync-subs-counters :! :n
--- :todo wrong
 update subs
 set
   updated_at = now(),
@@ -75,10 +57,17 @@ from (
     s.id as sub_id,
     count(m.id) as count_total,
     count(m.id) filter (where not m.is_read) as count_unread
-  from subs s
-  join messages m on m.sub_id = s.id
+  from
+    subs s, entries e, messages m
   where
-    s.user_id = :user_id
+    s.feed_id = e.feed_id
+    and m.entry_id = e.id
+/*~ (when (:feed_id params) */
+    and s.feed_id = :feed_id
+/*~ ) ~*/
+/*~ (when (:user_id params) */
+    and s.user_id = :user_id
+/*~ ) ~*/
   group by s.id
 ) as q
 where
@@ -99,10 +88,11 @@ where id = :user_id
 select *
 from users
 where
-  and (sync_date_next is null or sync_date_next < now())
+  sync_date_next is null
+  or sync_date_next < now()
 order by
   sync_date_next asc nulls first
-limit 100
+limit :limit
 
 
 -- :name dev-sync-subs-counters :! :n
