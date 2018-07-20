@@ -3,27 +3,19 @@
 
 /*~ (when (not-empty (:feed_ids params)) */
 select
-  f.*,
-  0 as rank,
-  true as direct_match
+  f.*
 from feeds f
 where f.id in (:v*:feed_ids)
 
 union
 /*~ ) ~*/
 
-select
-  *,
-  1 as rank,
-  false as direct_match
+select *
 from feeds
 where
   (coalesce(url_host, '') || ' ' || coalesce(title, '') || ' ' || coalesce(subtitle, ''))
   ilike :term
 
-order by
-  rank asc,
-  sub_count_total desc
 limit :limit
 
 
