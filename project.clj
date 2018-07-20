@@ -42,6 +42,9 @@
                  [selmer "1.11.7"]
                  [markdown-clj "1.0.2"]
 
+                 ;; cache and mq
+                 [com.taoensso/carmine "2.18.1"]
+
                  ;; email
                  [com.draines/postal "2.0.2"]
                  [buddy/buddy-core "1.4.0"]

@@ -1,4 +1,5 @@
 (ns project.fetch
+  ;; todo delete
   (:require [clj-http.client :as client]))
 
 (def url-fetcher
