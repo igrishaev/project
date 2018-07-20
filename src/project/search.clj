@@ -23,8 +23,10 @@
   [url]
   (let [url (URL. url)
         host (.getHost url)
-        prot (.getProtocol url)]
-    (format "%s://%s" prot host)))
+        prot (.getProtocol url)
+        path (.getPath url)
+        path (if (= path "/") path "")]
+    (format "%s://%s%s" prot host path)))
 
 
 (defn domain->url
@@ -53,7 +55,7 @@
    "link[rel='alternate'][type='application/json']"])
 
 
-(defn find-links
+(defn html-find-links
   ;; todo: cache for url
   [^InputStream stream enc url]
   (let [base-url (->base-url url)
@@ -62,14 +64,14 @@
         elements (mapcat select feed-queries)
         links (for [el elements]
                 (.absUrl el "href"))]
-    (prn links) ;; todo logging
+
     (when-not (empty? links)
       (set links))))
 
 
 (defn is-domain?
   [^String term]
-  (re-matches #"[a-zA-Z0-9-\.]+" term))
+  (re-matches #"[a-zA-Z0-9-\.]+\.[a-zA-Z0-9]{2,}/?" term))
 
 
 (defn get-encoding
@@ -88,10 +90,10 @@
 
   (let [{stream :body} resp
         encoding (get-encoding resp)
-        urls (find-links
+        urls (html-find-links
               stream encoding url)]
 
-    (db/with-tx
+    (db/with-tx ;; todo without tx
       (when-not (empty? urls)
         (let [feeds (db/get-feeds-by-urls {:urls urls})
               urls-old (map :url_source feeds)
@@ -100,13 +102,18 @@
                         (set urls-old))]
           (when-not (empty? urls-new)
             (doseq [url urls-new]
-              (sync/sync-feed-url url))))))))
+              (sync/sync-feed-url url))))
+
+        (let [feeds (db/get-feeds-by-urls {:urls urls})]
+          (mapv :id feeds))))))
 
 
 (defn process-feed
   [resp url]
   ;; todo read feed
-  (sync/sync-feed-url url))
+  (sync/sync-feed-url url)
+  (let [feed (models/get-feed-by-url url)]
+    [(:id feed)]))
 
 
 (def http-opt
@@ -121,13 +128,25 @@
                        [(-> h str/lower-case keyword)
                         v])))))
 
+(defn fetch-url
+  [url]
+  (let [resp (client/get url http-opt)]
+    (fix-headers resp)))
+
 (defn process-url
   [url]
-  (let [resp (client/get url http-opt)
-        resp (fix-headers resp)]
+  (let [resp (fetch-url url)]
 
     (if (is-html? resp)
-      (process-html resp url)
+
+      (let [result (process-html resp url)]
+        (if (empty? result)
+
+          (let [base-url (->base-url url)]
+            (when (not= url base-url)
+              (recur base-url)))
+
+          result))
 
       (process-feed resp url))))
 
@@ -135,20 +154,32 @@
 (defn search-sync
   [term]
 
+  {:pre [(string? term)]
+   :post [(or (nil? %) (vector? %))]}
+
   (if-let [url (->url term)]
 
-    (when-not (models/get-feed-by-url url)
+    (if-let [feed (models/get-feed-by-url url)]
+      [(:id feed)]
       (process-url url))
 
     (if (is-domain? term)
-      (recur (domain->url term)))))
+      (search-sync (domain->url term)))))
 
+
+(defn sql-term
+  [term]
+  (let [sql (str/replace term #"\\|%|_" "")]
+    (str "%" sql "%")))
 
 (defn search-results
-  [term])
+  [term feed-ids]
+  (db/search-feeds-by-term
+   {:feed_ids feed-ids
+    :term (sql-term term)
+    :limit 10}))
 
 (defn search
   [term]
-
-  (search-sync term)
-  (search-results term))
+  (let [feed-ids (search-sync term)]
+    (search-results term feed-ids)))

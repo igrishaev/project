@@ -1,4 +1,24 @@
 
+-- :name search-feeds-by-term :? :*
+
+/*~ (when (not-empty (:feed_ids params)) */
+select f.*
+  from feeds f
+where f.id in (:v*:feed_ids)
+
+union
+/*~ ) ~*/
+
+select *
+  from feeds
+where
+  (coalesce(title, '') || ' ' || coalesce(subtitle, ''))
+  ilike :term
+
+order by sub_count_total desc
+limit :limit
+
+
 -- :name get-feeds-by-urls :? :*
 select *
 from feeds
