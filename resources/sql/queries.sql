@@ -2,20 +2,28 @@
 -- :name search-feeds-by-term :? :*
 
 /*~ (when (not-empty (:feed_ids params)) */
-select f.*
-  from feeds f
+select
+  f.*,
+  0 as rank,
+  true as direct_match
+from feeds f
 where f.id in (:v*:feed_ids)
 
 union
 /*~ ) ~*/
 
-select *
-  from feeds
+select
+  *,
+  1 as rank,
+  false as direct_match
+from feeds
 where
-  (coalesce(title, '') || ' ' || coalesce(subtitle, ''))
+  (coalesce(url_host, '') || ' ' || coalesce(title, '') || ' ' || coalesce(subtitle, ''))
   ilike :term
 
-order by sub_count_total desc
+order by
+  rank asc,
+  sub_count_total desc
 limit :limit
 
 

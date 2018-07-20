@@ -5,6 +5,8 @@
 
             [clojure.set :as set]
             [clojure.string :as str]
+
+            [clojure.tools.logging :as log]
             [clj-http.client :as client])
 
   (:import org.jsoup.Jsoup
@@ -32,13 +34,6 @@
 (defn domain->url
   [domain]
   (format "%s://%s" "http" domain))
-
-
-(defn fetch-url
-  [url]
-  (let [opt {:as :stream
-             :throw-exceptions true}]
-    (client/get url opt)))
 
 
 (defn is-html?
@@ -110,15 +105,11 @@
 
 (defn process-feed
   [resp url]
-  ;; todo read feed
+  ;; todo read feed from stream!
   (sync/sync-feed-url url)
   (let [feed (models/get-feed-by-url url)]
     [(:id feed)]))
 
-
-(def http-opt
-  {:as :stream
-   :throw-exceptions true})
 
 (defn fix-headers
   [resp]
@@ -128,14 +119,37 @@
                        [(-> h str/lower-case keyword)
                         v])))))
 
+(def http-opt
+  {:as :stream
+   :throw-exceptions true})
+
+
+(defn exc-message
+  [^Exception e]
+  (let [class (.. e getClass getCanonicalName)
+        message (.. e getMessage)]
+    (format "%s: %s" class message)))
+
+
 (defn fetch-url
   [url]
-  (let [resp (client/get url http-opt)]
-    (fix-headers resp)))
+  (try
+    (let [resp (client/get url http-opt)]
+      (fix-headers resp))
+    (catch Throwable e
+      (let [data (ex-data e)
+            {:keys [type status]} data]
+        (log/errorf
+         "HTTP error: %s, %s, %s, %s"
+         url
+         (exc-message e)
+         status
+         type)))))
+
 
 (defn process-url
   [url]
-  (let [resp (fetch-url url)]
+  (if-let [resp (fetch-url url)]
 
     (if (is-html? resp)
 
@@ -148,7 +162,11 @@
 
           result))
 
-      (process-feed resp url))))
+      (process-feed resp url))
+
+    (let [base-url (->base-url url)]
+      (when (not= url base-url)
+        (recur base-url)))))
 
 
 (defn search-sync
