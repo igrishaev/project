@@ -63,15 +63,15 @@
 
 (rf/reg-event-fx
  ::api.search-feeds
- (fn [_ [_ url]]
+ (fn [_ [_ term]]
    {:dispatch [::api.call :search-feeds
-               {:url url}
+               {:term term}
                [::api.search-feeds.ok]]}))
 
 (rf/reg-event-db
  ::api.search-feeds.ok
- (fn [db [_ feed]]
-   (assoc-in db [:search-feeds] feed)))
+ (fn [db [_ feeds]]
+   (assoc-in db [:search-feeds] feeds)))
 
 ;;
 ;; Subscribe

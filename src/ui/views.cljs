@@ -37,6 +37,7 @@
       (some-> feed :subtitle clear-str)
       (-> feed :url_source url/get-short-url)))
 
+
 (defn get-fav-url
   [feed]
   (let [{:keys [url_favicon url_source]} feed]
@@ -422,25 +423,26 @@
      [feed-header feed-id]
      [feed-entries feed-id]]))
 
+
 (def form-search
   [:input#search-field
-   {:placeholder "Unput a URL here"
+   {:placeholder "Feed URL, web page, an term"
     :type "text"
     :field :text
     :id :search
     :validator
     (fn [{:keys [search]}]
-      (when (and search (clear-str search))
-        (when-not (url/valid-url? search)
-          ["invalid"])))}])
+      nil)}])
 
-(defn view-search
+
+(defn view-search-form
   []
   (let [doc (r/atom {})
         handler
         (fn [e]
           (.preventDefault e)
           (let [{:keys [search]} @doc]
+            ;; todo refactor here
             (rf/dispatch [:ui.events/page :search-feeds {:tearm search}])
             (rf/dispatch [:ui.events/api.search-feeds search])))]
     (fn []
@@ -452,12 +454,13 @@
          {:type "Button"
           :on-click handler} "Search"]]])))
 
+
 (defn get-feed-image
   [feed]
   (or (:url_image feed)
       (get-fav-url feed)))
 
-(defn view-feed-search
+(defn view-search-results
   []
   (when-let [feeds @(rf/subscribe [:ui.subs/search-feeds])]
     [:div#search-result-list
@@ -471,9 +474,12 @@
         [:div.search-result-item-content
          [:h2 (get-feed-title feed)]
          [:p.subtitle subtitle]
+
+         ;; todo show actial data
          [:p.subtitle
           "55K followers | 279 articles per week | #tech #startups"]
 
+         #_
          (for [entry entries
                :let [{entry-id :id :keys [title]} entry]]
 
@@ -486,8 +492,10 @@
            :on-click
            #(rf/dispatch [:ui.events/api.subscribe feed-id])}
           "Follow"]
+
+         #_
          [:a.action-vert
-          {:href "#"}
+          {:href js-stub}
           "Similar"]]])]))
 
 (defn view-page
@@ -497,7 +505,7 @@
 
     (case page
       :feed [view-feed params]
-      :search-feeds [view-feed-search]
+      :search-feeds [view-search-results]
       ;; :index [page-dashboard]
       ;; :stats [page-hash params]
       ;; :profile [profile/page-profile params]

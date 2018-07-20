@@ -4,7 +4,6 @@
             project.spec.email
             [project.spec.util :refer
              [invalid
-              ->url
               ->int
               ->keyword
               not-empty-string
@@ -30,7 +29,6 @@
 ;;
 
 (s/def ::action ->keyword)
-(s/def ::url ->url)
 (s/def ::feed_id foreign-key)
 (s/def ::message_id foreign-key)
 (s/def ::last_id (s/nilable foreign-key))
@@ -45,11 +43,13 @@
   (s/keys :req-un [::action]))
 
 ;;
-;; Preview
+;; Search
 ;;
 
+(s/def ::term not-empty-string)
+
 (s/def ::api.search-feeds
-  (s/keys :req-un [::url]))
+  (s/keys :req-un [::term]))
 
 ;;
 ;; Subscribe

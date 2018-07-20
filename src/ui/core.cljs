@@ -14,7 +14,7 @@
   (r/render [views/foobar] (el-by-id "app-content"))
 
   (r/render [views/view-page] (el-by-id "page"))
-  (r/render [views/view-search] (el-by-id "search-block"))
+  (r/render [views/view-search-form] (el-by-id "search-block"))
   (r/render [views/left-sidebar] (el-by-id "sidebar-ui"))
 
   )

@@ -4,6 +4,7 @@
             [project.db :as db]
             [project.sync :as sync]
             [project.time :as t]
+            [project.search :as search]
             [project.resp :refer [ok] :as r]))
 
 ;;
@@ -44,38 +45,10 @@
    :avatar_url
    :gender])
 
-(def clean-feed (partial clean-model feed-fields))
 
+(def clean-feed (partial clean-model feed-fields))
 (def clean-user (partial clean-model user-fields))
 
-;; todo check if a URL points to a feed
-;; todo handle a case when it's not a feed
-;; entries are empty
-;; http >= 400
-
-(defn search-wrap-feed
-  [feed]
-  (let [entries (db/get-last-entries {:feed_id (:id feed)})]
-    (-> (clean-feed feed)
-        (assoc :entries entries))))
-
-(defn search-feeds
-  [params & _]
-  (let [{:keys [url]} params
-        feed (models/get-feed-by-url url)]
-
-    (if feed
-      (ok (map search-wrap-feed [feed]))
-
-      (let [feed (models/create-feed url)
-            {feed-id :id} feed]
-
-        (sync/sync-feed-safe feed)
-
-        (let [feed (models/get-feed-by-id feed-id)]
-          (ok (map search-wrap-feed [feed])))))))
-
-;; todo add some messages
 
 (defn subscribe
   [params user & _]
@@ -220,3 +193,11 @@
     (let [feed (db/get-single-full-feed
                 {:feed_id feed_id :user_id user_id})]
       (ok (clean-feed feed)))))
+
+
+(defn search-feeds
+  [params user & _]
+  (let [{:keys [term]} params
+        {user_id :id} user
+        feeds (search/search term)]
+    (ok feeds)))
