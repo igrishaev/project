@@ -5,8 +5,13 @@
 (def upsert-user
   (partial db/upsert! :users "(email)"))
 
-(def upsert-feed
-  (partial db/upsert! :feeds "(url_source)"))
+(let [constraint "(url_source)"]
+
+  (def upsert-feed
+    (partial db/upsert! :feeds constraint))
+
+  (def upsert-feeds
+    (partial db/upsert-multi! :feeds constraint)))
 
 (def upsert-entries
   (partial db/upsert-multi! :entries "(feed_id, guid)"))

@@ -1,4 +1,10 @@
 
+-- :name get-feeds-by-urls :? :*
+select *
+from feeds
+where
+  url_source in (:v*:urls)
+
 -- :name bump-subs-counters :! :n
 update subs s
 set

@@ -1,25 +1,30 @@
 (ns project.search
   (:require [project.models :as models]
+            [project.db :as db]
+            [project.sync :as sync]
 
+            [clojure.set :as set]
+            [clojure.string :as str]
             [clj-http.client :as client])
 
   (:import org.jsoup.Jsoup
            java.io.InputStream
            java.net.URL))
 
-(defn as-url
+(defn ->url
   [term]
   (try
     (URL. term)
+    term
     (catch Throwable e)))
 
 
-(defn base-url
-  [^URL url]
-  (let [host (.getHost url)
+(defn ->base-url
+  [url]
+  (let [url (URL. url)
+        host (.getHost url)
         prot (.getProtocol url)]
-    (URL.
-     (format "%s://%s" prot host))))
+    (format "%s://%s" prot host)))
 
 
 (defn domain->url
@@ -31,25 +36,33 @@
   [url]
   (let [opt {:as :stream
              :throw-exceptions true}]
-    (client/get (str url) opt)))
+    (client/get url opt)))
 
 
 (defn is-html?
-  [headers]
-  (when-let [content-type (get headers "content-type")]
-    (-> content-type .toLowerCase (.contains "text/html"))))
+  [resp]
+  (when-let [content-type (-> resp :headers :content-type)]
+    (-> content-type
+        str/lower-case
+        (str/includes? "text/html"))))
+
+
+(def feed-queries
+  ["link[rel='alternate'][type='application/rss+xml']"
+   "link[rel='alternate'][type='application/atom+xml']"
+   "link[rel='alternate'][type='application/json']"])
 
 
 (defn find-links
-  [^InputStream stream enc base-url]
-  (let [doc (Jsoup/parse stream enc base-url)
-        queries ["link[rel='alternate'][type='application/rss+xml']"
-                 "link[rel='alternate'][type='application/atom+xml']"
-                 "link[rel='alternate'][type='application/json']"]
+  ;; todo: cache for url
+  [^InputStream stream enc url]
+  (let [base-url (->base-url url)
+        doc (Jsoup/parse stream enc base-url)
         select (fn [query] (.select doc query))
-        elements (mapcat select queries)
+        elements (mapcat select feed-queries)
         links (for [el elements]
                 (.absUrl el "href"))]
+    (prn links) ;; todo logging
     (when-not (empty? links)
       (set links))))
 
@@ -58,49 +71,77 @@
   [^String term]
   (re-matches #"[a-zA-Z0-9-\.]+" term))
 
-(defn is-feed?
+
+(defn get-encoding
   [resp]
-  )
+  (when-let [content-type (-> resp :headers :content-type)]
+    (last
+     (re-find
+      #"charset\s*=\s*(.+)"
+      (-> content-type
+          str/lower-case
+          str/trim)))))
 
 
 (defn process-html
-  [resp]
-  (let [{stream :stream} resp
-        url "sssss"
-        encoding "dddd"]
-    (find-links stream encoding url)))
+  [resp url]
+
+  (let [{stream :body} resp
+        encoding (get-encoding resp)
+        urls (find-links
+              stream encoding url)]
+
+    (db/with-tx
+      (when-not (empty? urls)
+        (let [feeds (db/get-feeds-by-urls {:urls urls})
+              urls-old (map :url_source feeds)
+              urls-new (set/difference
+                        (set urls)
+                        (set urls-old))]
+          (when-not (empty? urls-new)
+            (doseq [url urls-new]
+              (sync/sync-feed-url url))))))))
 
 
 (defn process-feed
-  [resp]
-  )
+  [resp url]
+  ;; todo read feed
+  (sync/sync-feed-url url))
 
 
 (def http-opt
   {:as :stream
    :throw-exceptions true})
 
+(defn fix-headers
+  [resp]
+  (update resp :headers
+          (fn [headers]
+            (into {} (for [[h v] headers]
+                       [(-> h str/lower-case keyword)
+                        v])))))
+
 (defn process-url
   [url]
-  (let [resp (client/get url http-opt)]
+  (let [resp (client/get url http-opt)
+        resp (fix-headers resp)]
 
-    (if (is-feed? resp)
-      (process-feed resp)
+    (if (is-html? resp)
+      (process-html resp url)
 
-      (if (is-html? resp)
-        (process-html resp)))))
+      (process-feed resp url))))
 
 
 (defn search-sync
   [term]
 
-  (if-let [url (as-url term)]
+  (if-let [url (->url term)]
 
     (when-not (models/get-feed-by-url url)
       (process-url url))
 
     (if (is-domain? term)
-      (search (domain->url term)))))
+      (recur (domain->url term)))))
 
 
 (defn search-results
