@@ -1,6 +1,8 @@
 
 
-
+--
+-- Feeds
+--
 
 
 -- :name sync-feed-entry-count :! :n
@@ -40,16 +42,6 @@ where
   id = q.feed_id
 
 
--- :name get-feeds-to-sync :? :*
--- select *
---   from feeds
--- where
---   sync_date_next is null
---   or sync_date_next < now()
--- order by
---   sync_date_next asc nulls first
--- limit :limit
-
 -- :name rotate-feeds-to-update :? :*
 update feeds
 set
@@ -72,6 +64,11 @@ returning
   id, url_source
 
 
+--
+-- Users
+--
+
+
 -- :name rotate-users-to-update :? :*
 update users
 set
@@ -92,6 +89,18 @@ where
   id = q.user_id
 returning
   id
+
+
+-- :name sync-user-new-messages :! :n
+insert into messages (user_id, entry_id)
+select
+  s.user_id as user_id,
+  e.id as entry_id
+from subs s
+join entries e on e.feed_id = s.feed_id
+left join messages m on m.entry_id = e.id and m.user_id = s.user_id
+where s.user_id = :user_id
+and m.id is null
 
 
 -- :name sync-subs-counters :! :n
@@ -120,24 +129,3 @@ from (
 ) as q
 where
   id = q.sub_id
-
-
--- :name sync-user-counters :! :n
--- update users
--- set
---   updated_at = now(),
---   sync_date_last = now(),
---   sync_date_next = now() + sync_interval * interval '1 second',
---   sync_count_total = sync_count_total + 1
--- where id = :user_id
-
-
--- :name get-users-to-sync :? :*
--- select *
--- from users
--- where
---   sync_date_next is null
---   or sync_date_next < now()
--- order by
---   sync_date_next asc nulls first
--- limit :limit

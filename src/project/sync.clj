@@ -31,9 +31,7 @@
            (assoc e :feed_id feed-id))))
 
       (db/sync-feed-entry-count {:feed_id feed-id})
-      (db/sync-feed-sub-count {:feed_id feed-id}))
-
-    ))
+      (db/sync-feed-sub-count {:feed_id feed-id}))))
 
 (defn sync-feed-safe
   [feed]
@@ -51,14 +49,12 @@
       (catch Throwable e
         (let [err-msg (e/exc-msg e)]
 
-          (log/errorf "Sync error, feed: %s, e: %s"
-                      url_source err-msg)
+          (log/errorf "Feed sync error, id: %s, url: %s, e: %s"
+                      id url_source err-msg)
           (assoc!
            fields
            :sync_count_err (inc sync_count_err)
            :sync_error_msg err-msg)))
-
-      ;; todo move these fields up
 
       (finally
         (assoc!
@@ -83,18 +79,17 @@
 
 
 (defn sync-user
-  ;; todo wrap with log etc
   [user_id]
-  #_
   (db/with-tx
-    (db/sync-subs-messages {:user_id user_id})
-    (db/sync-subs-counters {:user_id user_id})
-    (db/sync-user-counters {:user_id user_id})))
+    (db/sync-user-new-messages {:user_id user_id})
+    (db/sync-subs-counters {:user_id user_id})))
+
 
 (defn sync-user-safe
   ;; todo wrap with log etc
-  [user]
-  (sync-user (:id user)))
+  [user-id]
+  (sync-user user-id))
+
 
 ;;
 ;; Dev import
