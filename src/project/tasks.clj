@@ -50,4 +50,4 @@
 (defmethod queue/action :sync-user
   [data]
   (let [{:keys [user-id]} data]
-    (sync/sync-user-safe user-id)))
+    (sync/sync-user user-id)))

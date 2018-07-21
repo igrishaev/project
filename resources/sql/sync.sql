@@ -129,3 +129,14 @@ from (
 ) as q
 where
   id = q.sub_id
+
+
+-- :name sync-user-sync-counters :! :n
+update users
+set
+  updated_at = now(),
+  sync_date_last = now(),
+  sync_date_next = now() + sync_interval * interval '1 second',
+  sync_count_total = sync_count_total + 1
+where
+  id = :user_id

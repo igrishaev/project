@@ -17,7 +17,12 @@
 
 (defn sync-feed
   [feed]
+
   (let [{feed-url :url_source feed-id :id} feed
+
+        _ (log/infof "Start syncing feed: %s %s"
+                     feed-id feed-url)
+
         fetch-result (feed/fetch-feed feed)
         {feed-db :feed entries-db :entries} fetch-result]
 
@@ -28,10 +33,7 @@
       (when-not (empty? entries)
         (models/upsert-entries
          (for [e entries-db]
-           (assoc e :feed_id feed-id))))
-
-      (db/sync-feed-entry-count {:feed_id feed-id})
-      (db/sync-feed-sub-count {:feed_id feed-id}))))
+           (assoc e :feed_id feed-id)))))))
 
 (defn sync-feed-safe
   [feed]
@@ -65,7 +67,10 @@
          :sync_count_total (inc sync_count_total))
 
         (let [fields (persistent! fields)]
-          (models/update-feed id fields))))))
+          (models/update-feed id fields))
+
+        (db/sync-feed-entry-count {:feed_id feed-id})
+        (db/sync-feed-sub-count {:feed_id feed-id})))))
 
 (defn sync-feed-by-url
   [url]
@@ -80,15 +85,12 @@
 
 (defn sync-user
   [user_id]
+  (log/infof "Start syncing user %s" user_id)
+
   (db/with-tx
     (db/sync-user-new-messages {:user_id user_id})
-    (db/sync-subs-counters {:user_id user_id})))
-
-
-(defn sync-user-safe
-  ;; todo wrap with log etc
-  [user-id]
-  (sync-user user-id))
+    (db/sync-subs-counters {:user_id user_id})
+    (db/sync-user-sync-counters {:user_id user_id})))
 
 
 ;;
