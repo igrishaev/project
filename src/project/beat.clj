@@ -1,65 +1,67 @@
 (ns project.beat
-  (:require [project.db :as db]
-            [project.models :as models]
-            [project.sync :as sync]))
+  (:require [project.tasks :as tasks]
+            [project.error :as e]
 
-(defn beat-feeds
-  []
-  (let [feeds (sync/get-feeds-to-sync)]
-    (doseq [feed feeds]
-      (sync/sync-feed-safe feed))))
+            [clojure.tools.logging :as log]))
 
-(defn beat-users
-  []
-  (let [users (sync/get-users-to-sync)]
-    (doseq [user users]
-      (sync/sync-user-safe user))))
 
 (defn sleep [sec]
   (Thread/sleep (* sec 1000)))
 
-(defn to-task
-  ;; todo log
-  [func step]
-  (fn []
-    (future
-      (while true
+
+(def tasks
+  [tasks/sync-feeds-batch])
+
+
+(def beat-step (* 60 5))
+
+
+(defn beat
+  []
+  (while true
+    (log/infof "Beat cycle")
+
+    (doseq [task tasks]
+
+      (future
         (try
-          (func)
+          (task)
           (catch Throwable e
-            (println e))
-          (finally
-            (sleep step)))))))
+            (log/errorf "Task error, %s, %s"
+                        task (e/exc-message e))))))
 
-(def task-users (to-task beat-users 300))
+    (sleep beat-step)))
 
-(def task-feeds (to-task beat-feeds 300))
+
+;;
+;; Controls
+;;
+
+(defonce __state (atom nil))
+
 
 (defn cancel
-  [fut]
-  (when-not (realized? fut)
-    (while (not (future-cancelled? fut))
-      (future-cancel fut))))
+  [f]
+  (while (not (realized? f))
+    (future-cancel f)))
 
-(defonce state nil)
-
-(defn status []
-  (not-empty state))
-
-(defn alter-state
-  [val]
-  (alter-var-root
-   #'state
-   (constantly val)))
 
 (defn start []
-  (alter-var-root
-   (alter-state
-    [(task-users)
-     (task-feeds)])))
+  (when-not @__state
+    (reset! __state (future (beat)))
+    true))
+
 
 (defn stop []
-  (when status
-    (doseq [f state]
-      (cancel f))
-    (alter-state nil)))
+  (when-let [f @__state]
+    (cancel f)
+    (reset! __state nil)
+    true))
+
+;;
+;; Init
+;;
+
+(defn init
+  []
+  (start))

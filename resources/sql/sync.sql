@@ -1,5 +1,10 @@
 
+
+
+
+
 -- :name sync-feed-entry-count :! :n
+-- :doc ok
 update feeds
 set
   updated_at = now(),
@@ -36,14 +41,57 @@ where
 
 
 -- :name get-feeds-to-sync :? :*
-select *
+-- select *
+--   from feeds
+-- where
+--   sync_date_next is null
+--   or sync_date_next < now()
+-- order by
+--   sync_date_next asc nulls first
+-- limit :limit
+
+-- :name rotate-feeds-to-update :? :*
+update feeds
+set
+  updated_at = now(),
+  sync_date_next = now() + sync_interval * interval '1 second'
+from (
+  select
+    id as feed_id
   from feeds
+  where
+    sync_date_next is null
+    or sync_date_next < now()
+  order by
+    sync_date_next asc nulls first
+  limit :limit
+) as q
 where
-  sync_date_next is null
-  or sync_date_next < now()
-order by
-  sync_date_next asc nulls first
-limit :limit
+  id = q.feed_id
+returning
+  id, url_source
+
+
+-- :name rotate-users-to-update :? :*
+update users
+set
+  updated_at = now(),
+  sync_date_next = now() + sync_interval * interval '1 second'
+from (
+  select
+    id as user_id
+    from users
+  where
+    sync_date_next is null
+    or sync_date_next < now()
+  order by
+    sync_date_next asc nulls first
+  limit :limit
+) as q
+where
+  id = q.user_id
+returning
+  id
 
 
 -- :name sync-subs-counters :! :n
@@ -75,40 +123,21 @@ where
 
 
 -- :name sync-user-counters :! :n
-update users
-set
-  updated_at = now(),
-  sync_date_last = now(),
-  sync_date_next = now() + sync_interval * interval '1 second',
-  sync_count_total = sync_count_total + 1
-where id = :user_id
+-- update users
+-- set
+--   updated_at = now(),
+--   sync_date_last = now(),
+--   sync_date_next = now() + sync_interval * interval '1 second',
+--   sync_count_total = sync_count_total + 1
+-- where id = :user_id
 
 
 -- :name get-users-to-sync :? :*
-select *
-from users
-where
-  sync_date_next is null
-  or sync_date_next < now()
-order by
-  sync_date_next asc nulls first
-limit :limit
-
-
--- :name dev-sync-subs-counters :! :n
-update subs s
-set
-  updated_at = now(),
-  message_count_total = q.count_total,
-  message_count_unread = q.count_unread
-from (
-  select
-    e.feed_id as feed_id,
-    count(m.id) as count_total,
-    count(m.id) filter (where m.is_read = false) as count_unread
-  from entries e
-  left join messages m on m.entry_id = e.id
-  group by e.feed_id
-) as q
-where
-  s.feed_id = q.feed_id
+-- select *
+-- from users
+-- where
+--   sync_date_next is null
+--   or sync_date_next < now()
+-- order by
+--   sync_date_next asc nulls first
+-- limit :limit

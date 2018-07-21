@@ -2,6 +2,7 @@
   (:require [project.models :as models]
             [project.db :as db]
             [project.sync :as sync]
+            [project.error :as e]
 
             [clojure.set :as set]
             [clojure.string :as str]
@@ -97,7 +98,7 @@
                         (set urls-old))]
           (when-not (empty? urls-new)
             (doseq [url urls-new]
-              (sync/sync-feed-url url))))
+              (sync/sync-feed-by-url url))))
 
         (let [feeds (db/get-feeds-by-urls {:urls urls})]
           (mapv :id feeds))))))
@@ -106,7 +107,7 @@
 (defn process-feed
   [resp url]
   ;; todo read feed from stream!
-  (sync/sync-feed-url url)
+  (sync/sync-feed-by-url url)
   (let [feed (models/get-feed-by-url url)]
     [(:id feed)]))
 
@@ -124,13 +125,6 @@
    :throw-exceptions true})
 
 
-(defn exc-message
-  [^Exception e]
-  (let [class (.. e getClass getCanonicalName)
-        message (.. e getMessage)]
-    (format "%s: %s" class message)))
-
-
 (defn fetch-url
   [url]
   (try
@@ -142,7 +136,7 @@
         (log/errorf
          "HTTP error: %s, %s, %s, %s"
          url
-         (exc-message e)
+         (e/exc-message e)
          status
          type)))))
 

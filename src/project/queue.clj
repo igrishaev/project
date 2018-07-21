@@ -1,5 +1,6 @@
 (ns project.queue
-  (:require [taoensso.carmine :as car :refer (wcar)]
+  (:require [project.error :as e]
+            [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as car-mq]
 
             [clojure.tools.logging :as log]))
@@ -26,13 +27,6 @@
 (def queue "queue")
 
 
-(defn exc-message
-  [e]
-  (let [class (.. e getClass getCanonicalName)
-        message (.. e getMessage)]
-    (format "%s: %s" class message)))
-
-
 (defn worker-handler
   [{:keys [message mid attempt]}]
 
@@ -44,7 +38,7 @@
 
     (catch Throwable e
       (log/errorf "MQ error: %s, mid: %s, message: %s, attempt: %s"
-                  (exc-message e) mid message attempt)
+                  (e/exc-message e) mid message attempt)
 
       {:status :error :throwable e})))
 
