@@ -1,5 +1,6 @@
 (ns project.queue
   (:require [project.error :as e]
+
             [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as car-mq]
 
@@ -38,7 +39,7 @@
 
     (catch Throwable e
       (log/errorf "MQ error: %s, mid: %s, message: %s, attempt: %s"
-                  (e/exc-message e) mid message attempt)
+                  (e/exc-msg e) mid message attempt)
 
       {:status :error :throwable e})))
 

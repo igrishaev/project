@@ -33,6 +33,9 @@
   (parse-internal (URL. url)))
 
 
+;; TODO http response
+;; TODO pass encoding
+
 (defn parse-stream
   [stream]
   (parse-internal stream))
@@ -99,7 +102,8 @@
      :contents       (map ->clj (seq (.getContents e)))
      :contributors   (map ->clj (seq (.getContributors e)))
      :enclosures     (map ->clj (seq (.getEnclosures e)))
-     :description    (when-let [d (.getDescription e)] (->clj d))
+     :description    (when-let [d (.getDescription e)]
+                       (->clj d))
      :author         (.getAuthor e)
      :link           (.getLink e)
      :published-date (.getPublishedDate e)
@@ -116,7 +120,8 @@
      :contributors   (map ->clj (seq (.getContributors f)))
      :entries        (map ->clj (seq (.getEntries f)))
      :entry-links    (map ->clj (seq (.getLinks f)))
-     :image          (when-let [i (.getImage f)] (->clj i))
+     :image          (when-let [i (.getImage f)]
+                       (->clj i))
      :author         (.getAuthor f)
      :copyright      (.getCopyright f)
      :description    (.getDescription f)
@@ -127,7 +132,8 @@
      :published-date (.getPublishedDate f)
      :title          (.getTitle f)
      :uri            (.getUri f)
-     :icon           (when-let [i (.getIcon f)] (->clj i))
+     :icon           (when-let [i (.getIcon f)]
+                       (->clj i))
      :docs           (.getDocs f)
      :generator      (.getGenerator f)
      :editor         (.getManagingEditor f)

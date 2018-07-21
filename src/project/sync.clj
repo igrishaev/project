@@ -1,13 +1,11 @@
 (ns project.sync
-  (:require
-            [project.db :as db]
+  (:require [project.db :as db]
             [project.models :as models]
             [project.error :as e]
             [project.time :as t]
             [project.feed :as feed]
 
-            [clojure.tools.logging :as log]
-            [medley.core :refer [distinct-by]]))
+            [clojure.tools.logging :as log]))
 
 
 ;;
