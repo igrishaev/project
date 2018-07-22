@@ -26,7 +26,6 @@
 (defn request->user
   [request]
   (when-let [user-id (some-> request :session :user-id)]
-    (prn "user found" user-id) ;; TODO remove
     (models/get-user-by-id user-id)))
 
 
@@ -86,6 +85,7 @@
         oauth-token (google/oauth-access-token
                      auth-google-client-id
                      auth-google-client-secret
+                     code
                      auth-google-back-url)
 
         {:keys [access-token]} oauth-token

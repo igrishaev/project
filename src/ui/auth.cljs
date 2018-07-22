@@ -71,8 +71,9 @@
            :on-click handler}
           "Send"]]]
        [:h3 "or"]
+       ;; TODO init Google with POST
        [:a.action-main
-        {:href "#"}
+        {:href "/auth/google/init"}
         "Stay with your Google account"]])))
 
 

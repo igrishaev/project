@@ -5,6 +5,7 @@
             [conman.core :as conman]
             [clojure.java.jdbc :as jdbc]
             [clj-time.jdbc]
+            [clj-time.coerce :as c]
             [cheshire.core :as json]
             [clojure.tools.logging :as log]
             [migratus.core :as migratus])
@@ -63,7 +64,11 @@
 
   clojure.lang.IPersistentMap
   (sql-value [val]
-    (clj->pgobject val)))
+    (clj->pgobject val))
+
+  java.util.Date
+  (sql-value [val]
+    (-> val c/from-date c/to-sql-time)))
 
 ;;
 ;; JDBC

@@ -119,10 +119,9 @@
 
 
 (defn fetch-feed
-  [feed]
+  [feed-url]
 
-  (let [{feed-url :url_source feed-id :id} feed
-        data (rome/parse-url feed-url)
+  (let [data (rome/parse-url feed-url)
         {:keys [entries]} data]
 
     ;; TODO cleanup nils

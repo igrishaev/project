@@ -20,7 +20,7 @@
 
     (log/infof "Start syncing feed: %s %s" feed-id feed-url)
 
-    (let [fetch-result (feed/fetch-feed feed)
+    (let [fetch-result (feed/fetch-feed feed-url)
           {feed-db :feed entries-db :entries} fetch-result]
 
       (db/with-tx
@@ -69,6 +69,7 @@
 
         (db/sync-feed-entry-count {:feed_id feed-id})
         (db/sync-feed-sub-count {:feed_id feed-id})))))
+
 
 (defn sync-feed-by-url
   [url]
