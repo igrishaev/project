@@ -6,11 +6,14 @@
 
             [clojure.tools.logging :as log]))
 
+
 (declare actions)
+
 
 (defn kw->var
   [kw]
   (-> kw str (subs 1) symbol resolve))
+
 
 (defn handler-unsafe
   [request]
@@ -42,13 +45,15 @@
 
       (r/err-anon))))
 
+
 (defn handler
   [request]
   (try
     (handler-unsafe request)
     (catch Throwable e
-      (log/error e)  ;; todo log better
+      (log/error e)  ;; TODO log better
       (r/err-server e))))
+
 
 (def actions
 

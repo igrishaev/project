@@ -47,6 +47,7 @@
 
 
 (def clean-feed (partial clean-model feed-fields))
+
 (def clean-user (partial clean-model user-fields))
 
 

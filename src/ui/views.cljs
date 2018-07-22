@@ -5,6 +5,8 @@
             [ui.url :as url]
             [ui.util :refer [clear-str]]
 
+            [ui.auth :as auth]
+
             [goog.functions :refer [rateLimit]]
             [clojure.string :as str]
 
@@ -498,14 +500,20 @@
           {:href js-stub}
           "Similar"]]])]))
 
+
+
+
 (defn view-page
   []
   (let [page @(rf/subscribe [:ui.subs/page])
         {:keys [page params]} page]
 
     (case page
-      :feed [view-feed params]
+
+      :feed         [view-feed params]
       :search-feeds [view-search-results]
+      :auth         [auth/view-auth]
+
       ;; :index [page-dashboard]
       ;; :stats [page-hash params]
       ;; :profile [profile/page-profile params]

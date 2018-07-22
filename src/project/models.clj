@@ -32,7 +32,6 @@
   [id]
   (db/get-by-id :users id))
 
-;; todo return a full user
 
 (defn upsert-google-user
   [auth params]
@@ -44,27 +43,24 @@
                 locale
                 picture]} params]
 
-    (first
-     (upsert-user
-      {:email email
-       :source "google"
-       :source_id id
-       :name name
-       :source_url link
-       :locale locale
-       :avatar_url picture
-       :gender gender
-       :auth_data auth}))))
+    (upsert-user
+     {:email email
+      :source "google"
+      :source_id id
+      :name name
+      :source_url link
+      :locale locale
+      :avatar_url picture
+      :gender gender
+      :auth_data auth})))
 
-;; todo return a full user
 
 (defn upsert-email-user
   [params]
   (let [{:keys [email]} params]
-    (first
-     (upsert-user
-      {:email email
-       :source "email"}))))
+    (upsert-user
+     {:email email
+      :source "email"})))
 
 ;;
 ;; Subs

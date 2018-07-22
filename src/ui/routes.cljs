@@ -9,6 +9,7 @@
 
 (def routes-pages
   [["/"                :index]
+   ["/auth"            :auth]
    ["/feeds/:feed-id"  :feed]
    ["/profile"         :profile]
    ["*"                :index]])

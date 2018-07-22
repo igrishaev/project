@@ -9,4 +9,4 @@
 
 (defn view-dev
   [request]
-  (response (tpl/render "dev/test.html")))
+  (response (tpl/render "dev/index.html")))

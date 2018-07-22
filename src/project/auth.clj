@@ -13,23 +13,22 @@
             [clojure.tools.logging :as log]
             [ring.util.response :refer [redirect]]))
 
-;; TODO check if a user is deleted!
 
 ;;
 ;; Common
 ;;
 
-(def auth-redirect-path "/")
+;; TODO change this path
+
+(def auth-redirect-path "/dev")
 
 
-;; TODO
 (defn request->user
   [request]
-
-  (models/get-user-by-id 1)
-  #_
   (when-let [user-id (some-> request :session :user-id)]
+    (prn "user found" user-id) ;; TODO remove
     (models/get-user-by-id user-id)))
+
 
 (defn wrap-user
   [handler]
@@ -37,17 +36,22 @@
     (let [user (request->user request)]
       (handler (assoc request :user user)))))
 
+
 (defn logout
   [{:keys [session]}]
   (-> auth-redirect-path
       redirect
       (assoc :session (dissoc session :user-id))))
 
+
 (defn auth-resp-ok
   [user session]
-  (-> auth-redirect-path
-      redirect
-      (assoc :session (assoc session :user-id (:id user)))))
+  (let [{user-id :id} user
+        session (assoc session :user-id user-id)]
+
+    (-> (redirect auth-redirect-path)
+        (assoc :session session))))
+
 
 (defn auth-resp-err
   [message & args]
@@ -61,12 +65,14 @@
 ;; Google
 ;;
 
+
 (defn google-init
   [request]
   (let [client-id (:auth-google-client-id env)
         back-url (:auth-google-back-url env)
         url (google/oauth-authorization-url client-id back-url)]
     (redirect url)))
+
 
 (defn google-back
   [request]
@@ -91,9 +97,19 @@
 
     (auth-resp-ok user session)))
 
+
 ;;
 ;; Email
 ;;
+
+
+(def email-sent-ok
+  "Message has been sent. Check you mailbox and follow the secret link.")
+
+
+(def email-sent-err
+  "We could not send a message to this address. Please try later.")
+
 
 (defn email-init
   [request]
@@ -101,6 +117,7 @@
         {:keys [email-login-expire]} env
         spec :project.spec.email/auth-init
         params* (spec/conform spec params)]
+
     (if params*
       (let [{:keys [email]} params*
             expires (+ (time/epoch) email-login-expire)
@@ -113,12 +130,15 @@
 
         (try
           (email/send email subject template context)
-          (r/ok-message "Message sent") ;; better message
+          (r/ok-message email-sent-ok)
 
           (catch Throwable e
-            (r/err 500 "Cannot send email" (e/exc-msg e)))))
+            (let [err-msg (e/exc-msg e)]
+              (log/errorf "Email error: %s, addr: %s" err-msg email)
+              (r/err 500 email-sent-err err-msg)))))
 
       (r/err-spec spec params))))
+
 
 (defn email-back
   [request]
@@ -132,6 +152,8 @@
           (if (< (time/epoch) expires)
             (let [user (models/upsert-email-user {:email email})]
               (auth-resp-ok user session))
+
+            ;; TODO refactor those responses; single function
 
             (auth-resp-err "The login URL has expired.")))
         (auth-resp-err "The login URL is malformed."))

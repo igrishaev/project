@@ -3,6 +3,8 @@
             [ui.routes :as routes]
             [ui.scroll :as scroll]
 
+            [ui.bar :as bar]
+
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
@@ -12,6 +14,8 @@
 (defn init-mount []
   #_
   (r/render [views/foobar] (el-by-id "app-content"))
+
+  (r/render [bar/bar] (el-by-id "bar"))
 
   (r/render [views/view-page] (el-by-id "page"))
   (r/render [views/view-search-form] (el-by-id "search-block"))

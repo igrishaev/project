@@ -32,6 +32,9 @@
 (def scroll-delta 300)
 
 
+;; TODO remove listener
+
+
 (defn init
   []
   (js/window.addEventListener

@@ -6,8 +6,15 @@
 
 (defonce server nil)
 
+
+;;
+;; Controls
+;;
+
+
 (defn alter-server [srv]
   (alter-var-root #'server (constantly srv)))
+
 
 (defn start []
   (let [port (:server-port env)
@@ -15,10 +22,17 @@
         server (run-jetty #'app/app opt)]
     (alter-server server)))
 
+
 (defn stop []
   (when server
     (.stop server)
     (alter-server nil)))
+
+
+;;
+;; Init
+;;
+
 
 (defn init []
   (start))

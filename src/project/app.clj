@@ -31,31 +31,43 @@
   (context
    "/auth" []
 
-   (GET "/logout" request (auth/logout request))
+   (POST "/logout" request (auth/logout request))
 
    (context
     "/google" []
-    (GET "/init" request (auth/google-init request))
+    (POST "/init" request (auth/google-init request))
     (GET "/back" request (auth/google-back request)))
 
    (context
     "/email" []
-    (GET "/init" request (auth/email-init request))
+    (POST "/init" request (auth/email-init request))
     (GET "/back" request (auth/email-back request))))
 
   ;; todo better 404
 
   (route/not-found ""))
 
+
+;;
+;; Session & cookies
+;;
+
 (def opt-cookie
   {:secure    (:cookie-secure    env)
    :http-only (:cookie-http-only env)
    :max-age   (:cookie-max-age   env)})
 
+
 (def opt-session
   {:store (cookie-store {:key (:cookie-session-key env)})
    :cookie-attrs opt-cookie
    :cookie-name (:cookie-session-name env)})
+
+
+;;
+;; Final app
+;;
+
 
 (def app
   (-> app-naked
