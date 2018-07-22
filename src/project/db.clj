@@ -125,6 +125,12 @@
   (migratus/migrate mg-cfg)
   (log/info "Migrations done."))
 
+
+(defn create-migration
+  [name]
+  (migratus/create mg-cfg name))
+
+
 (defn rollback
   []
   (migratus/rollback mg-cfg))
