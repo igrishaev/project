@@ -16,22 +16,21 @@
 (defn sync-feed
   [feed]
 
-  (let [{feed-url :url_source feed-id :id} feed
+  (let [{feed-url :url_source feed-id :id} feed]
 
-        _ (log/infof "Start syncing feed: %s %s"
-                     feed-id feed-url)
+    (log/infof "Start syncing feed: %s %s" feed-id feed-url)
 
-        fetch-result (feed/fetch-feed feed)
-        {feed-db :feed entries-db :entries} fetch-result]
+    (let [fetch-result (feed/fetch-feed feed)
+          {feed-db :feed entries-db :entries} fetch-result]
 
-    (db/with-tx
+      (db/with-tx
 
-      (models/update-feed feed-id feed-db)
+        (models/update-feed feed-id feed-db)
 
-      (when-not (empty? entries)
-        (models/upsert-entries
-         (for [e entries-db]
-           (assoc e :feed_id feed-id)))))))
+        (when-not (empty? entries)
+          (models/upsert-entries
+           (for [e entries-db]
+             (assoc e :feed_id feed-id))))))))
 
 (defn sync-feed-safe
   [feed]
