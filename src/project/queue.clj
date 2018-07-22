@@ -5,9 +5,8 @@
             [taoensso.carmine.message-queue :as car-mq]
 
             [clojure.tools.logging :as log])
-  (:refer-clojure :exclude [send])
 
-  )
+  (:refer-clojure :exclude [send]))
 
 
 (defmulti action

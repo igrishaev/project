@@ -10,7 +10,11 @@
 
 
 (def tasks
-  [tasks/sync-feeds-batch])
+  [{:label "Sync-Feeds-Batch"
+    :func tasks/sync-feeds-batch}
+
+   {:label "Sync-Users-Batch"
+    :func tasks/sync-users-batch}])
 
 
 (def beat-step (* 60 5))
@@ -19,16 +23,16 @@
 (defn beat
   []
   (while true
-    (log/infof "Beat cycle")
-
-    (doseq [task tasks]
+    (doseq [{:keys [label func]} tasks]
 
       (future
         (try
-          (task)
+          (log/infof "Starting task %s" label)
+          (func)
           (catch Throwable e
-            (log/errorf "Task error, %s, %s"
-                        task (e/exc-msg e))))))
+            (log/errorf
+             "Task error, %s, %s"
+             label (e/exc-msg e))))))
 
     (sleep beat-step)))
 
