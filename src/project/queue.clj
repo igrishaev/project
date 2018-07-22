@@ -4,7 +4,10 @@
             [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as car-mq]
 
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log])
+  (:refer-clojure :exclude [send])
+
+  )
 
 
 (defmulti action

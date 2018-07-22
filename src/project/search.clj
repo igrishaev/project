@@ -136,7 +136,7 @@
         (log/errorf
          "HTTP error: %s, %s, %s, %s"
          url
-         (e/exc-message e)
+         (e/exc-msg e)
          status
          type)))))
 

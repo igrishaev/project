@@ -28,7 +28,7 @@
           (task)
           (catch Throwable e
             (log/errorf "Task error, %s, %s"
-                        task (e/exc-message e))))))
+                        task (e/exc-msg e))))))
 
     (sleep beat-step)))
 

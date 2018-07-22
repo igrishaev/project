@@ -13,28 +13,11 @@
     (not-empty (str/trim val))))
 
 
-(defn fetch-feed
-  [feed]
-
-  (let [{feed-url :url_source feed-id :id} feed
-        data (rome/parse-url feed-url)
-        {:keys [entries]} data]
-
-    ;; TODO cleanup nils
-
-    (let [feed (data->feed data)
-          entries (map data->entry entries)
-          entries (distinct-by :guid entries)]
-
-      {:feed feed
-       :entries entries})))
-
 ;;
-;; Rome
+;; Rome data to feed
 ;;
 
-
-(defn rome->feed
+(defn data->feed
   [data]
   (let [{:keys [title
                 language
@@ -83,7 +66,7 @@
      }))
 
 
-(defn rome->entry
+(defn data->entry
   [entry]
 
   (let [{:keys [
@@ -128,3 +111,25 @@
      :date_updated_at updated-date
 
      }))
+
+
+;;
+;; Fetch
+;;
+
+
+(defn fetch-feed
+  [feed]
+
+  (let [{feed-url :url_source feed-id :id} feed
+        data (rome/parse-url feed-url)
+        {:keys [entries]} data]
+
+    ;; TODO cleanup nils
+
+    (let [feed (data->feed data)
+          entries (map data->entry entries)
+          entries (distinct-by :guid entries)]
+
+      {:feed feed
+       :entries entries})))
