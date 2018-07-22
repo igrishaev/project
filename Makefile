@@ -21,12 +21,6 @@ db-create-migration:
 repl:
 	lein repl
 
-py-server:
-	python py/server.py
-
-py-install:
-	pip install -r py/requirements.txt
-
 mail-stub:
 	mailhog
 

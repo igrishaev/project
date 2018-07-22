@@ -27,15 +27,15 @@
 
         (models/update-feed feed-id feed-db)
 
-        (when-not (empty? entries)
+        (when-not (empty? entries-db)
           (models/upsert-entries
            (for [e entries-db]
              (assoc e :feed_id feed-id))))))))
 
 (defn sync-feed-safe
   [feed]
-  (let [{:keys [id
-                url_source
+  (let [{feed-id :id
+         :keys [url_source
                 sync_count_err
                 sync_count_total
                 sync_date_next
@@ -44,12 +44,13 @@
 
     (try
       (sync-feed feed)
+      nil
 
       (catch Throwable e
         (let [err-msg (e/exc-msg e)]
 
           (log/errorf "Feed sync error, id: %s, url: %s, e: %s"
-                      id url_source err-msg)
+                      feed-id url_source err-msg)
           (assoc!
            fields
            :sync_count_err (inc sync_count_err)
@@ -64,7 +65,7 @@
          :sync_count_total (inc sync_count_total))
 
         (let [fields (persistent! fields)]
-          (models/update-feed id fields))
+          (models/update-feed feed-id fields))
 
         (db/sync-feed-entry-count {:feed_id feed-id})
         (db/sync-feed-sub-count {:feed_id feed-id})))))
