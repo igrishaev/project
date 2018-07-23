@@ -1,4 +1,5 @@
 (ns project.rome
+  (:require [clj-http.client :as client])
   (:import java.net.URL
 
            [com.rometools.rome.feed.synd
@@ -28,17 +29,19 @@
     (->clj feed)))
 
 
+;; TODO pass encoding
+;; TODO pass content type
+
+
+(defn parse-http-resp
+  [http-resp]
+  (parse-internal (:body http-resp)))
+
+
 (defn parse-url
   [url]
-  (parse-internal (URL. url)))
-
-
-;; TODO http response
-;; TODO pass encoding
-
-(defn parse-stream
-  [stream]
-  (parse-internal stream))
+  (let [resp (client/get url {:as :stream})]
+    (parse-http-resp resp)))
 
 
 (extend-type SyndContent

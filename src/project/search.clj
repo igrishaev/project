@@ -53,9 +53,9 @@
 
 (defn html-find-links
   ;; todo: cache for url
-  [^InputStream stream enc url]
+  [^InputStream stream encoding url]
   (let [base-url (->base-url url)
-        doc (Jsoup/parse stream enc base-url)
+        doc (Jsoup/parse stream encoding base-url)
         select (fn [query] (.select doc query))
         elements (mapcat select feed-queries)
         links (for [el elements]
@@ -112,14 +112,6 @@
     [(:id feed)]))
 
 
-(defn fix-headers
-  [resp]
-  (update resp :headers
-          (fn [headers]
-            (into {} (for [[h v] headers]
-                       [(-> h str/lower-case keyword)
-                        v])))))
-
 (def http-opt
   {:as :stream
    :throw-exceptions true})
@@ -128,8 +120,7 @@
 (defn fetch-url
   [url]
   (try
-    (let [resp (client/get url http-opt)]
-      (fix-headers resp))
+    (client/get url http-opt)
     (catch Throwable e
       (let [data (ex-data e)
             {:keys [type status]} data]
