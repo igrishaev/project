@@ -1,5 +1,5 @@
-- [ ] add uuid to title algo
-- [ ] update user sync fields
+- [X] add uuid to title algo
+- [X] update user sync fields
 - [X] add total/unread counters for subs
 - [ ] skip nils when update a feed
 - [ ] refactor db functions
