@@ -339,8 +339,16 @@
 
         [:div])})))
 
+
+(defn get-entry-date
+  [entry]
+  (or (:date_published_at entry)
+      (:date_updated_at entry)
+      (:updated_at entry)
+      (:created_at entry)))
+
+
 (defn view-entry
-  ;; todo track scroll in a separate view!
   [feed-id index]
   (let [entry @(rf/subscribe [:ui.subs/find-entry
                               feed-id index])
@@ -350,10 +358,8 @@
          :keys [link title summary author]} entry
         is_read (-> entry :message :is_read)
         auto_read (-> feed :sub :auto_read)
-        entry-date (or (:date_published_at entry)
-                       (:date_updated_at entry)
-                       (:updated_at entry)
-                       (:created_at entry))
+
+        entry-date (get-entry-date entry)
 
         api-mark-read
         (fn [flag]
