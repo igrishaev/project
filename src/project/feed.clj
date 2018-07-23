@@ -78,6 +78,7 @@
 
                 ;; TODO save all enclosures
                 enclosures
+                contents
 
                 ;; TODO save categories
                 categories
@@ -102,7 +103,9 @@
      :link link
      :author (clean-str author)
      :title title
-     :summary summary
+
+     :summary (or (some-> contents first :value)
+                  summary)
 
      :enclosure_url (:url enclosure)
      :enclosure_mime (:type enclosure)
