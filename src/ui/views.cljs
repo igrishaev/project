@@ -375,8 +375,3 @@
         :search-feeds [view-search-results]
         nil))
     [auth/view-auth]))
-
-
-(defn init
-  []
-  (rf/dispatch [:ui.events/api.user-info]))

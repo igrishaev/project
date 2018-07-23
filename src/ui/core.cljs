@@ -7,6 +7,8 @@
             [ui.bar :as bar]
             [ui.search :refer (view-search-form)]
 
+            [ui.init :as init]
+
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
@@ -27,11 +29,8 @@
   []
   (nav/init)
   (scroll/init)
-  (views/init)
+  (init/init)
   (init-mount))
 
 
 (init)
-
-
-;; (rf/dispatch [:ui.events/api.feeds])
