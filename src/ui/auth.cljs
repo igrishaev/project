@@ -103,14 +103,11 @@
 (defn view-user-block
   []
   (when-let [user @(rf/subscribe [:auth/user])]
-    )
-
-  [:div.dropdown.menu-item.last
-   [:img.avatar
-    {:src "https://www.w3schools.com/howto/img_avatar.png"}]
-
-   [:div.dropdown-content
-    [:span.header "Ivan Grishaev"]
-    [:a {:href js-stub
-         :on-click #(rf/dispatch [:auth/logout])}
-     "Logout"]]])
+    [:div.dropdown.menu-item.last
+     [:img.avatar
+      {:src "https://www.w3schools.com/howto/img_avatar.png"}]
+     [:div.dropdown-content
+      [:span.header "Ivan Grishaev"]
+      [:a {:href js-stub
+           :on-click #(rf/dispatch [:auth/logout])}
+       "Logout"]]]))

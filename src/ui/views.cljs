@@ -2,8 +2,8 @@
   (:require ui.events
             ui.subs
             [ui.time :as t]
-            [ui.url :as url]
-            [ui.util :refer [clear-str]]
+
+            [ui.common :refer (get-feed-title get-fav-url)]
 
             [ui.auth :as auth]
 
@@ -22,70 +22,6 @@
 (def arr-right
   [:span {:dangerouslySetInnerHTML {:__html "&rarr;"}}])
 
-;; todo move that
-
-(defn view-sync-button
-  []
-  [:button
-   {:on-click
-    #(rf/dispatch [:ui.events/api.feeds])}
-   "Sync"])
-
-
-(defn get-feed-title
-  [feed]
-  (or (some-> feed :sub :title clear-str)
-      (some-> feed :title clear-str)
-      (some-> feed :subtitle clear-str)
-      (-> feed :url_source url/get-short-url)))
-
-
-(defn get-fav-url
-  [feed]
-  (let [{:keys [url_favicon url_source]} feed]
-    (or url_favicon
-        (url/get-fav-url url_source))))
-
-(defn left-sidebar
-  []
-  (let [feeds @(rf/subscribe [:ui.subs/feeds])]
-
-    [:div
-
-     [view-sync-button]
-
-     [:div.sidebar-folder
-      [:div.sidebar-section.sidebar-feed.sidebar-tag
-       "Design ▾"]]
-
-     (for [feed feeds
-           :let [feed-id (-> feed :id)
-                 unread (-> feed :sub :message_count_unread)]]
-
-       ^{:key feed-id}
-       [:div.sidebar-section.sidebar-feed
-
-        [:div.feed-image
-         [:img {:src (get-fav-url feed)}]]
-
-        [:div.feed-title.overflow-cut
-         [:a
-
-          {:href (str "#/feeds/" feed-id)}
-
-          #_
-          {:on-click
-           (fn [e]
-             (rf/dispatch [:ui.events/api.messages feed-id])
-             (rf/dispatch
-              [:ui.events/page :feed {:feed-id feed-id}]))}
-
-          (get-feed-title feed)]]
-
-        [:div.flex-separator]
-
-        (when (>= unread 0)
-          [:div [:span.feed-count unread]])])]))
 
 (defn view-message
   [entry message]
@@ -507,21 +443,22 @@
           "Similar"]]])]))
 
 
-
-
 (defn view-page
   []
-  (let [page @(rf/subscribe [:ui.subs/page])
-        {:keys [page params]} page]
+  (if-let [user @(rf/subscribe [:auth/user])]
+    (let [page @(rf/subscribe [:ui.subs/page])
+          {:keys [page params]} page]
+      (case page
+        :feed         [view-feed params]
+        :search-feeds [view-search-results]
+        nil))
+    [auth/view-auth]))
 
-    (case page
 
-      :feed         [view-feed params]
-      :search-feeds [view-search-results]
-      :auth         [auth/view-auth]
+(defn init
+  []
 
-      ;; :index [page-dashboard]
-      ;; :stats [page-hash params]
-      ;; :profile [profile/page-profile params]
+  (rf/dispatch [:ui.events/api.user-info])
 
-      nil)))
+
+  )

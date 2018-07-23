@@ -197,7 +197,7 @@
                [::api.user-info.ok]]}))
 
 (rf/reg-event-db
- ::api.user-info-ok
+ ::api.user-info.ok
  (fn [db [_ user]]
    (assoc db :user user)))
 
