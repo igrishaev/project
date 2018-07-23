@@ -1,5 +1,6 @@
 (ns ui.sidebar
   (:require [ui.common :refer (get-feed-title get-fav-url)]
+            [ui.nav :as nav]
 
             [re-frame.core :as rf]))
 
@@ -36,7 +37,7 @@
 
         [:div.feed-title.overflow-cut
          [:a
-          {:href (str "#/feeds/" feed-id)}
+          {:href (nav/feed {:id feed-id})}
           (get-feed-title feed)]]
 
         [:div.flex-separator]

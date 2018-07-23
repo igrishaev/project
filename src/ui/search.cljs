@@ -1,5 +1,6 @@
 (ns ui.search
   (:require [ui.common :refer (js-stub get-feed-title get-feed-image)]
+            [ui.nav :as nav]
 
             [reagent.core :as r]
             [re-frame.core :as rf]
@@ -11,10 +12,7 @@
    {:placeholder "Feed URL, web page, an term"
     :type "text"
     :field :text
-    :id :search
-    :validator
-    (fn [{:keys [search]}]
-      nil)}])
+    :id :search}])
 
 
 (defn view-search-form
@@ -27,9 +25,7 @@
         (fn [e]
           (.preventDefault e)
           (let [{:keys [search]} @doc]
-            ;; TODO refactor here
-            (rf/dispatch [:ui.events/page :search-feeds {:tearm search}])
-            (rf/dispatch [:ui.events/api.search-feeds search])))]
+            (nav/goto-search search)))]
 
     (fn []
       (when @*user
@@ -44,38 +40,45 @@
 
 (defn view-search-results
   []
-  (when-let [feeds @(rf/subscribe [:ui.subs/search-feeds])]
-    [:div#search-result-list
-     (for [feed feeds
-           :let [{feed-id :id
-                  :keys [entries subtitle]} feed]]
-       ^{:key feed-id}
-       [:div.search-result-item
-        [:div.search-result-item-image
-         [:img {:src (get-feed-image feed)}]]
-        [:div.search-result-item-content
-         [:h2 (get-feed-title feed)]
-         [:p.subtitle subtitle]
 
-         ;; todo show actial data
-         [:p.subtitle
-          "55K followers | 279 articles per week | #tech #startups"]
+  (let [page @(rf/subscribe [:ui.subs/page])
+        {:keys [page params]} page
+        {:keys [q]} params]
 
-         #_
-         (for [entry entries
-               :let [{entry-id :id :keys [title]} entry]]
+    (rf/dispatch [:ui.events/api.search-feeds q])
 
-           ^{:key entry-id}
-           [:p.small title])]
+    (when-let [feeds @(rf/subscribe [:ui.subs/search-feeds])]
+      [:div#search-result-list
+       (for [feed feeds
+             :let [{feed-id :id
+                    :keys [entries subtitle]} feed]]
+         ^{:key feed-id}
+         [:div.search-result-item
+          [:div.search-result-item-image
+           [:img {:src (get-feed-image feed)}]]
+          [:div.search-result-item-content
+           [:h2 (get-feed-title feed)]
+           [:p.subtitle subtitle]
 
-        [:div.search-result-item-actions
-         [:a.action-vert.action-main-vert
-          {:href js-stub
-           :on-click
-           #(rf/dispatch [:ui.events/api.subscribe feed-id])}
-          "Follow"]
+           ;; todo show actial data
+           [:p.subtitle
+            "55K followers | 279 articles per week | #tech #startups"]
 
-         #_
-         [:a.action-vert
-          {:href js-stub}
-          "Similar"]]])]))
+           #_
+           (for [entry entries
+                 :let [{entry-id :id :keys [title]} entry]]
+
+             ^{:key entry-id}
+             [:p.small title])]
+
+          [:div.search-result-item-actions
+           [:a.action-vert.action-main-vert
+            {:href js-stub
+             :on-click
+             #(rf/dispatch [:ui.events/api.subscribe feed-id])}
+            "Follow"]
+
+           #_
+           [:a.action-vert
+            {:href js-stub}
+            "Similar"]]])])))

@@ -379,8 +379,4 @@
 
 (defn init
   []
-
-  (rf/dispatch [:ui.events/api.user-info])
-
-
-  )
+  (rf/dispatch [:ui.events/api.user-info]))

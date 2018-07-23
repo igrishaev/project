@@ -1,6 +1,6 @@
 (ns ui.core
   (:require [ui.views :as views]
-            [ui.routes :as routes]
+            [ui.nav :as nav]
             [ui.scroll :as scroll]
             [ui.sidebar :as sidebar]
             [ui.auth :as auth]
@@ -25,7 +25,7 @@
 
 (defn ^:export init
   []
-  (routes/init)
+  (nav/init)
   (scroll/init)
   (views/init)
   (init-mount))
