@@ -4,11 +4,27 @@
             [reagent-forms.core :refer [bind-fields]]
             [re-frame.core :as rf]))
 
+(def js-stub "javascript:;")
 
 (rf/reg-sub
  :auth/user
  (fn [db [_ ]]
    (get db :user)))
+
+
+(rf/reg-event-fx
+ :auth/logout
+ (fn [_ [_]]
+   {:dispatch [:ui.events/api.call :logout
+               nil
+               [:auth/logout.ok]]}))
+
+
+(rf/reg-event-fx
+ :auth/logout.ok
+ (fn [{db :db} [_]]
+   {:db (dissoc db :user)
+    :dispatch [:bar/info "See you again!"]}))
 
 
 (rf/reg-event-fx
@@ -82,3 +98,19 @@
   (if-let [user @(rf/subscribe [:auth/user])]
     [:div "user"]
     [view-auth-form]))
+
+
+(defn view-user-block
+  []
+  (when-let [user @(rf/subscribe [:auth/user])]
+    )
+
+  [:div.dropdown.menu-item.last
+   [:img.avatar
+    {:src "https://www.w3schools.com/howto/img_avatar.png"}]
+
+   [:div.dropdown-content
+    [:span.header "Ivan Grishaev"]
+    [:a {:href js-stub
+         :on-click #(rf/dispatch [:auth/logout])}
+     "Logout"]]])

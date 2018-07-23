@@ -36,13 +36,6 @@
       (handler (assoc request :user user)))))
 
 
-(defn logout
-  [{:keys [session]}]
-  (-> auth-redirect-path
-      redirect
-      (assoc :session (dissoc session :user-id))))
-
-
 (defn auth-resp-ok
   [user session]
   (let [{user-id :id} user

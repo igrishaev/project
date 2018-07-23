@@ -209,3 +209,10 @@
         {user_id :id} user
         feeds (search/search term)]
     (ok feeds)))
+
+
+(defn logout
+  [params user session & _]
+  (let [session* (dissoc session :user-id)]
+    (-> (ok {:ok true})
+        (assoc :session session*))))

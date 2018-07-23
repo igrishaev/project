@@ -116,3 +116,10 @@
                    ::auto_read
                    ::ordering
                    ::unread_only]))
+
+;;
+;; Logout
+;;
+
+(s/def ::api.logout
+  (s/keys :req-un []))

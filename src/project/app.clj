@@ -31,9 +31,6 @@
   (context
    "/auth" []
 
-   (POST "/logout" request (auth/logout request))
-
-   ;; TODO init Google with POST
    (context
     "/google" []
     (GET "/init" request (auth/google-init request))

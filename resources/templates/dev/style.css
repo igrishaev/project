@@ -79,7 +79,7 @@ h1, h2, h3, h4 {
 
 }
 
-.user-block {
+#user-block {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -289,11 +289,13 @@ h1, h2, h3, h4 {
 }
 
 /* Links inside the dropdown */
-.dropdown-content a {
-    /* color: black; */
+.dropdown-content a,span {
     padding: 12px 16px;
-    /* text-decoration: none; */
     display: block;
+}
+
+.dropdown-content .header {
+    border-bottom: 1px solid lightgray;
 }
 
 .dropdown-content a:hover {
@@ -328,6 +330,7 @@ h1, h2, h3, h4 {
 }
 
 .bar-close {
+    display: inline;
     cursor: pointer;
     border: 1px solid black;
     padding: 3px 7px;

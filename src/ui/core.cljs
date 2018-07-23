@@ -3,6 +3,7 @@
             [ui.routes :as routes]
             [ui.scroll :as scroll]
 
+            [ui.auth :as auth]
             [ui.bar :as bar]
 
             [reagent.core :as r]
@@ -11,17 +12,13 @@
 (defn el-by-id [id]
   (.getElementById js/document id))
 
+
 (defn init-mount []
-  #_
-  (r/render [views/foobar] (el-by-id "app-content"))
-
-  (r/render [bar/bar] (el-by-id "bar"))
-
-  (r/render [views/view-page] (el-by-id "page"))
-  (r/render [views/view-search-form] (el-by-id "search-block"))
-  (r/render [views/left-sidebar] (el-by-id "sidebar-ui"))
-
-  )
+  (r/render [bar/view-bar]            (el-by-id "bar"))
+  (r/render [auth/view-user-block]    (el-by-id "user-block"))
+  (r/render [views/view-page]         (el-by-id "page"))
+  (r/render [views/view-search-form]  (el-by-id "search-block"))
+  (r/render [views/left-sidebar]      (el-by-id "sidebar-ui")))
 
 #_
 (defn init-db

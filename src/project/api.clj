@@ -17,7 +17,7 @@
 
 (defn handler-unsafe
   [request]
-  (let [{:keys [params user]} request
+  (let [{:keys [params user session]} request
         spec :project.spec/api.base]
 
     (if user
@@ -35,7 +35,7 @@
               (prn params*)
 
               (if params*
-                (handler params* user)
+                (handler params* user session)
 
                 (r/err-spec spec params)))
 
@@ -79,4 +79,7 @@
                :spec :project.spec/api.mark-read}
 
    :user-info {:handler :project.handlers/user-info
-               :spec :project.spec/api.user-info}})
+               :spec :project.spec/api.user-info}
+
+   :logout {:handler :project.handlers/logout
+            :spec :project.spec/api.logout}})

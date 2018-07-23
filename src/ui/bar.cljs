@@ -38,7 +38,7 @@
 (def clear-timeout
   (* 1000 5))
 
-(defn bar
+(defn view-bar
   []
   (when-let [bar @(rf/subscribe [:bar/bar])]
     (let [{:keys [text type]} bar]
