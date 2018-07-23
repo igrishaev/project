@@ -52,7 +52,7 @@
      ;; :upd_period sy_updateperiod
      ;; :upd_freq sy_updatefrequency
 
-     :date_updated_at published-date
+     :date_updated_at (or published-date (t/now))
 
      :last_entry_count (count entries)
 
@@ -107,8 +107,8 @@
      :enclosure_url (:url enclosure)
      :enclosure_mime (:type enclosure)
 
-     :date_published_at published-date
-     :date_updated_at updated-date
+     :date_published_at (or published-date (t/now))
+     :date_updated_at (or updated-date (t/now))
 
      }))
 
