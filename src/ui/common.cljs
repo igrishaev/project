@@ -2,6 +2,7 @@
   (:require [ui.url :as url]
             [ui.util :refer [clear-str]]))
 
+(def js-stub "javascript:;")
 
 (defn get-fav-url
   [feed]
@@ -15,3 +16,8 @@
       (some-> feed :title clear-str)
       (some-> feed :subtitle clear-str)
       (-> feed :url_source url/get-short-url)))
+
+(defn get-feed-image
+  [feed]
+  (or (:url_image feed)
+      (get-fav-url feed)))

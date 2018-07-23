@@ -1,10 +1,11 @@
 (ns ui.auth
-  (:require [ajax.core :as ajax]
+  (:require [ui.common :refer (js-stub)]
+
+            [ajax.core :as ajax]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [re-frame.core :as rf]))
 
-(def js-stub "javascript:;")
 
 (rf/reg-sub
  :auth/user

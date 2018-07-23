@@ -1,20 +1,16 @@
 (ns ui.views
   (:require ui.events
             ui.subs
+            [ui.search :refer (view-search-results)]
             [ui.time :as t]
-
-            [ui.common :refer (get-feed-title get-fav-url)]
-
+            [ui.common :refer (js-stub get-feed-title get-feed-image)]
             [ui.auth :as auth]
 
-            [goog.functions :refer [rateLimit]]
             [clojure.string :as str]
+            [goog.functions :refer [rateLimit]]
 
             [reagent.core :as r]
-            [reagent-forms.core :refer [bind-fields]]
             [re-frame.core :as rf]))
-
-(def js-stub "javascript:;")
 
 (def arr-down
   [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}])
@@ -355,6 +351,7 @@
        [view-entry feed-id index])
      [read-more feed-id]]))
 
+
 (defn view-feed
   [params]
 
@@ -366,81 +363,6 @@
     [:div
      [feed-header feed-id]
      [feed-entries feed-id]]))
-
-
-(def form-search
-  [:input#search-field
-   {:placeholder "Feed URL, web page, an term"
-    :type "text"
-    :field :text
-    :id :search
-    :validator
-    (fn [{:keys [search]}]
-      nil)}])
-
-
-(defn view-search-form
-  []
-  (let [doc (r/atom {})
-        handler
-        (fn [e]
-          (.preventDefault e)
-          (let [{:keys [search]} @doc]
-            ;; todo refactor here
-            (rf/dispatch [:ui.events/page :search-feeds {:tearm search}])
-            (rf/dispatch [:ui.events/api.search-feeds search])))]
-    (fn []
-      [:div#search-block.menu-item
-       [:form
-        {:on-submit handler}
-        [bind-fields form-search doc]
-        [:button.btn-submit
-         {:type "Button"
-          :on-click handler} "Search"]]])))
-
-
-(defn get-feed-image
-  [feed]
-  (or (:url_image feed)
-      (get-fav-url feed)))
-
-(defn view-search-results
-  []
-  (when-let [feeds @(rf/subscribe [:ui.subs/search-feeds])]
-    [:div#search-result-list
-     (for [feed feeds
-           :let [{feed-id :id
-                  :keys [entries subtitle]} feed]]
-       ^{:key feed-id}
-       [:div.search-result-item
-        [:div.search-result-item-image
-         [:img {:src (get-feed-image feed)}]]
-        [:div.search-result-item-content
-         [:h2 (get-feed-title feed)]
-         [:p.subtitle subtitle]
-
-         ;; todo show actial data
-         [:p.subtitle
-          "55K followers | 279 articles per week | #tech #startups"]
-
-         #_
-         (for [entry entries
-               :let [{entry-id :id :keys [title]} entry]]
-
-           ^{:key entry-id}
-           [:p.small title])]
-
-        [:div.search-result-item-actions
-         [:a.action-vert.action-main-vert
-          {:href js-stub
-           :on-click
-           #(rf/dispatch [:ui.events/api.subscribe feed-id])}
-          "Follow"]
-
-         #_
-         [:a.action-vert
-          {:href js-stub}
-          "Similar"]]])]))
 
 
 (defn view-page
