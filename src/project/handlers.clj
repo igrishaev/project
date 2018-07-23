@@ -121,7 +121,7 @@
 
         {:keys [ordering unread_only]} sub
 
-        ordering (or ordering "old_first")
+        ordering (or ordering "new_first")
 
         query {:feed_id feed_id
                :user_id user_id
