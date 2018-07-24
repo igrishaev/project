@@ -6,7 +6,7 @@
              [invalid
               ->int
               ->keyword
-              not-empty-string
+              ->not-empty-string
               foreign-key]]
 
             [clojure.spec.alpha :as s]))
@@ -32,7 +32,7 @@
 (s/def ::feed_id foreign-key)
 (s/def ::message_id foreign-key)
 (s/def ::last_id (s/nilable foreign-key))
-(s/def ::title not-empty-string)
+(s/def ::title ->not-empty-string)
 (s/def ::is_read boolean?)
 
 ;;
@@ -46,7 +46,7 @@
 ;; Search
 ;;
 
-(s/def ::term not-empty-string)
+(s/def ::term ->not-empty-string)
 
 (s/def ::api.search-feeds
   (s/keys :req-un [::term]))

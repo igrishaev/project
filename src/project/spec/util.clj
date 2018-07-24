@@ -54,10 +54,10 @@
    not-empty
    re-email?))
 
-(defn not-empty-string
-  [x]
-  (and (string? x)
-       (not (str/blank? x))))
+(def ->not-empty-string
+  (s/and string?
+         (s/conformer str/trim)
+         not-empty))
 
 (defn foreign-key
   [x]
