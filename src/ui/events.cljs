@@ -85,10 +85,13 @@
                {:feed_id feed_id :title title}
                [::api.subscribe.ok]]}))
 
-(rf/reg-event-db
+
+(rf/reg-event-fx
  ::api.subscribe.ok
- (fn [db [_ feed]]
-   (assoc-in db [:feeds (:id feed)] feed)))
+ (fn [{db :db} [_ feed]]
+   (let [{feed-id :id} feed]
+     {:db (assoc-in db [:feeds feed-id] feed)
+      :dispatch [:nav/goto-feed feed-id]})))
 
 ;;
 ;; Subscriptions

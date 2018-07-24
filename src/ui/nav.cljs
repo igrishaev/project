@@ -46,6 +46,23 @@
   (set-hash (auth)))
 
 
+(defn goto-feed
+  [id]
+  (set-hash (feed {:id id})))
+
+
+;;
+;; Reframe
+;;
+
+
+(rf/reg-event-fx
+ :nav/goto-feed
+ (fn [_ [_ id]]
+   (goto-feed id)
+   {}))
+
+
 ;;
 ;; Dispatch and History
 ;;
