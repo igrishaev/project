@@ -302,9 +302,8 @@
 
     [:div.entry
 
-     ;; todo read style
-     {:style (when is_read
-               {:background-color "#000"})}
+     (when is_read
+       {:class "is_read"})
 
      (when auto_read
        [entry-scroll feed-id index])
