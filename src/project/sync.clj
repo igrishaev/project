@@ -77,6 +77,12 @@
     (sync-feed-safe feed)))
 
 
+(defn sync-feed-by-id
+  [id]
+  (let [feed (models/get-feed-by-id id)]
+    (sync-feed-safe feed)))
+
+
 ;;
 ;; Users
 ;;

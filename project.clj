@@ -45,6 +45,10 @@
                  ;; cache and mq
                  [com.taoensso/carmine "2.18.1"]
 
+                 ;; HTML sanitaze
+                 [alxlit/autoclave "0.2.0"]
+                 [com.googlecode.owasp-java-html-sanitizer/owasp-java-html-sanitizer "20180219.1"]
+
                  ;; email
                  [com.draines/postal "2.0.2"]
                  [buddy/buddy-core "1.4.0"]

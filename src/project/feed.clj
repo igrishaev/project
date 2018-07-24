@@ -2,6 +2,7 @@
   (:require [project.time :as t]
             [project.rome :as rome]
             [project.util :as u]
+            [project.sanitize :as san]
 
             [clojure.string :as str]
             [medley.core :refer [distinct-by]]))
@@ -42,8 +43,8 @@
     {:url_image url_image
      :language language
 
-     :title title
-     :subtitle description
+     :title (san/san-bare title)
+     :subtitle (san/san-bare description)
 
      :link link
 
@@ -90,7 +91,10 @@
 
         summary (:value description)
 
-        enclosure (first enclosures)]
+        enclosure (first enclosures)
+
+        content (or (some-> contents first :value)
+                    summary)]
 
     {:guid (or (clean-str uri)
                (clean-str link)
@@ -102,10 +106,9 @@
 
      :link link
      :author (clean-str author)
-     :title title
+     :title (san/san-bare title)
 
-     :summary (or (some-> contents first :value)
-                  summary)
+     :summary (san/san-html content)
 
      :enclosure_url (:url enclosure)
      :enclosure_mime (:type enclosure)
