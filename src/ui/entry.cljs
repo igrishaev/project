@@ -44,14 +44,25 @@
         [:div])})))
 
 
+(defn entry-enclosure
+  ;; TODO: check for video etc; grumpy for example
+  [entry]
+  (let [{:keys [enclosure_url enclosure_mime]} entry]
+    (when enclosure_url
+      [:div.entry-enclosure
+       [:img {:src enclosure_url}]])))
+
+
 (defn view-entry
   [feed-id index]
   (let [entry @(rf/subscribe [:ui.subs/find-entry
                               feed-id index])
 
         feed @(rf/subscribe [:ui.subs/find-feed feed-id])
+
         {entry-id :id
          :keys [link title summary author]} entry
+
         is_read (-> entry :message :is_read)
         auto_read (-> feed :sub :auto_read)
 
@@ -90,6 +101,9 @@
         "Mark read"]]]
 
      [:div.entry-content.overflow-split
-      {:dangerouslySetInnerHTML {:__html summary}}]
+
+      [entry-enclosure entry]
+
+      [:div {:dangerouslySetInnerHTML {:__html summary}}]]
 
      [:div.entry-controls [:a {:href link} "Visit page →"]]]))

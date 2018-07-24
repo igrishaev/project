@@ -271,10 +271,13 @@ h1, h2, h3, h4 {
     flex-direction: row;
 }
 
+.entry-enclosure {
+    margin: 25px 0 25px 0;
+}
+
 .entry-action {
     margin-right: 10px;
     text-decoration-style: none;
-    /* text-decoration-style: dashed; */
 }
 
 
