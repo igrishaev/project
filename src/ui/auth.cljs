@@ -1,6 +1,8 @@
 (ns ui.auth
   (:require [ui.common :refer (js-stub)]
 
+            [clojure.string :as str]
+
             [ajax.core :as ajax]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -104,11 +106,22 @@
 (defn view-user-block
   []
   (when-let [user @(rf/subscribe [:auth/user])]
-    [:div.dropdown.menu-item.last
-     [:img.avatar
-      {:src "https://www.w3schools.com/howto/img_avatar.png"}]
-     [:div.dropdown-content
-      [:span.header "Ivan Grishaev"]
-      [:a {:href js-stub
-           :on-click #(rf/dispatch [:auth/logout])}
-       "Logout"]]]))
+
+    (let [{:keys [email
+                  source
+                  avatar_url
+                  name]} user
+
+          name (or name email)
+          avatar_url (or avatar_url "/img/account.png")]
+
+      [:div.dropdown.menu-item.last
+       [:img.avatar
+        {:src avatar_url}]
+       [:div.dropdown-content
+        [:span.header name
+         [:br]
+         [:small "Signed via " (str/capitalize source)]]
+        [:a {:href js-stub
+             :on-click #(rf/dispatch [:auth/logout])}
+         "Logout"]]])))
