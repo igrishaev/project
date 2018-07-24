@@ -6,6 +6,8 @@
             [ui.common :refer (js-stub get-feed-title get-feed-image)]
             [ui.auth :as auth]
 
+            cljsjs.pluralize
+
             [clojure.string :as str]
             [goog.functions :refer [rateLimit]]
 
@@ -86,7 +88,7 @@
 
         ]
 
-    [:div.menu-items
+    [:div.menu-items.controls
 
      ;;
      ;; Auto read
@@ -137,9 +139,10 @@
         "False"]]]
 
      ;;
-     ;; Layout
+     ;; Layout TODO implement
      ;;
 
+     #_
      [:div.dropdown.menu-item
       [:a.dropbtn {:href js-stub}
        "Layout " arr-down]
@@ -178,7 +181,7 @@
   [feed-id]
 
   (let [feed @(rf/subscribe [:ui.subs/find-feed feed-id])
-        {:keys [link]} feed]
+        {:keys [link date_updated_at sub_count_total]} feed]
 
     [:div#feed-header
      [:h1.overflow-split
@@ -186,7 +189,11 @@
        {:href link}
        (get-feed-title feed)]]
 
-     [:p "Варламов // by Ivan Grishaev // 1 Jun 2018"]
+     [:p.subinfo
+      (js/pluralize "subscriber" sub_count_total true)
+
+      " // updated "
+      (t/humanize date_updated_at)]
 
      [feed-controls feed]]))
 
@@ -296,9 +303,7 @@
         api-mark-read
         (fn [flag]
           (rf/dispatch [:ui.events/api.mark-read
-                        index entry-id true]))
-
-        ]
+                        index entry-id true]))]
 
     [:div.entry
 
@@ -311,18 +316,16 @@
      [:h2.overflow-split
       [:a {:href link} title]]
 
-     [:p
+     [:p.subinfo
       (get-feed-title feed)
-      " // "
-      author
+
+      (when author
+        (str " // " author))
+
       " // "
       (t/humanize entry-date)]
 
-     [:div.menu-items
-
-      [:div.menu-item
-       [:a {:href js-stub}
-        "Bookmark"]]
+     [:div.menu-items.controls
 
       [:div.menu-item
        [:a {:href js-stub

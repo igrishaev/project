@@ -62,6 +62,7 @@
                  [reagent-forms "0.5.42"]
 
                  [cljsjs/timeago "3.0.0-0"]
+                 [cljsjs/pluralize "3.0.0-0"]
 
                  ;; [org.webjars/jquery "3.3.1-1"]
                  ;; [org.webjars/bootstrap "4.1.0"]
