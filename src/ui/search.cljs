@@ -3,6 +3,8 @@
             [ui.nav :as nav]
             [ui.util :refer (pluralize)]
 
+            [clojure.string :as str]
+
             [reagent.core :as r]
             [re-frame.core :as rf]
             [reagent-forms.core :refer [bind-fields]]))
@@ -26,7 +28,9 @@
         (fn [e]
           (.preventDefault e)
           (let [{:keys [search]} @doc]
-            (nav/goto-search search)))]
+            (if (some-> search identity str/triml not-empty)
+              (nav/goto-search search)
+              (rf/dispatch [:bar/error "Search term cannot be blank"]))))]
 
     (fn []
       (when @*user
