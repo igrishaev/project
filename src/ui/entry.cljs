@@ -118,7 +118,8 @@
 
       " // "
 
-      (t/humanize entry-date)]
+      [:span {:title entry-date}
+       (t/humanize entry-date)]]
 
      [:div.menu-items.controls
 
