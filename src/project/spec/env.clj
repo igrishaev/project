@@ -44,6 +44,8 @@
 (s/def ::smtp-tls boolean?)
 (s/def ::smtp-user string?)
 (s/def ::tpl-cache-on boolean?)
+(s/def ::ui-entry-page-limit pos?)
+
 
 (s/def ::env
   (s/keys
@@ -76,4 +78,5 @@
     ::smtp-tls
     ::smtp-user
     ::tpl-cache-on
+    ::ui-entry-page-limit
     ]))

@@ -5,6 +5,7 @@
             [project.db :as db]
             [project.sync :as sync]
             [project.time :as t]
+            [project.env :refer (env)]
             [project.search :as search]
             [project.resp :refer [ok] :as r]))
 
@@ -75,6 +76,8 @@
 ;; Messages
 ;;
 
+(def entry-page-limit)
+
 (defn messages
   [params user & _]
   (let [{:keys [feed_id offset]} params
@@ -85,7 +88,7 @@
         {:keys [ordering unread_only]} sub
 
         ordering (or ordering "new_first")
-        limit 3 ;; TODO to config
+        limit (:ui-entry-page-limit env)
         offset (or offset 0)
 
         query {:feed_id feed_id
