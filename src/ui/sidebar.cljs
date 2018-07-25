@@ -21,6 +21,7 @@
 
      [view-sync-button]
 
+     #_ ;; TODO show folders later
      [:div.sidebar-folder
       [:div.sidebar-section.sidebar-feed.sidebar-tag
        "Design ▾"]]
