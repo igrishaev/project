@@ -79,7 +79,7 @@
             {:href js-stub
              :on-click
              #(rf/dispatch [:ui.events/api.subscribe feed-id])}
-            "Follow"]
+            "Subscribe"]
 
            #_
            [:a.action-vert
