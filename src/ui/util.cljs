@@ -4,16 +4,22 @@
             [goog.string.format]
             [reagent.dom.server :as dom]
 
+            cljsjs.pluralize
+
             [clojure.string :as str]))
 
 (def clear-str (comp not-empty str/trim))
 
+
 (def format gstring/format)
+
 
 (defn uuid []
   (str (random-uuid)))
 
+
 (def default-max-len 50)
+
 
 (defn trim-string
   [string & [max-len]]
@@ -22,3 +28,8 @@
     (if (> (count string) max-len)
       (str (subs string 0 max-len) "...")
       string)))
+
+
+(defn pluralize
+  [noun n]
+  (js/pluralize noun n true))

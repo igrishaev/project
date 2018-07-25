@@ -3,11 +3,13 @@
             ui.subs
             [ui.search :refer (view-search-results)]
             [ui.time :as t]
-            [ui.common :refer (js-stub get-feed-title get-feed-image rf-partial)]
+            [ui.common :refer (js-stub
+                               get-feed-title
+                               get-feed-image
+                               rf-partial)]
             [ui.auth :as auth]
             [ui.entry :as entry]
-
-            cljsjs.pluralize
+            [ui.util :refer (pluralize)]
 
             [clojure.string :as str]
             [goog.functions :refer [rateLimit]]
@@ -189,7 +191,7 @@
        (get-feed-title feed)]]
 
      [:p.subinfo
-      (js/pluralize "subscriber" sub_count_total true)
+      (pluralize "subscriber" sub_count_total)
 
       " // updated "
       (t/humanize date_updated_at)]

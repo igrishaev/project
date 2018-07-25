@@ -286,6 +286,9 @@ h1, h2, h3, h4 {
 
 }
 
+#sidebar-feed-header {
+    padding-left: 25px;
+}
 
 /* Dropdown */
 

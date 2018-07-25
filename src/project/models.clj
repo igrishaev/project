@@ -2,6 +2,56 @@
   (:require [project.db :as db]
             [project.url :as url]))
 
+;;
+;; Cleaning
+;;
+
+(defn clean-model
+  [fields model]
+  (select-keys model fields))
+
+(def feed-fields
+  [:id
+   :created_at
+   :updated_at
+   :url_source
+   :url_host
+   :url_favicon
+   :url_image
+   :language
+   :title
+   :subtitle
+   :link
+   :date_updated_at
+   :entry_count_total
+   :sub_count_total
+   :sub])
+
+(def user-fields
+  [:id
+   :created_at
+   :updated_at
+   :email
+   :name
+   :source
+   :source_id
+   :source_url
+   :locale
+   :avatar_url
+   :gender
+   :sync_date_last])
+
+
+(def clean-feed (partial clean-model feed-fields))
+
+(def clean-user (partial clean-model user-fields))
+
+
+;;
+;; Upsert
+;;
+
+
 (def upsert-user
   (partial db/upsert! :users "(email)"))
 
@@ -22,9 +72,11 @@
 (def upsert-message
   (partial db/upsert! :messages "(user_id, entry_id)"))
 
+
 ;;
 ;; User
 ;;
+
 
 ;; todo email lowercase
 

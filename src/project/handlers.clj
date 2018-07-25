@@ -1,54 +1,17 @@
 (ns project.handlers
   "https://www.jsonrpc.org/specification"
-  (:require [project.models :as models]
+  (:require [project.models :as models :refer (clean-feed
+                                               clean-user)]
             [project.db :as db]
             [project.sync :as sync]
             [project.time :as t]
             [project.search :as search]
             [project.resp :refer [ok] :as r]))
 
+
 ;;
 ;; API
 ;;
-
-(defn clean-model
-  [fields model]
-  (select-keys model fields))
-
-(def feed-fields
-  [:id
-   :created_at
-   :updated_at
-   :url_source
-   :url_host
-   :url_favicon
-   :url_image
-   :language
-   :title
-   :subtitle
-   :link
-   :date_updated_at
-   :entry_count_total
-   :sub_count_total
-   :sub])
-
-(def user-fields
-  [:id
-   :created_at
-   :updated_at
-   :email
-   :name
-   :source
-   :source_id
-   :source_url
-   :locale
-   :avatar_url
-   :gender])
-
-
-(def clean-feed (partial clean-model feed-fields))
-
-(def clean-user (partial clean-model user-fields))
 
 
 (defn subscribe

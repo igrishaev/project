@@ -1,16 +1,35 @@
 (ns ui.sidebar
-  (:require [ui.common :refer (get-feed-title get-fav-url)]
+  (:require [ui.common :refer (js-stub
+                               get-feed-title
+                               get-fav-url)]
             [ui.nav :as nav]
+            [ui.util :refer (format pluralize)]
+            [ui.time :refer (humanize)]
 
             [re-frame.core :as rf]))
 
 
-(defn view-sync-button
+(defn view-feed-header
   []
-  [:button
-   {:on-click
-    #(rf/dispatch [:ui.events/api.feeds])}
-   "Sync"])
+  (let [feeds @(rf/subscribe [:ui.subs/feeds])
+        user @(rf/subscribe [:auth/user])]
+    [:div#sidebar-feed-header
+
+     [:p
+      (or (:name user) (:email user))
+      [:br]
+      [:small
+       (pluralize "feed" (count feeds))
+       " // "
+       "Last update "
+       (humanize (:sync_date_last user))]]
+
+     [:div.menu-items.controls
+      [:div.dropdown.menu-item
+       [:a
+        {:href js-stub
+         :on-click #(rf/dispatch [:ui.events/api.feeds])}
+        "Refresh"]]]]))
 
 
 (defn view-feed-list
@@ -18,8 +37,6 @@
   (let [feeds @(rf/subscribe [:ui.subs/feeds])]
 
     [:div
-
-     [view-sync-button]
 
      #_ ;; TODO show folders later
      [:div.sidebar-folder
@@ -50,5 +67,7 @@
 (defn view-sidebar
   []
   (let [user @(rf/subscribe [:auth/user])]
-    [:div
-     (when user [view-feed-list])]))
+    (when user
+      [:div
+       [view-feed-header]
+       [view-feed-list]])))
