@@ -82,7 +82,8 @@
        [entry-scroll feed-id index])
 
      [:h2.overflow-split
-      [:a {:href link} title]]
+      [:a {:href link
+           :dangerouslySetInnerHTML {:__html title}}]]
 
      [:p.subinfo
 

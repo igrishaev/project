@@ -47,6 +47,9 @@
   []
 
   (let [page @(rf/subscribe [:ui.subs/page])
+        feeds @(rf/subscribe [:ui.subs/feeds])
+        feed-ids (set (map :id feeds))
+
         {:keys [page params]} page
         {:keys [q]} params]
 
@@ -54,6 +57,7 @@
 
     (when-let [feeds @(rf/subscribe [:ui.subs/search-feeds])]
       [:div#search-result-list
+
        (for [feed feeds
              :let [{feed-id :id
                     :keys [entries
@@ -79,11 +83,24 @@
              [:p.small title])]
 
           [:div.search-result-item-actions
-           [:a.action-vert.action-main-vert
-            {:href js-stub
-             :on-click
-             #(rf/dispatch [:ui.events/api.subscribe feed-id])}
-            "Subscribe"]
+
+           (prn feed-ids)
+           (prn (-> feed-ids first type))
+           (prn feed-id)
+
+           (if (contains? feed-ids feed-id)
+
+             [:a.action-vert.action-main-vert
+              {:href js-stub
+               :on-click
+               #(rf/dispatch [:ui.events/api.unsubscribe feed-id])}
+              "Unsubscribe"]
+
+             [:a.action-vert.action-main-vert
+              {:href js-stub
+               :on-click
+               #(rf/dispatch [:ui.events/api.subscribe feed-id])}
+              "Subscribe"])
 
            #_
            [:a.action-vert

@@ -152,7 +152,7 @@
   [feed-id]
 
   (let [feed @(rf/subscribe [:ui.subs/find-feed feed-id])
-        {:keys [link date_updated_at sub_count_total]} feed]
+        {:keys [url_source link date_updated_at sub_count_total]} feed]
 
     [:div#feed-header
      [:h1.overflow-split
@@ -164,7 +164,11 @@
       (pluralize "subscriber" sub_count_total)
 
       " // updated "
-      (t/humanize date_updated_at)]
+      (t/humanize date_updated_at)
+
+      " // "
+      [:a {:href url_source}
+       "source"]]
 
      [feed-controls feed]]))
 
