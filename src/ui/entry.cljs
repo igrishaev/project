@@ -3,6 +3,8 @@
 
             [ui.common :refer (js-stub get-feed-title get-entry-date rf-partial)]
 
+            [clojure.string :as str]
+
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
@@ -44,13 +46,35 @@
         [:div])})))
 
 
+(defn mime->kw
+  [mime]
+  (some-> mime str/lower-case (str/split #"/" 2) first keyword))
+
+
 (defn entry-enclosure
-  ;; TODO: check for video etc; grumpy for example
   [entry]
-  (let [{:keys [enclosure_url enclosure_mime]} entry]
-    (when enclosure_url
-      [:div.entry-enclosure
-       [:img {:src enclosure_url}]])))
+  (let [{:keys [enclosure_url enclosure_mime]} entry
+        mime (mime->kw enclosure_mime)]
+
+    [:div.entry-enclosure
+     (case mime
+
+       :audio
+       [:audio {:controls true}
+        [:source {:src enclosure_url
+                  :type enclosure_mime}]]
+
+       :video
+       [:video {:controls true
+                :width 640
+                :height 480}
+        [:source {:src enclosure_url
+                  :type enclosure_mime}]]
+
+       :image
+       [:img {:src enclosure_url}]
+
+       nil)]))
 
 
 (defn view-entry
