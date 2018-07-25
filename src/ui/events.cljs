@@ -152,10 +152,10 @@
 
 (rf/reg-event-fx
  ::api.read-more
- (fn [_ [_ feed_id last_id]]
+ (fn [_ [_ feed_id offset]]
    {:dispatch-n
     [[::api.call :messages
-      {:feed_id feed_id :last_id last_id}
+      {:feed_id feed_id :offset offset}
       [::api.read-more.ok feed_id]]
      [::loader true]]}))
 

@@ -17,11 +17,6 @@
    (:loader db)))
 
 (rf/reg-sub
- ::last-entry
- (fn [db [_ feed_id]]
-   (-> db :entries (get feed_id) peek)))
-
-(rf/reg-sub
  ::entries
  (fn [db [_ feed_id]]
    (vec
@@ -29,6 +24,11 @@
      (fn [index entry]
        [index (:id entry)])
      (get-in db [:entries feed_id])))))
+
+(rf/reg-sub
+ ::entry-count
+ (fn [db [_ feed_id]]
+   (-> db :entries (get feed_id) count)))
 
 (rf/reg-sub
  ::find-entry

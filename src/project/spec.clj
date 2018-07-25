@@ -77,9 +77,16 @@
 ;; Messages
 ;;
 
+(defn zpos?
+  [n]
+  (>= n 0))
+
+(s/def ::offset
+  (s/and int? zpos?))
+
 (s/def ::api.messages
-  (s/keys :opt-un [::feed_id
-                   ::last_id]))
+  (s/keys :req-un [::feed_id]
+          :opt-un [::offset]))
 
 ;;
 ;; Mark read

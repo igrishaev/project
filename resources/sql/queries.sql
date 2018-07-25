@@ -113,21 +113,14 @@ where
 /*~ ) ~*/
 
 /*~
-(when (:last_id params)
-  (case (:ordering params)
-    "new_first" */ and e.id > :last_id  /*~
-    "old_first" */ and e.id < :last_id /*~
-))
-~*/
-
-/*~
 (case (:ordering params)
-  "new_first" */ order by e.id asc  /*~
-  "old_first" */ order by e.id desc /*~
+  "new_first" */ order by e.date_published_at desc  /*~
+  "old_first" */ order by e.date_published_at asc /*~
 )
 ~*/
 
 limit :limit
+offset :offset
 
 -- :name unsubscribe :! :n
 delete from subs

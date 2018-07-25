@@ -77,7 +77,7 @@
 
 (defn messages
   [params user & _]
-  (let [{:keys [feed_id last_id]} params
+  (let [{:keys [feed_id offset]} params
         {user_id :id} user
         sub (models/find-sub
              {:feed_id feed_id :user_id user_id})
@@ -85,13 +85,15 @@
         {:keys [ordering unread_only]} sub
 
         ordering (or ordering "new_first")
+        limit 3 ;; TODO to config
+        offset (or offset 0)
 
         query {:feed_id feed_id
                :user_id user_id
                :ordering ordering
                :unread_only unread_only
-               :last_id last_id
-               :limit 3}
+               :limit limit
+               :offset offset}
 
         entries (db/get-subscribed-entries query)]
 

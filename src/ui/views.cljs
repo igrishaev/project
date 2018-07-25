@@ -193,8 +193,7 @@
         (let [{:keys [scroll height-viewport]}
               @(rf/subscribe [:scroll])
 
-              entry @(rf/subscribe [:ui.subs/last-entry feed-id])
-              {entry-id :id} entry
+              entry-count @(rf/subscribe [:ui.subs/entry-count feed-id])
 
               loader @(rf/subscribe [:ui.subs/loader])]
 
@@ -202,7 +201,7 @@
             (let [offset (.. node -offsetTop)]
               (when (< offset (+ scroll height-viewport))
                 (when-not loader
-                  (trigger feed-id entry-id)))))
+                  (trigger feed-id entry-count)))))
 
           (if loader
             [:div.read-more
