@@ -1,6 +1,7 @@
 (ns ui.search
   (:require [ui.common :refer (js-stub get-feed-title get-feed-image)]
             [ui.nav :as nav]
+            [ui.util :refer (pluralize)]
 
             [reagent.core :as r]
             [re-frame.core :as rf]
@@ -51,18 +52,20 @@
       [:div#search-result-list
        (for [feed feeds
              :let [{feed-id :id
-                    :keys [entries subtitle]} feed]]
+                    :keys [entries
+                           subtitle
+                           sub_count_total]} feed]]
          ^{:key feed-id}
          [:div.search-result-item
           [:div.search-result-item-image
            [:img {:src (get-feed-image feed)}]]
           [:div.search-result-item-content
-           [:h2 (get-feed-title feed)]
-           [:p.subtitle subtitle]
+           [:h2 {:dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]
+           [:p.subtitle {:dangerouslySetInnerHTML {:__html subtitle}}]
 
            ;; todo show actial data
            [:p.subtitle
-            "55K followers | 279 articles per week | #tech #startups"]
+            (pluralize "subscriber" sub_count_total)]
 
            #_
            (for [entry entries
