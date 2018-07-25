@@ -18,42 +18,12 @@
             [re-frame.core :as rf]))
 
 
+
 (def arr-down
   [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}])
 
 (def arr-right
   [:span {:dangerouslySetInnerHTML {:__html "&rarr;"}}])
-
-
-(defn view-message
-  [entry message]
-
-  [:div.row
-   [:div.col-12.col-lg-9.offset-lg-1
-    [:div.card.app-message
-     [:div.card-header.card-header-divider
-
-      (if-let [link (:link entry)]
-        [:a.title
-         {:href link :target :_blank}
-         (:title entry)]
-
-        [:span.title
-         (:title entry)])
-
-      [:span.card-subtitle "Card subtitle description"]]
-
-     [:div.card-body
-      [:div.app-message-summary
-       {:dangerouslySetInnerHTML {:__html (:summary entry)}}]
-
-      ;;btn.btn-primary
-      ]
-
-     [:div.card-footer
-      [:a.card-link {:href (:link entry)}
-       "Visit the page "
-       [arr-right]]]]]])
 
 
 (defn feed-controls
@@ -187,8 +157,8 @@
     [:div#feed-header
      [:h1.overflow-split
       [:a
-       {:href link}
-       (get-feed-title feed)]]
+       {:href link
+        :dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]]
 
      [:p.subinfo
       (pluralize "subscriber" sub_count_total)

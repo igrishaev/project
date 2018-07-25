@@ -55,8 +55,8 @@
 
         [:div.feed-title.overflow-cut
          [:a
-          {:href (nav/feed {:id feed-id})}
-          (get-feed-title feed)]]
+          {:href (nav/feed {:id feed-id})
+           :dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]]
 
         [:div.flex-separator]
 

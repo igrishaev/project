@@ -85,12 +85,14 @@
       [:a {:href link} title]]
 
      [:p.subinfo
-      (get-feed-title feed)
+
+      [:span {:dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]
 
       (when author
         (str " // " author))
 
       " // "
+
       (t/humanize entry-date)]
 
      [:div.menu-items.controls
