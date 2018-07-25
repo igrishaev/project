@@ -19,7 +19,9 @@
   [params user & _]
   (db/with-tx
     (let [{:keys [feed_id title]} params
-          {user_id :id} user]
+          {user_id :id} user
+
+          limit 100] ;; todo config or the last number
 
       (db/with-tx
 
@@ -36,7 +38,7 @@
             (db/subscribe-user-to-the-last-feed-entries
              {:user_id user_id
               :feed_id feed_id
-              :limit 10})
+              :limit limit})
 
             ;; TODO take the number from the last update
 
@@ -55,11 +57,12 @@
   [params user & _]
 
   (let [{:keys [feed_id]} params
-        {user_id :id} user]
+        {user_id :id} user
+        where {:feed_id feed_id :user_id user_id}]
 
-    (db/delete!
-     :subs ["feed_id = ? and user_id = ?"
-            feed_id user_id])
+    (db/with-tx
+      (db/unsub-del-sub where)
+      (db/unsub-del-messages where))
 
     (ok {:feed_id feed_id})))
 

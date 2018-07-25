@@ -1,4 +1,20 @@
 
+-- :name unsub-del-sub :! :n
+delete from subs s
+where
+    s.feed_id = :feed_id
+    and s.user_id = :user_id
+
+
+-- :name unsub-del-messages :! :n
+delete from messages m
+using entries e
+where
+    e.feed_id = :feed_id
+    and m.entry_id = e.id
+    and m.user_id = :user_id
+
+
 -- :name search-feeds-by-term :? :*
 
 /*~ (when (not-empty (:feed_ids params)) */
@@ -44,7 +60,7 @@ from
 where
   e.feed_id = :feed_id
 order by
-  e.id desc
+  e.date_published_at desc nulls first
 limit
   :limit
 on conflict
