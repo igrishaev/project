@@ -3,12 +3,15 @@
   (:require [project.models :as models
              :refer (clean-feed clean-user)]
             [project.db :as db]
+            [project.error :as e]
             [project.sync :as sync]
             [project.time :as t]
             [project.env :refer (env)]
             [project.search :as search]
             [project.opml :as opml]
-            [project.resp :refer [ok] :as r]))
+            [project.resp :refer [ok] :as r]
+
+            [clojure.tools.logging :as log]))
 
 ;;
 ;; API
@@ -191,6 +194,11 @@
 
 (defn import-opml
   [params user & _]
-  (let [{:keys [opml]} params
-        feeds (opml/read-feeds-from-string opml)]
-    (ok feeds)))
+  (let [{:keys [opml]} params]
+    (try
+      (let [feeds (opml/read-feeds-from-string opml)]
+        (ok feeds))
+      (catch Throwable e
+        (log/errorf "OPML import error: %s, %s"
+                    (e/exc-msg e) opml)
+        (r/err 400 "Cannot read the OPML data you provided.")))))

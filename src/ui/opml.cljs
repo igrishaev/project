@@ -1,14 +1,8 @@
 (ns io.opml
-  (:require
-   ;; todo deps
-   [clojure.string :as str]
-
-   [ajax.core :as ajax]
+  (:require [clojure.string :as str]
 
             [reagent.core :as r]
-            [re-frame.core :as rf])
-
-  )
+            [re-frame.core :as rf]))
 
 
 (defn import-button
@@ -55,4 +49,5 @@
  :api/import-opml.ok
  (fn [_ [_ input data]]
    (set! (.. input -value) "")
-   {:dispatch [:bar/info "ok"]}))
+   {:dispatch [:bar/info
+               "Your feeds are loaded. Now give us some time to process them. Press the 'Refresh' button in a moment."]}))
