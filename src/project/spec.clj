@@ -136,5 +136,7 @@
 ;; Import OPML
 ;;
 
+(s/def ::opml ->not-empty-string)
+
 (s/def ::api.import-opml
-  (s/keys :req-un []))
+  (s/keys :req-un [::opml]))

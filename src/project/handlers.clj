@@ -190,7 +190,7 @@
 
 
 (defn import-opml
-  ;; todo ugly
-  [_ user _ body & _]
-  (let [feeds (opml/read-feeds body)]
+  [params user & _]
+  (let [{:keys [opml]} params
+        feeds (opml/read-feeds-from-string opml)]
     (ok feeds)))

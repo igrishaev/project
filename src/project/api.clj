@@ -18,7 +18,7 @@
 (defn handler-unsafe
   ;; todo body
   [request]
-  (let [{:keys [params user session body]} request
+  (let [{:keys [params user session]} request
         spec :project.spec/api.base]
 
     (if user
@@ -36,7 +36,7 @@
               (prn params*)
 
               (if params*
-                (handler params* user session body)
+                (handler params* user session)
 
                 (r/err-spec spec params)))
 

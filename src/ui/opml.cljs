@@ -18,36 +18,32 @@
     {:type :file
      :on-change
      (fn [e]
-       (prn (.. e -target -files))
-       )
+       (let [input (.. e -target)
+             file (-> e .-target .-files (.item 0))
+             reader (js/FileReader.)]
 
-     }
+         (set! (.-onload reader)
+               (fn [e]
+                 (let [content (.. e -target -result)]
+                   (rf/dispatch [:api/import-opml input content]))))
 
+         (set! (.-onerror reader)
+               (fn [e]
+                 (rf/dispatch [:bar/error "Cannot read the file you've chosen."])))
 
-    ]]
-  )
+         (.readAsText reader file)))}]])
+
 
 (rf/reg-event-fx
  :api/import-opml
- (fn [_ [_ payload]]
-   {:http-xhrio {:method :post
-                 :uri "/api"
-                 :body payload
-                 :headers {"Content-Type" "text/xml"}
-                 :response-format
-                 (ajax/json-response-format
-                  {:keywords? true})
-                 :on-success [:api/import-opml.ok]
-                 :on-failure [:api/import-opml.err]}}))
+ (fn [_ [_ input opml]]
+   {:dispatch [:ui.events/api.call :import-opml
+               {:opml opml}
+               [:api/import-opml.ok input]]}))
 
 
 (rf/reg-event-fx
  :api/import-opml.ok
- (fn [_ [_ ]]
+ (fn [_ [_ input data]]
+   (set! (.. input -value) "")
    {:dispatch [:bar/info "ok"]}))
-
-
-(rf/reg-event-fx
- :api/import-opml.err
- (fn [_ [_ ]]
-   {:dispatch [:bar/error "error"]}))
