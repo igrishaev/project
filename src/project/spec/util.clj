@@ -3,7 +3,9 @@
             [clojure.string :as str])
   (:import java.net.URL))
 
+
 (def invalid :clojure.spec.alpha/invalid)
+
 
 (defmacro with-ivalid
   [& body]
@@ -11,6 +13,13 @@
      ~@body
      (catch Throwable e#
        invalid)))
+
+
+(defn max-len
+  [limit]
+  (fn [value]
+    (<= (count value) limit)))
+
 
 (def ->int
   (s/conformer
@@ -25,6 +34,7 @@
 
        :else invalid))))
 
+
 (def ->url
   (s/conformer
    (fn [x]
@@ -36,6 +46,7 @@
 
        :else invalid))))
 
+
 (def ->keyword
   (s/conformer
    (fn [x]
@@ -44,7 +55,9 @@
        (string? x) (keyword x)
        :else invalid))))
 
+
 (def re-email? (partial re-matches #".+?@.+?\..+?"))
+
 
 (def ->email
   (s/and
@@ -54,10 +67,12 @@
    not-empty
    re-email?))
 
+
 (def ->not-empty-string
   (s/and string?
          (s/conformer str/trim)
          not-empty))
+
 
 (defn foreign-key
   [x]

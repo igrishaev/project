@@ -18,20 +18,29 @@
     {:type :file
      :on-change
      (fn [e]
-       (let [input (.. e -target)
+       (let [limit (* 1024 1024)
+
+             input (.. e -target)
              file (-> e .-target .-files (.item 0))
+             filesize (.-size file)
+             filetype (.-type file)
+
              reader (js/FileReader.)]
 
-         (set! (.-onload reader)
-               (fn [e]
-                 (let [content (.. e -target -result)]
-                   (rf/dispatch [:api/import-opml input content]))))
+         (if (< filesize limit)
+           (do
+             (set! (.-onload reader)
+                   (fn [e]
+                     (let [content (.. e -target -result)]
+                       (rf/dispatch [:api/import-opml input content]))))
+             (set! (.-onerror reader)
+                   (fn [e]
+                     (rf/dispatch [:bar/error "Cannot read the file you've chosen."])))
+             (.readAsText reader file))
 
-         (set! (.-onerror reader)
-               (fn [e]
-                 (rf/dispatch [:bar/error "Cannot read the file you've chosen."])))
-
-         (.readAsText reader file)))}]])
+           (do
+             (rf/dispatch [:bar/error "The file is too large."])
+             (set! (.. input -value) "")))))}]])
 
 
 (rf/reg-event-fx

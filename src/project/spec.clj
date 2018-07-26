@@ -4,6 +4,7 @@
             project.spec.email
             [project.spec.util :refer
              [invalid
+              max-len
               ->int
               ->keyword
               ->not-empty-string
@@ -128,6 +129,7 @@
 ;; Logout
 ;;
 
+
 (s/def ::api.logout
   (s/keys :req-un []))
 
@@ -136,7 +138,12 @@
 ;; Import OPML
 ;;
 
-(s/def ::opml ->not-empty-string)
+
+(s/def ::opml
+  (s/and
+   ->not-empty-string
+   (max-len (* 1024 1024))))
+
 
 (s/def ::api.import-opml
   (s/keys :req-un [::opml]))
