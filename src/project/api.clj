@@ -16,8 +16,9 @@
 
 
 (defn handler-unsafe
+  ;; todo body
   [request]
-  (let [{:keys [params user session]} request
+  (let [{:keys [params user session body]} request
         spec :project.spec/api.base]
 
     (if user
@@ -35,7 +36,7 @@
               (prn params*)
 
               (if params*
-                (handler params* user session)
+                (handler params* user session body)
 
                 (r/err-spec spec params)))
 
@@ -82,4 +83,9 @@
                :spec :project.spec/api.user-info}
 
    :logout {:handler :project.handlers/logout
-            :spec :project.spec/api.logout}})
+            :spec :project.spec/api.logout}
+
+   :import-opml {:handler :project.handlers/import-opml
+                 :spec :project.spec/api.import-opml}
+
+   })

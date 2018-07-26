@@ -130,3 +130,11 @@
 
 (s/def ::api.logout
   (s/keys :req-un []))
+
+
+;;
+;; Import OPML
+;;
+
+(s/def ::api.import-opml
+  (s/keys :req-un []))

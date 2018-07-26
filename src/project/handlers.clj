@@ -1,14 +1,14 @@
 (ns project.handlers
   "https://www.jsonrpc.org/specification"
-  (:require [project.models :as models :refer (clean-feed
-                                               clean-user)]
+  (:require [project.models :as models
+             :refer (clean-feed clean-user)]
             [project.db :as db]
             [project.sync :as sync]
             [project.time :as t]
             [project.env :refer (env)]
             [project.search :as search]
+            [project.opml :as opml]
             [project.resp :refer [ok] :as r]))
-
 
 ;;
 ;; API
@@ -187,3 +187,10 @@
   (let [session* (dissoc session :user-id)]
     (-> (ok {:ok true})
         (assoc :session session*))))
+
+
+(defn import-opml
+  ;; todo ugly
+  [_ user _ body & _]
+  (let [feeds (opml/read-feeds body)]
+    (ok feeds)))

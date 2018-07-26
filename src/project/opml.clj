@@ -1,15 +1,14 @@
 (ns project.opml
   (:require [clojure.zip :as zip]
-            [clojure.xml :as xml]
-            [clojure.java.io :as io]))
+            [clojure.xml :as xml]))
 
 
 (def _p "/Users/ivan/Downloads/feedly-54e0a565-255d-4ed8-b831-024b437488bf-2018-07-17.opml")
 
 
 (defn read-zip
-  [path]
-  (let [zipper (-> path io/file xml/parse zip/xml-zip)]
+  [src]
+  (let [zipper (-> src xml/parse zip/xml-zip)]
     zipper))
 
 
@@ -54,5 +53,5 @@
 
 
 (defn read-feeds
-  [path]
-  (-> path read-zip zip-seq get-feeds))
+  [src]
+  (-> src read-zip zip-seq get-feeds))

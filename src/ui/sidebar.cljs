@@ -6,6 +6,8 @@
             [ui.util :refer (format pluralize)]
             [ui.time :refer (humanize)]
 
+            [io.opml :as opml] ;; todo
+
             [re-frame.core :as rf]))
 
 
@@ -14,6 +16,8 @@
   (let [feeds @(rf/subscribe [:ui.subs/feeds])
         user @(rf/subscribe [:auth/user])]
     [:div#sidebar-feed-header
+
+     [opml/import-button]
 
      [:p
       (or (:name user) (:email user))
