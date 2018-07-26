@@ -51,3 +51,11 @@
   [data]
   (let [{:keys [user-id]} data]
     (sync/sync-user user-id)))
+
+
+(defmethod queue/action :sync-feed-and-user
+  [data]
+  (let [{:keys [feed-url user-id]} data]
+    (db/with-tx
+      (sync/sync-feed-by-url feed-url)
+      (sync/sync-user user-id))))

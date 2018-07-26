@@ -1,6 +1,8 @@
 (ns project.opml
   (:require [clojure.zip :as zip]
-            [clojure.xml :as xml]))
+            [clojure.xml :as xml]
+
+            [medley.core :refer [distinct-by]]))
 
 
 (def _p "/Users/ivan/Downloads/feedly-54e0a565-255d-4ed8-b831-024b437488bf-2018-07-17.opml")
@@ -39,17 +41,24 @@
                   (:text attrs))})))
 
 
-(defn get-feeds
+(defn __get-feeds
   [zip-seq]
   (reduce
    (fn [result loc]
      (let [node (zip/node loc)]
        (if-let [feed (get-feed loc)]
-         (let [tag (get-tag loc)]
-           (update result tag conj feed))
+         (let [tag (get-tag loc)
+               feed (assoc feed :tag tag)]
+           (conj result feed))
          result)))
-   {}
+   []
    zip-seq))
+
+
+(defn get-feeds
+  [zip-seq]
+  (not-empty
+   (distinct-by :url (__get-feeds zip-seq))))
 
 
 (defn read-feeds
@@ -68,3 +77,8 @@
 (defn read-feeds-from-string
   [src]
   (-> src string->stream read-feeds))
+
+
+(defn read-feeds-from-file
+  [src]
+  (-> src (java.io.File.) read-feeds))

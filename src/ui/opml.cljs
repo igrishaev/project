@@ -8,8 +8,20 @@
 (defn import-button
   []
   [:div
+
+   ;; todo better styling
+   [:label {:style {:cursor :pointer
+                    :border "1px solid gray"
+                    :padding :10px
+                    :display :block
+                    :width :100px}
+            :for "import-opml"}
+    [:div "Import OPML"]]
+
    [:input
-    {:type :file
+    {:id "import-opml"
+     :style {:display :none}
+     :type :file
      :on-change
      (fn [e]
        (let [limit (* 1024 1024)

@@ -200,45 +200,39 @@
 
         ]
     (try
-      (let [feed-data (opml/read-feeds-from-string opml)
+      (let [feed-maps (opml/read-feeds-from-string opml)]
 
-;;            feed-data
+        (if (not (empty? feed-maps))
 
-            ]
+          (db/with-tx
 
-        (db/with-tx
+            (let [url->title (into {} (map (juxt :url :title) feed-maps))
 
-          (let [feed-maps (apply concat (vals feed-data))
+                  urls (map :url feed-maps)
 
-                ;; titles (into {} (for [feed-map feed-maps]))
+                  feeds (models/upsert-feeds
+                         (for [url urls]
+                           {:url_source url}))
 
-                urls (set (map :url feed-maps))
+                  subs (models/upsert-subs
+                        (for [feed feeds
+                              :let [{feed_id :id :keys [url_source]} feed]]
+                          {:feed_id feed_id
+                           :user_id user_id
+                           :title (get url->title url_source)}))]
 
-                feeds (models/upsert-feeds
-                       (for [url urls]
-                         {:url_source url}))
+              (sync/sync-user user_id)
 
-                subs (models/upsert-subs
-                      (for [feed feeds]
-                        {:feed_id (:id feed)
-                         :user_id user_id
-                         :title "todo title"
-                         ;; :tag "todo tag"
+              (doseq [feed feeds]
+                (mq/send {:action :sync-feed-and-user
+                          :user-id user_id
+                          :feed-id (:id feed)
+                          :feed-url (:url_source feed)}))
 
-                         }))]
+              (let [feeds (db/get-user-feeds {:user_id user_id})]
+                (ok (map clean-feed feeds)))))
 
-            (sync/sync-user user_id)
-
-            (doseq [feed feeds]
-              (mq/send {:action :sync-feed
-                        :feed-id (:id feed)
-                        :feed-url (:url_source feed)}))
-
-            (mq/send {:action :sync-user
-                      :user-id user_id})
-
-            (let [feeds (db/get-user-feeds {:user_id user_id})]
-              (ok (map clean-feed feeds))))))
+          (r/err 400 "We could not find any feeds in the file you uploaded.")))
 
       (catch Throwable e
         (log/errorf "OPML import error: %s" (e/exc-msg e))
