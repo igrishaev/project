@@ -66,8 +66,13 @@
 (def upsert-entries
   (partial db/upsert-multi! :entries "(feed_id, guid)"))
 
-(def upsert-sub
-  (partial db/upsert! :subs "(feed_id, user_id)"))
+(let [constraint "(feed_id, user_id)"]
+
+  (def upsert-sub
+    (partial db/upsert! :subs constraint))
+
+  (def upsert-subs
+    (partial db/upsert-multi! :subs constraint)))
 
 (def upsert-message
   (partial db/upsert! :messages "(user_id, entry_id)"))

@@ -10,6 +10,7 @@
             [project.search :as search]
             [project.opml :as opml]
             [project.resp :refer [ok] :as r]
+            [project.queue :as mq]
 
             [clojure.tools.logging :as log]))
 
@@ -194,11 +195,51 @@
 
 (defn import-opml
   [params user & _]
-  (let [{:keys [opml]} params]
+  (let [{:keys [opml]} params
+        {user_id :id} user
+
+        ]
     (try
-      (let [feeds (opml/read-feeds-from-string opml)]
-        (ok feeds))
+      (let [feed-data (opml/read-feeds-from-string opml)
+
+;;            feed-data
+
+            ]
+
+        (db/with-tx
+
+          (let [feed-maps (apply concat (vals feed-data))
+
+                ;; titles (into {} (for [feed-map feed-maps]))
+
+                urls (set (map :url feed-maps))
+
+                feeds (models/upsert-feeds
+                       (for [url urls]
+                         {:url_source url}))
+
+                subs (models/upsert-subs
+                      (for [feed feeds]
+                        {:feed_id (:id feed)
+                         :user_id user_id
+                         :title "todo title"
+                         ;; :tag "todo tag"
+
+                         }))]
+
+            (sync/sync-user user_id)
+
+            (doseq [feed feeds]
+              (mq/send {:action :sync-feed
+                        :feed-id (:id feed)
+                        :feed-url (:url_source feed)}))
+
+            (mq/send {:action :sync-user
+                      :user-id user_id})
+
+            (let [feeds (db/get-user-feeds {:user_id user_id})]
+              (ok (map clean-feed feeds))))))
+
       (catch Throwable e
-        (log/errorf "OPML import error: %s, %s"
-                    (e/exc-msg e) opml)
+        (log/errorf "OPML import error: %s" (e/exc-msg e))
         (r/err 400 "Cannot read the OPML data you provided.")))))
