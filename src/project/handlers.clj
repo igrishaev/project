@@ -105,9 +105,13 @@
                :limit limit
                :offset offset}
 
-        entries (db/get-subscribed-entries query)]
+        entries (db/get-subscribed-entries query)
 
-    (ok entries)))
+        feed (db/get-single-full-feed
+              {:feed_id feed_id :user_id user_id})]
+
+    (ok {:feed (clean-feed feed)
+         :entries entries})))
 
 
 (defn mark-read

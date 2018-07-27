@@ -38,34 +38,48 @@
 
 (defn view-feed-list
   []
-  (let [feeds @(rf/subscribe [:ui.subs/feeds])]
+  (let [feeds @(rf/subscribe [:ui.subs/feeds])
+
+        groups (group-by
+                (fn [f] (-> f :sub :label))
+                feeds)]
 
     [:div
 
-     #_ ;; TODO show folders later
-     [:div.sidebar-folder
-      [:div.sidebar-section.sidebar-feed.sidebar-tag
-       "Design ▾"]]
+     (for [label (-> groups keys sort)]
 
-     (for [feed feeds
-           :let [feed-id (-> feed :id)
-                 unread (-> feed :sub :message_count_unread)]]
+       [:div {:key (or label "")}
 
-       ^{:key feed-id}
-       [:div.sidebar-section.sidebar-feed
+        [:div.sidebar-folder
+         [:div.sidebar-section.sidebar-feed.sidebar-tag
 
-        [:div.feed-image
-         [:img {:src (get-fav-url feed)}]]
+          (or label "Other")
 
-        [:div.feed-title.overflow-cut
-         [:a
-          {:href (nav/feed {:id feed-id})
-           :dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]]
+          [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]]
 
-        [:div.flex-separator]
+        (for [feed (reverse
+                    (sort-by
+                     (fn [f] (-> f :sub :message_count_unread))
+                     (get groups label)))
 
-        (when (>= unread 0)
-          [:div [:span.feed-count unread]])])]))
+              :let [feed-id (-> feed :id)
+                    unread (-> feed :sub :message_count_unread)]]
+
+          [:div.sidebar-section.sidebar-feed
+           {:key feed-id}
+
+           [:div.feed-image
+            [:img {:src (get-fav-url feed)}]]
+
+           [:div.feed-title.overflow-cut
+            [:a
+             {:href (nav/feed {:id feed-id})
+              :dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]]
+
+           [:div.flex-separator]
+
+           (when (>= unread 0)
+             [:div [:span.feed-count unread]])])])]))
 
 
 (defn view-sidebar
