@@ -1,9 +1,6 @@
 (ns project.sanitize
-  (:require [autoclave.core :refer (html-policy html-sanitize)]))
-
-
-(def re-youtube
-  #"(?i)\Qhttps://www.youtube.com/embed/\E[a-zA-Z0-9_-]+")
+  (:require [autoclave.core :refer (html-policy html-sanitize)])
+  (:import java.net.URL))
 
 
 (def tags-allowed
@@ -42,16 +39,46 @@
    ])
 
 
-(def p-html
+(def re-youtube
+  #"(?i)\Qhttps://www.youtube.com/embed/\E[a-zA-Z0-9_-]+")
+
+
+(defn to-abs-url
+  [page-url]
+  (let [url (URL. page-url)]
+    (fn [element-name attr-name value]
+      (str (URL. url value)))))
+
+
+(defn make-html-policy
+  [page-url]
+
   (html-policy
    :allow-elements tags-allowed
-   :allow-attributes ["href" :on-elements ["a"]]
-   :allow-attributes ["src" :on-elements ["img"]]
-   :allow-attributes ["src" :matching [re-youtube] :on-elements ["iframe"]]
+
+   :allow-attributes
+   ["href"
+    :matching [(to-abs-url page-url)]
+    :on-elements ["a"]]
+
+   :allow-attributes
+   ["src"
+    :matching [(to-abs-url page-url)]
+    :on-elements ["img"]]
+
+   :allow-attributes
+   ["src"
+    :matching [re-youtube]
+    :on-elements ["iframe"]]
+
    :allow-standard-url-protocols))
 
 
-(def san-html (partial html-sanitize p-html))
+(defn san-html
+  [page-url html]
+  (html-sanitize
+   (make-html-policy page-url)
+   html))
 
 
 (def san-bare (partial html-sanitize))
@@ -64,7 +91,7 @@
 
   <h1 >sdfsdfs</h1>
 
-  <img src='http://sdfsdfsf' width='sdfsdf'>
+  <img src='/images/test.jpg' width='sdfsdf'>
 
 
 ")

@@ -14,6 +14,9 @@
            java.io.InputStream
            java.net.URL))
 
+
+;; todo page url, but not base!
+
 (defn ->url
   [term]
   (try
@@ -24,17 +27,12 @@
 
 (defn ->base-url
   [url]
-  (let [url (URL. url)
-        host (.getHost url)
-        prot (.getProtocol url)
-        path (.getPath url)
-        path (if (= path "/") path "")]
-    (format "%s://%s%s" prot host path)))
+  (str (URL. (URL. url) "/")))
 
 
 (defn domain->url
   [domain]
-  (format "%s://%s" "http" domain))
+  (str (URL. "http" domain "/")))
 
 
 (defn is-html?

@@ -94,7 +94,9 @@
         enclosure (first enclosures)
 
         content (or (some-> contents first :value)
-                    summary)]
+                    summary)
+
+        page-url (or link uri)]
 
     {:guid (or (clean-str uri)
                (clean-str link)
@@ -102,13 +104,11 @@
                (clean-str summary)
                (u/uuid))
 
-     ;; TODO think more on :guid
-
      :link link
      :author (clean-str author)
      :title (san/san-bare title)
 
-     :summary (san/san-html content)
+     :summary (san/san-html page-url content)
 
      :enclosure_url (:url enclosure)
      :enclosure_mime (:type enclosure)
