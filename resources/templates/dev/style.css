@@ -192,7 +192,20 @@ h1, h2, h3, h4 {
 }
 
 .sidebar-tag {
-    font-weight: bold;
+    padding-left: 30px;
+    margin-top: 15px;
+    margin-bottom: -15px;
+    font-size: 10pt;
+}
+
+#import-opml-btn {
+    cursor: pointer;
+    font-size: 9pt;
+    border: 1px solid gray;
+    padding: 6px;
+    text-align: center;
+    display: block;
+    width: 75px;
 }
 
 .small {

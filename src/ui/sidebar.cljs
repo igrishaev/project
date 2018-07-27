@@ -35,6 +35,8 @@
          :on-click #(rf/dispatch [:ui.events/api.feeds])}
         "Refresh"]]]]))
 
+(def no-label
+  "Other")
 
 (defn view-feed-list
   []
@@ -53,9 +55,7 @@
         [:div.sidebar-folder
          [:div.sidebar-section.sidebar-feed.sidebar-tag
 
-          (or label "Other")
-
-          [:span {:dangerouslySetInnerHTML {:__html "&#9662"}}]]]
+          (or label no-label)]]
 
         (for [feed (reverse
                     (sort-by

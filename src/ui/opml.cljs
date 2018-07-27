@@ -9,13 +9,9 @@
   []
   [:div
 
-   ;; todo better styling
-   [:label {:style {:cursor :pointer
-                    :border "1px solid gray"
-                    :padding :10px
-                    :display :block
-                    :width :100px}
-            :for "import-opml"}
+   [:label#import-opml-btn
+    {:for "import-opml"}
+
     [:div "Import OPML"]]
 
    [:input
