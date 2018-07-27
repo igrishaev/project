@@ -229,8 +229,7 @@
                           :feed-id (:id feed)
                           :feed-url (:url_source feed)}))
 
-              (let [feeds (db/get-user-feeds {:user_id user_id})]
-                (ok (map clean-feed feeds)))))
+              (ok {:ok true})))
 
           (r/err 400 "We could not find any feeds in the file you uploaded.")))
 

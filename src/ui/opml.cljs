@@ -57,9 +57,30 @@
                [:api/import-opml.ok input]]}))
 
 
+(def ok-note
+  "Your feeds are loaded. Now give us some time to update them.")
+
+
+(def refresh-every (* 1000 3))
+
+(def refresh-duration (* 1000 60 2))
+
+
+(defn start-auto-refresh
+  []
+  (let [timer
+        (js/setInterval
+         #(rf/dispatch [:ui.events/api.feeds])
+         refresh-every)]
+
+    (js/setTimeout
+     #(js/clearInterval timer)
+     refresh-duration)))
+
+
 (rf/reg-event-fx
  :api/import-opml.ok
  (fn [_ [_ input data]]
    (set! (.. input -value) "")
-   {:dispatch [:bar/info
-               "Your feeds are loaded. Now give us some time to process them. Press the 'Refresh' button in a moment."]}))
+   (start-auto-refresh)
+   {:dispatch [:bar/info ok-note]}))
