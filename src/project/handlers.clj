@@ -206,20 +206,23 @@
 
           (db/with-tx
 
-            (let [url->title (into {} (map (juxt :url :title) feed-maps))
+            (let [url->map (into {} (map (juxt :url identity) feed-maps))
 
-                  urls (map :url feed-maps)
+                  urls (keys url->map)
 
                   feeds (models/upsert-feeds
                          (for [url urls]
                            {:url_source url}))
 
                   subs (models/upsert-subs
-                        (for [feed feeds
-                              :let [{feed_id :id :keys [url_source]} feed]]
-                          {:feed_id feed_id
-                           :user_id user_id
-                           :title (get url->title url_source)}))]
+                        (for [feed feeds]
+                          (let [{feed_id :id :keys [url_source]} feed
+                                feed-map (get url->map url_source)
+                                {:keys [title tag]} feed-map]
+                            {:feed_id feed_id
+                             :user_id user_id
+                             :title (not-empty title)
+                             :label (not-empty tag)})))]
 
               (sync/sync-user user_id)
 

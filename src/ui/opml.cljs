@@ -83,4 +83,5 @@
  (fn [_ [_ input data]]
    (set! (.. input -value) "")
    (start-auto-refresh)
-   {:dispatch [:bar/info ok-note]}))
+   {:dispatch-n [[:ui.events/api.feeds]
+                 [:bar/info ok-note]]}))

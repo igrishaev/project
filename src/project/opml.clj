@@ -5,9 +5,6 @@
             [medley.core :refer [distinct-by]]))
 
 
-(def _p "/Users/ivan/Downloads/feedly-54e0a565-255d-4ed8-b831-024b437488bf-2018-07-17.opml")
-
-
 (defn read-zip
   [src]
   (let [zipper (-> src xml/parse zip/xml-zip)]

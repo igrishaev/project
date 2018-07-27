@@ -104,6 +104,8 @@ create table subs (
     feed_id     integer references feeds(id),
     user_id     integer references users(id),
 
+    label       text,
+
     title       text,
 
     layout      text,
