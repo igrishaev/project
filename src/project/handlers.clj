@@ -224,7 +224,7 @@
               (sync/sync-user user_id)
 
               (doseq [feed feeds]
-                (mq/send {:action :sync-feed-and-user
+                (mq/send {:action :sync-feed-and-sub
                           :user-id user_id
                           :feed-id (:id feed)
                           :feed-url (:url_source feed)}))

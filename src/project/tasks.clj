@@ -53,9 +53,15 @@
     (sync/sync-user user-id)))
 
 
-(defmethod queue/action :sync-feed-and-user
+(defmethod queue/action :sync-feed-and-sub
   [data]
-  (let [{:keys [feed-url user-id]} data]
+  (let [{:keys [feed-id feed-url user-id]} data]
     (db/with-tx
+
       (sync/sync-feed-by-url feed-url)
-      (sync/sync-user user-id))))
+
+      (db/sync-user-new-messages
+       {:user_id user-id :feed_id feed-id})
+
+      (db/sync-subs-counters
+       {:user_id user-id :feed_id feed-id}))))
