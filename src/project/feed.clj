@@ -5,7 +5,13 @@
             [project.sanitize :as san]
 
             [clojure.string :as str]
-            [medley.core :refer [distinct-by]]))
+            [medley.core :refer [distinct-by]])
+  (:import java.net.URL))
+
+
+(defn to-abs-url
+  [base-url path]
+  (str (URL. (URL. base-url) path)))
 
 
 (defn clean-str
@@ -93,10 +99,17 @@
 
         enclosure (first enclosures)
 
-        content (or (some-> contents first :value)
-                    summary)
+        page-url (or link uri)
 
-        page-url (or link uri)]
+        {enclosure_url :url
+         enclosure_mime :type} enclosure
+
+        enclosure_url
+        (when enclosure_url
+          (to-abs-url page-url enclosure_url))
+
+        content (or (some-> contents first :value)
+                    summary)]
 
     {:guid (or (clean-str uri)
                (clean-str link)
@@ -110,8 +123,8 @@
 
      :summary (san/san-html page-url content)
 
-     :enclosure_url (:url enclosure)
-     :enclosure_mime (:type enclosure)
+     :enclosure_url enclosure_url
+     :enclosure_mime enclosure_mime
 
      :date_published_at (or published-date (t/now))
      :date_updated_at (or updated-date (t/now))
