@@ -40,7 +40,7 @@
 
 
 (def re-youtube
-  #"(?i)\Qhttps://www.youtube.com/embed/\E[a-zA-Z0-9_-]+")
+  #"(?i)\Qhttps://www.youtube.com/embed/\E.+")
 
 
 (defn to-abs-url
