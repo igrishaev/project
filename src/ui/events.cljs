@@ -158,18 +158,17 @@
    {:dispatch-n
     [[::api.call :messages
       {:feed_id feed_id :offset offset}
-      [::api.read-more.ok feed_id]]
+      [::api.read-more.ok]]
      [::loader true]]}))
 
 ;; todo separated event
 
 (rf/reg-event-fx
  ::api.read-more.ok
- (fn [{db :db} [_ feed_id entries]]
-   (let [is-empty (empty? entries)]
-     {:db (if-not is-empty
-            (update-in db [:entries feed_id] into entries)
-            db)
+ (fn [{db :db} [_ data]]
+   (let [{:keys [feed entries]} data
+         {feed_id :id} feed]
+     {:db (update-in db [:entries feed_id] into entries)
       :dispatch [::loader false]})))
 
 ;;

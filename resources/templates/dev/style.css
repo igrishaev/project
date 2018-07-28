@@ -279,6 +279,10 @@ h1, h2, h3, h4 {
     height: 480px;
 }
 
+iframe:not([src]) {
+    display: none;
+}
+
 .entry-actions {
     display: flex;
     flex-direction: row;
