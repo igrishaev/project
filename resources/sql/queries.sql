@@ -97,10 +97,10 @@ select
     row_to_json(s) as sub
 from
     feeds f
-    join subs s on s.feed_id = f.id
+    left join subs s
+      on s.feed_id = f.id and s.user_id = :user_id
 where
-    s.user_id = :user_id
-    and f.id = :feed_id
+    f.id = :feed_id
 
 -- :name get-full-entry :? :1
 select
@@ -118,14 +118,14 @@ select
   e.*,
   row_to_json(m) as message
 from
-  messages m, entries e
+  entries e
+left join messages m
+  on m.entry_id = e.id and m.user_id = :user_id
 where
   e.feed_id = :feed_id
-  and m.entry_id = e.id
-  and m.user_id = :user_id
 
 /*~ (when (:unread_only params) */
-  and not m.is_read
+  and (m.id is null or not m.is_read)
 /*~ ) ~*/
 
 /*~
