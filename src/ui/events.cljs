@@ -86,12 +86,11 @@
                [::api.subscribe.ok]]}))
 
 
-(rf/reg-event-fx
+(rf/reg-event-db
  ::api.subscribe.ok
- (fn [{db :db} [_ feed]]
+ (fn [db [_ feed]]
    (let [{feed-id :id} feed]
-     {:db (assoc-in db [:feeds feed-id] feed)
-      :dispatch [:nav/goto-feed feed-id]})))
+     (assoc-in db [:feeds feed-id] feed))))
 
 ;;
 ;; Subscriptions
@@ -121,12 +120,11 @@
                {:feed_id feed_id}
                [::api.unsubscribe.ok]]}))
 
-;; todo redirect somewhere!
 
 (rf/reg-event-db
  ::api.unsubscribe.ok
  (fn [db [_ {feed_id :feed_id}]]
-   (update db :feeds dissoc feed_id)))
+   (assoc-in db [:feeds feed_id :sub] nil)))
 
 ;;
 ;; Messages
@@ -144,7 +142,9 @@
  (fn [db [_ data]]
    (let [{:keys [feed entries]} data
          {feed_id :id} feed]
-     (assoc-in db [:entries feed_id] entries))))
+     (-> db
+         (assoc-in [:entries feed_id] entries)
+         (assoc-in [:feeds feed_id] feed)))))
 
 ;;
 ;; Read more

@@ -44,7 +44,7 @@
 
         groups (group-by
                 (fn [f] (-> f :sub :label))
-                feeds)]
+                (filter :sub feeds))]
 
     [:div
 
@@ -57,10 +57,7 @@
 
           (or label no-label)]]
 
-        (for [feed (reverse
-                    (sort-by
-                     (fn [f] (-> f :sub :message_count_unread))
-                     (get groups label)))
+        (for [feed (reverse (get groups label))
 
               :let [feed-id (-> feed :id)
                     unread (-> feed :sub :message_count_unread)]]
