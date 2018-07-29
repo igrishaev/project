@@ -9,7 +9,12 @@
 (rf/reg-sub
  ::feeds
  (fn [db [_]]
-   (-> db :feeds vals))) ;; todo sorting?
+   (-> db :feeds vals)))
+
+(rf/reg-sub
+ ::feed-dict
+ (fn [db [_]]
+   (:feeds db)))
 
 (rf/reg-sub
  ::loader
