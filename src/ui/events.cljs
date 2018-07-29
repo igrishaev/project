@@ -161,7 +161,6 @@
       [::api.read-more.ok]]
      [::loader true]]}))
 
-;; todo separated event
 
 (rf/reg-event-fx
  ::api.read-more.ok
