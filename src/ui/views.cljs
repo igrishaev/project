@@ -142,10 +142,21 @@
        "Refresh"]]
 
      [:div.menu-item
-      [:a {:href js-stub
-           :on-click
-           #(rf/dispatch [:ui.events/api.unsubscribe feed-id])}
-       "Unsubscribe"]]]))
+      {:style {:flex-grow 99}}]
+
+     [:div.menu-item
+
+      (if (:sub feed)
+
+        [:a {:href js-stub
+             :on-click
+             #(rf/dispatch [:ui.events/api.unsubscribe feed-id])}
+         "Unsubscribe"]
+
+        [:a {:href js-stub
+             :on-click
+             #(rf/dispatch [:ui.events/api.subscribe feed-id])}
+         "Subscribe"])]]))
 
 
 (defn feed-header
@@ -161,7 +172,7 @@
         :dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]]
 
      [:p.subinfo
-      (pluralize "subscriber" sub_count_total)
+      (pluralize "subscriber" (or sub_count_total 0))
 
       " // updated "
       (t/humanize date_updated_at)
