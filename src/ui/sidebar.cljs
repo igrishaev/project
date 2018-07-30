@@ -5,8 +5,7 @@
             [ui.nav :as nav]
             [ui.util :refer (format pluralize)]
             [ui.time :refer (humanize)]
-
-            [io.opml :as opml] ;; todo
+            [ui.opml :as opml]
 
             [re-frame.core :as rf]))
 

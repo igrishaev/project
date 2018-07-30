@@ -37,3 +37,6 @@ trash:
 	find . -name "*.DS_Store" -delete
 	find . -name "*.retry" -delete
 	find . -name "*.pyc" -delete
+
+deps-tree:
+	lein deps :tree

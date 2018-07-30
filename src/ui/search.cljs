@@ -85,10 +85,12 @@
           [:div.search-result-item-image
            [:img {:src (get-feed-image feed)}]]
           [:div.search-result-item-content
-           [:h2 {:dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]
+           [:h2
+            [:a
+             {:href (nav/feed {:id feed-id})
+              :dangerouslySetInnerHTML {:__html (get-feed-title feed)}}]]
            [:p.subtitle {:dangerouslySetInnerHTML {:__html subtitle}}]
 
-           ;; todo show actial data
            [:p.subtitle
             (pluralize "subscriber" sub_count_total)]
 

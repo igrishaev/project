@@ -1,4 +1,4 @@
-(ns io.opml
+(ns ui.opml
   (:require [clojure.string :as str]
 
             [reagent.core :as r]
