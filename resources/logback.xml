@@ -9,11 +9,19 @@
     </encoder>
   </appender>
 
+  <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+    <syslogHost>logs7.papertrailapp.com</syslogHost>
+    <port>34588</port>
+    <facility>LOCAL7</facility>
+    <suffixPattern>%-5level %logger %msg</suffixPattern>
+  </appender>
+
   <logger name="org.apache.http" level="error" additivity="false">
   </logger>
 
   <root level="info">
     <appender-ref ref="STDOUT"/>
+    <appender-ref ref="SYSLOG"/>
   </root>
 
 </configuration>
