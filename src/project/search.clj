@@ -15,8 +15,6 @@
            java.net.URL))
 
 
-;; todo page url, but not base!
-
 (defn ->url
   [term]
   (try
