@@ -56,7 +56,6 @@
                  ;; UI
                  [org.clojure/clojurescript  "1.9.946" :scope "provided"]
 
-                 ;; [ring-webjars "0.2.0"]
                  [re-frame "0.10.5"]
                  [day8.re-frame/http-fx "0.1.6" :exclusions [cheshire]]
                  [cljs-ajax "0.7.3" :exclusions [cheshire]]
@@ -66,11 +65,7 @@
                  [reagent-forms "0.5.42"]
 
                  [cljsjs/timeago "3.0.0-0"]
-                 [cljsjs/pluralize "3.0.0-0"]
-
-                 ;; [org.webjars/jquery "3.3.1-1"]
-                 ;; [org.webjars/bootstrap "4.1.0"]
-                 ]
+                 [cljsjs/pluralize "3.0.0-0"]]
 
   :main project.core
   :uberjar-name "project.jar"

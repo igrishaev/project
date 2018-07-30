@@ -3,22 +3,18 @@
             [project.env :refer [env]]
             [project.auth :as auth]
             [project.views :as views]
+            [project.beat :as beat]
 
             [compojure.core :refer [context defroutes GET POST]]
-
-            ;; [ring.middleware.webjars :refer [wrap-webjars]]
-
             [compojure.route :as route]
-            ;; [ring.middleware.content-type :refer [wrap-content-type]]
+
             [ring.middleware.resource :refer [wrap-resource]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.cookie :refer [cookie-store]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.json :refer
-             [wrap-json-response wrap-json-params]]
-
-            ))
+             [wrap-json-response wrap-json-params]]))
 
 (defroutes app-naked
 
@@ -40,6 +36,8 @@
     "/email" []
     (POST "/init" request (auth/email-init request))
     (GET "/back" request (auth/email-back request))))
+
+  (GET "/__cron/:api" request (beat/cron-handler request))
 
   ;; todo better 404
 
@@ -82,7 +80,4 @@
 
       ;;views/wrap-exception
 
-      (wrap-resource "public")
-      ;; (wrap-webjars "/webjars")
-
-      ))
+      (wrap-resource "public")))

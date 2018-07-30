@@ -10,31 +10,50 @@
 
 
 (def tasks
-  [{:label "Sync-Feeds-Batch"
-    :func tasks/sync-feeds-batch}
+  {:sync-feeds-batch
+   {:func tasks/sync-feeds-batch}
 
-   {:label "Sync-Users-Batch"
-    :func tasks/sync-users-batch}])
+   :sync-users-batch
+   {:func tasks/sync-users-batch}})
 
 
 (def beat-step (* 60 5))
 
 
+(defn run-task
+  [label]
+  (if-let [func (some-> tasks (get label) :func)]
+    (try
+      (log/infof "Starting task %s" label)
+      (func)
+      (catch Throwable e
+        (log/errorf
+         "Task error, %s, %s"
+         label (e/exc-msg e))))
+    (log/errorf "No such a task: %s" label)))
+
+
 (defn beat
   []
   (while true
-    (doseq [{:keys [label func]} tasks]
-
-      (future
-        (try
-          (log/infof "Starting task %s" label)
-          (func)
-          (catch Throwable e
-            (log/errorf
-             "Task error, %s, %s"
-             label (e/exc-msg e))))))
-
+    (doseq [label (keys tasks)]
+      (future (run-task label)))
     (sleep beat-step)))
+
+
+;;
+;; HTTP API
+;;
+
+(defn cron-handler
+  [request]
+  (if-let [api (some-> request :params :api keyword)]
+    (if (contains? tasks api)
+      (do
+        (future (run-task api))
+        {:status 200 :body "OK"})
+      {:status 404 :body "Task not found"})
+    {:status 400 :body "Bad task parameter"}))
 
 
 ;;
