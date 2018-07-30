@@ -242,6 +242,9 @@
 (defn view-feed
   [params]
 
+  (js/window.scroll
+   (clj->js {:top 0 :behavior "instant"}))
+
   (let [{:keys [feed-id]} params
         feed-id (int feed-id)]
 
