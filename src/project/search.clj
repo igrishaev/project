@@ -3,12 +3,12 @@
             [project.db :as db]
             [project.sync :as sync]
             [project.error :as e]
+            [project.http :as http]
 
             [clojure.set :as set]
             [clojure.string :as str]
 
-            [clojure.tools.logging :as log]
-            [clj-http.client :as client])
+            [clojure.tools.logging :as log])
 
   (:import org.jsoup.Jsoup
            java.io.InputStream
@@ -108,29 +108,16 @@
     [(:id feed)]))
 
 
-(def user-agent
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36")
-
-
-(def http-opt
-  {:as :stream
-   :throw-exceptions true
-   :headers {"User-Agent" user-agent}})
-
-
 (defn fetch-url
   [url]
   (try
-    (client/get url http-opt)
+    (http/get url {:as :stream})
     (catch Throwable e
       (let [data (ex-data e)
             {:keys [type status]} data]
         (log/errorf
          "HTTP error: %s, %s, %s, %s"
-         url
-         (e/exc-msg e)
-         status
-         type)))))
+         url (e/exc-msg e) status type)))))
 
 
 (defn process-url

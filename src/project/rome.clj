@@ -1,5 +1,5 @@
 (ns project.rome
-  (:require [clj-http.client :as client])
+  (:require [project.http :as http])
   (:import java.net.URL
 
            [com.rometools.rome.feed.synd
@@ -40,7 +40,7 @@
 
 (defn parse-url
   [url]
-  (let [resp (client/get url {:as :stream})]
+  (let [resp (http/get url {:as :stream})]
     (parse-http-resp resp)))
 
 

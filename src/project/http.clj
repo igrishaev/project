@@ -1,60 +1,45 @@
 (ns project.http
   (:require [clj-http.client :as client]
-            #_
-            [project.conf :refer [conf]]
             [clj-http.conn-mgr
              :refer [make-reusable-conn-manager
-                     shutdown-manager]]
-
-            #_
-            [mount.core :as mount]
-
-            )
+                     shutdown-manager]])
   (:refer-clojure :exclude [get]))
 
-(declare CM)
 
-(defn- on-start []
-  (let [params {}
+(def user-agent
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36")
 
-        #_{:timeout (:http-timeout conf)
-           :threads (:http-threads conf)}]
 
-    (make-reusable-conn-manager params)))
+(def conn-manager
+  (make-reusable-conn-manager
+   {:timeout 5
+    :threads 4
+    :insecure? true}))
 
-(defn- on-stop []
-  (shutdown-manager CM))
 
-;; todo refactor everything
+(def opt-default
+  {:throw-exceptions true
+   :connection-manager conn-manager
+   :headers {"User-Agent" user-agent}})
 
-(defonce CM nil)
 
-#_
-(mount/defstate CM
-  :start (on-start)
-  :stop (on-stop))
+(defn deep-merge
+  [& vals]
+  (letfn [(map-or-nil? [x]
+            (or (map? x) (nil? x)))]
+    (if (every? map-or-nil? vals)
+      (apply merge-with deep-merge vals)
+      (if (every? sequential? vals)
+        (apply concat vals)
+        (last vals)))))
 
-#_
-(defn start! []
-  (mount/start #'CM))
 
-#_
-(defn stop! []
-  (mount/stop #'CM))
-
-;; todo exception
-
-(defn request [method url & [params]]
+(defn request [method url & [opt]]
   (client/request
-   (-> params
-       (assoc :method method
-              :connection-manager CM
-              :throw-exceptions true
-              :url url)
-       #_
-       (assoc-in [:headers "User-Agent"]
-                 (:http-user-agent conf)))))
+   (deep-merge opt opt-default
+               {:method method :url url})))
+
 
 (def get (partial request :get))
 
-(def head (partial request :head))
+(def post (partial request :post))
