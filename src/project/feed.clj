@@ -49,8 +49,8 @@
     {:url_image url_image
      :language language
 
-     :title (san/san-bare title)
-     :subtitle (san/san-bare description)
+     :title (san/san-none title)
+     :subtitle (san/san-none description)
 
      :link link
 
@@ -119,9 +119,9 @@
 
      :link link
      :author (clean-str author)
-     :title (san/san-bare title)
+     :title (san/san-none title)
 
-     :summary (san/san-html page-url content)
+     :summary (san/san-html content page-url)
 
      :enclosure_url enclosure_url
      :enclosure_mime enclosure_mime

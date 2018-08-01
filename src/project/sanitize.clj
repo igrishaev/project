@@ -1,6 +1,8 @@
 (ns project.sanitize
-  (:require [autoclave.core :refer (html-policy html-sanitize)])
-  (:import java.net.URL))
+
+  (:import org.jsoup.Jsoup
+           (org.jsoup.safety Whitelist Cleaner)
+           org.jsoup.nodes.Entities$EscapeMode))
 
 
 (def tags-allowed
@@ -39,59 +41,82 @@
    ])
 
 
+(defn array
+  [& vals]
+  (into-array String vals))
+
+
+(def wl-html
+  (doto (new Whitelist)
+    (.addTags (apply array tags-allowed))
+
+    (.addAttributes "img" (array "src"))
+    (.addAttributes "iframe" (array "src" "allowfullscreen"))
+    (.addAttributes "a" (array "href"))
+
+    (.addProtocols "a" "href" (array "ftp" "http" "https" "mailto"))
+    (.addProtocols "img" "src" (array "http" "https"))
+    (.addProtocols "iframe" "src" (array "http" "https"))))
+
+
+(def cl-html
+  (new Cleaner wl-html))
+
+
 (def re-youtube
   #"(?i)\Qhttps://www.youtube.com/embed/\E.+")
 
-
-(defn to-abs-url
-  [page-url]
-  (let [url (URL. page-url)]
-    (fn [element-name attr-name value]
-      (str (URL. url value)))))
+(def re-vk
+  #"(?i)\Qhttps://vk.com/video_ext.php\E.+")
 
 
-(defn make-html-policy
-  [page-url]
+(defn process-iframes
+  [soup]
+  (doseq [el (.select soup "iframe")]
+    (let [src (.absUrl el "src")]
+      (if (or (re-matches re-youtube src)
+              (re-matches re-vk src))
+        (.text el "")
+        (.remove el)))))
 
-  (html-policy
-   :allow-elements tags-allowed
 
-   :allow-attributes
-   ["href"
-    :matching [(to-abs-url page-url)]
-    :on-elements ["a"]]
-
-   :allow-attributes
-   ["src"
-    :matching [(to-abs-url page-url)]
-    :on-elements ["img"]]
-
-   :allow-attributes
-   ["src"
-    :matching [re-youtube]
-    :on-elements ["iframe"]]
-
-   :allow-standard-url-protocols))
-
+(def xhtml Entities$EscapeMode/xhtml)
 
 (defn san-html
-  [page-url html]
-  (html-sanitize
-   (make-html-policy page-url)
-   html))
+  [html page-url]
+  (let [src (Jsoup/parse html page-url)]
+    (process-iframes src)
+    (let [out (.clean cl-html src)]
+      (.. out outputSettings (escapeMode xhtml))
+      (.. out body html))))
 
 
-(def san-bare (partial html-sanitize))
+(def wl-none (Whitelist/none))
+
+(defn san-none
+  [html]
+  (Jsoup/clean html wl-none))
 
 
 (def sample
-  "<a href=\"http://github.com/\">GitHub</a>
+  "
+  <title>Ivan Grishaev's blog  </title>
+  <a href=\"http://github.com/?foo=42&test=''123-42'\">GitHub</a>
+
+  <a href='xxx/yyy/test.img'>GitHub</a>
 
 <iframe src='https://www.youtube.com/embed/8NN2PFjs0A0' width='32'>fuck</iframe>
 
+  <script>script</script>
+
+  <p>paragraph</p>
+
   <h1 >sdfsdfs</h1>
 
-  <img src='/images/test.jpg' width='sdfsdf'>
+<iframe src='https://vk.com/video_ext.php?oid=-30493961&id=456241043&hash=a3148de1cd04c77b' width='640' height='360' frameborder='0' allowfullscreen></iframe>
 
+  <iframe src='/test' allowfullscreen></iframe>
+
+  <img src='/images/test.jpg' width='42'>
 
 ")

@@ -33,9 +33,6 @@
                  [oauth-clj "0.1.16"]
                  [cheshire "5.6.3"]
 
-                 ;; parsing
-                 [hickory "0.7.1"]
-
                  [com.rometools/rome "1.11.0"]
 
                  ;; html
@@ -46,8 +43,7 @@
                  [com.taoensso/carmine "2.18.1"]
 
                  ;; HTML sanitaze
-                 [alxlit/autoclave "0.2.0"]
-                 [com.googlecode.owasp-java-html-sanitizer/owasp-java-html-sanitizer "20180219.1"]
+                 [org.jsoup/jsoup "1.11.3"]
 
                  ;; email
                  [com.draines/postal "2.0.2"]
@@ -68,7 +64,9 @@
                  [cljsjs/timeago "3.0.0-0"]
                  [cljsjs/pluralize "3.0.0-0"]
 
-                 [com.google.guava/guava "25.1-jre"]]
+                 ;; deps issue
+                 ;; [com.google.guava/guava "25.1-jre"]
+                 ]
 
   :main project.core
   :uberjar-name "project.jar"
