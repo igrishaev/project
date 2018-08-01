@@ -1,0 +1,14 @@
+
+[Unit]
+Description={{ service_name }} application
+After=network.target
+
+[Service]
+User = {{ user }}
+Type = simple
+Restart = always
+WorkingDirectory={{ remote_dir }}
+ExecStart=/usr/bin/java -server -da -dsa -jar {{ service_name }}.jar
+
+[Install]
+WantedBy = multi-user.target

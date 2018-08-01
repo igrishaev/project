@@ -1,0 +1,39 @@
+---
+- hosts: database
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Install Postgres
+      apt:
+        name: postgresql
+
+    - name: Prepare PG user
+      become: true
+      become_method: su
+      become_user: postgres
+      shell: psql -c "CREATE USER {{ db_user }} WITH PASSWORD '{{ db_pass }}';"
+
+    - name: Prepare PG database
+      become: true
+      become_method: su
+      become_user: postgres
+      shell: psql -c "CREATE DATABASE {{ db_name }} WITH OWNER '{{ db_user }}';"
+
+    - name: Postgres Host Auth
+      lineinfile:
+        path: /etc/postgresql/10/main/pg_hba.conf
+        line: "host {{ db_name }} {{ db_user }} 0.0.0.0/0 md5"
+        insertbefore: BOF
+        backup: yes
+
+    - name: Postgres Local Auth
+      lineinfile:
+        path: /etc/postgresql/10/main/pg_hba.conf
+        line: "local {{ db_name }} {{ db_user }} md5"
+        insertbefore: BOF
+        backup: yes
+
+    - name: Restart Postgres
+      shell: "systemctl restart postgresql"

@@ -1,0 +1,38 @@
+---
+- hosts: all
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Add a user
+      user:
+        name: "{{ user }}"
+        shell: /bin/bash
+        createhome: true
+
+    - name: Add SSH support
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "{{ lookup('file', ssh_key_path) }}"
+
+    - name: Update packages
+      apt:
+        update_cache: true
+
+    - name: Install Common
+      apt:
+        name: software-properties-common
+
+    - name: Install IP-tables
+      apt:
+        name: iptables-persistent
+
+    - name: Install MC
+      apt:
+        name: mc
+
+    - name: Install cURL
+      apt:
+        name: curl

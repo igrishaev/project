@@ -1,0 +1,71 @@
+---
+# https://serverfault.com/questions/715659/
+
+- hosts: all
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - iptables:
+        flush: true
+
+    - iptables:
+        chain: INPUT
+        source: "{{ item }}"
+        jump: ACCEPT
+      with_items: "{{ groups['all'] }}"
+
+    - iptables:
+        chain: INPUT
+        in_interface: lo
+        jump: ACCEPT
+
+    - iptables:
+        chain: INPUT
+        destination: 127.0.0.0/8
+        jump: REJECT
+
+    - iptables:
+        chain: INPUT
+        ctstate: ESTABLISHED,RELATED
+        jump: ACCEPT
+
+    - iptables:
+        chain: OUTPUT
+        jump: ACCEPT
+
+    - iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: 80
+        jump: ACCEPT
+
+    - iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: 443
+        jump: ACCEPT
+
+    - iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: 22
+        ctstate: NEW
+        jump: ACCEPT
+
+    - iptables:
+        chain: INPUT
+        protocol: icmp
+        icmp_type: echo-request
+        jump: ACCEPT
+
+    - iptables:
+        chain: INPUT
+        jump: DROP
+
+    - iptables:
+        chain: FORWARD
+        jump: DROP
+
+    - shell: netfilter-persistent save

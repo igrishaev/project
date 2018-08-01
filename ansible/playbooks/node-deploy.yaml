@@ -1,0 +1,22 @@
+---
+- hosts: node
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Upload jar
+      copy:
+        src: "{{ local_dir }}/target/qrfd.jar"
+        dest: "{{ remote_dir }}/"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+
+    - name: Upload ENV
+      copy:
+        src: "{{ local_dir }}/config.prod.edn"
+        dest: "{{ remote_dir }}/config.edn"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+
+    - shell: systemctl restart "{{ service_name }}"

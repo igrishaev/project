@@ -1,0 +1,29 @@
+---
+- hosts: nginx
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+
+    - name: Add Certbot repo
+      apt_repository:
+        repo: 'ppa:certbot/certbot'
+        state: present
+
+    - name: Install Certbot
+      apt:
+        update_cache: true
+        name: python-certbot-nginx
+
+    - name: Nginx config
+      template:
+        src: templates/nginx.conf.jinja2
+        dest: /etc/nginx/conf.d/outtake.conf
+        backup: yes
+
+    - name: Restart Nginx
+      shell: systemctl restart nginx

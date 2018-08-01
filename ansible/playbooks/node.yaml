@@ -1,0 +1,37 @@
+---
+- hosts: node
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Install Java 10 PPA
+      apt_repository:
+        repo: 'ppa:linuxuprising/java'
+        state: present
+
+    - name: Accept Java License
+      shell: "echo oracle-java10-installer shared/accepted-oracle-licence-v1-1 boolean true | /usr/bin/debconf-set-selections"
+
+    - name: Install Java 10
+      apt:
+        update_cache: true
+        name: oracle-java10-installer
+
+    - name: Prepare the app dir
+      file:
+        path: "{{ remote_dir }}"
+        state: directory
+        owner: "{{ user }}"
+        group: "{{ user }}"
+
+    - name: the app config
+      template:
+        src: templates/outtake.service.jinja2
+        dest: "{{ systemd_dir }}/outtake.service"
+
+    - name: Reload Systemd
+      shell: systemctl enable "{{ service_name }}"
+
+    - name: Auto start
+      shell: systemctl daemon-reload
