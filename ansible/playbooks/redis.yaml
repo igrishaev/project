@@ -1,0 +1,10 @@
+---
+- hosts: redis
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Install Redis
+      apt:
+        name: redis-server
