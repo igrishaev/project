@@ -11,8 +11,8 @@ pom.xml.asc
 .hg/
 profiles.clj
 .DS_Store
-config.edn
 *.pyc
 figwheel_server.log
 resources/public/assets/
 resources/public/ui/
+config.prod.edn

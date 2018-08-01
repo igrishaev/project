@@ -1,0 +1,30 @@
+{
+ :auth-google-back-url "http://127.0.0.1:8888/auth/google/back"
+ :auth-google-client-id "....................."
+ :auth-google-client-secret "...................."
+ :cookie-http-only false
+ :cookie-max-age 31536000
+ :cookie-secure false
+ :cookie-session-key "1111222233334444"
+ :cookie-session-name "session"
+ :crypt-key "................"
+ :db-database "project"
+ :db-host "127.0.0.1"
+ :db-password "project"
+ :db-port 5432
+ :db-user "project"
+ :email-from "no-reply@project.io"
+ :email-login-expire 600
+ :google-analytics "UA-xxxxxxxxx-x"
+ :google-api-key "......................"
+ :server-base-url "http://127.0.0.1:8888"
+ :server-port 8888
+ :smtp-host "127.0.0.1"
+ :smtp-pass ""
+ :smtp-port 1025
+ :smtp-ssl false
+ :smtp-tls false
+ :smtp-user ""
+ :tpl-cache-on false
+ :ui-entry-page-limit 20
+}
