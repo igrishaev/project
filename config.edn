@@ -14,7 +14,7 @@
  :db-port 5432
  :db-user "project"
  :email-from "no-reply@project.io"
- :email-login-expire 600
+ :email-login-expire 6000
  :google-analytics "UA-xxxxxxxxx-x"
  :google-api-key "......................"
  :server-base-url "http://127.0.0.1:8888"
@@ -26,5 +26,5 @@
  :smtp-tls false
  :smtp-user ""
  :tpl-cache-on false
- :ui-entry-page-limit 20
+ :ui-entry-page-limit 10
 }
