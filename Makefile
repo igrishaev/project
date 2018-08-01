@@ -2,6 +2,19 @@
 project := project
 resources := $(CURDIR)/resources
 
+.PHONY: clean
+clean:
+	lein clean
+
+uberjar-build:
+	lein uberjar
+
+uberjar-run:
+	java -jar ./target/$(project).jar
+
+
+build: clean cljsbuild-prod uberjar-build
+
 db-create-user:
 	createuser -s -P $(project)
 
@@ -25,6 +38,7 @@ mail-stub:
 	mailhog
 
 cljsbuild-prod:
+	rm -rf $(resources)/public/ui
 	lein cljsbuild once prod
 
 cljsbuild-dev:
