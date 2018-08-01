@@ -64,18 +64,23 @@
 
 
 (def re-youtube
-  #"(?i)\Qhttps://www.youtube.com/embed/\E.+")
+  #"(?i)youtube.com/embed")
 
 (def re-vk
-  #"(?i)\Qhttps://vk.com/video_ext.php\E.+")
+  #"(?i)vk.com/video_ext.php")
+
+(def re-coube
+  #"(?i)coub.com/embed")
 
 
 (defn process-iframes
   [soup]
   (doseq [el (.select soup "iframe")]
     (let [src (.absUrl el "src")]
-      (if (or (re-matches re-youtube src)
-              (re-matches re-vk src))
+      (prn src)
+      (if (or (re-find re-youtube src)
+              (re-find re-vk src)
+              (re-find re-coube src))
         (.text el "")
         (.remove el)))))
 
@@ -118,5 +123,8 @@
   <iframe src='/test' allowfullscreen></iframe>
 
   <img src='/images/test.jpg' width='42'>
+
+<iframe src='//coub.com/embed/5oy44?muted=false&autostart=false&originalSize=false&startWithHD=false' allowfullscreen frameborder='0' width='626' height='480' allow='autoplay'></iframe>
+
 
 ")
