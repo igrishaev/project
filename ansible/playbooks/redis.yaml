@@ -8,3 +8,13 @@
     - name: Install Redis
       apt:
         name: redis-server
+
+    - name: config bind all
+      replace:
+        path: /etc/redis/redis.conf
+        regexp: "bind 127.0.0.1"
+        replace: "bind 0.0.0.0"
+        backup: yes
+
+    - name: Restart Redis
+      shell: "systemctl restart redis"
