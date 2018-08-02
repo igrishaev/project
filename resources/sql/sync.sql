@@ -105,6 +105,9 @@ where
     and s.feed_id = :feed_id
 /*~ ) ~*/
     and m.id is null
+on conflict
+  (user_id, entry_id)
+do nothing
 
 
 -- :name sync-subs-counters :! :n
