@@ -6,9 +6,9 @@
             [clojure.tools.logging :as log]))
 
 
-(def feeds-limit 10)
+(def feeds-limit 1000)
 
-(def users-limit 10)
+(def users-limit 1000)
 
 ;;
 ;; Tasks

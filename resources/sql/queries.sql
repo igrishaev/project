@@ -119,7 +119,7 @@ select
   row_to_json(m) as message
 from
   entries e
-left join messages m
+join messages m
   on m.entry_id = e.id and m.user_id = :user_id
 where
   e.feed_id = :feed_id
