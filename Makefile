@@ -62,3 +62,6 @@ ansible-common:
 
 ansible-deploy:
 	ansible-playbook -i ansible/inventory ansible/playbooks/node-deploy.yaml
+
+ansible-node-stop:
+	ansible-playbook -i ansible/inventory ansible/playbooks/node-stop.yaml

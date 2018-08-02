@@ -1,0 +1,9 @@
+---
+- hosts: node
+  remote_user: root
+  become: true
+
+  tasks:
+
+    - name: Restart the app
+      shell: systemctl stop "{{ service_name }}"
