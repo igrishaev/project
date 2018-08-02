@@ -125,7 +125,7 @@ where
   e.feed_id = :feed_id
 
 /*~ (when (:unread_only params) */
-  and (m.id is null or not m.is_read)
+  and not m.is_read
 /*~ ) ~*/
 
 /*~
