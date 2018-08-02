@@ -18,3 +18,4 @@ resources/public/ui/
 config.prod.edn
 vars.yaml
 hosts
+*.retry

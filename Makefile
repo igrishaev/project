@@ -54,3 +54,6 @@ trash:
 
 deps-tree:
 	lein deps :tree
+
+ansible-common:
+	ansible-playbook -i ansible/inventory ansible/playbooks/common.yaml
