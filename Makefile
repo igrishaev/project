@@ -66,5 +66,8 @@ ansible-deploy:
 ansible-node-stop:
 	ansible-playbook -i ansible/inventory ansible/playbooks/node-stop.yaml
 
+ansible-node-restart:
+	ansible-playbook -i ansible/inventory ansible/playbooks/node-restart.yaml
+
 ansible-cron:
 	ansible-playbook -i ansible/inventory ansible/playbooks/web-cron.yaml

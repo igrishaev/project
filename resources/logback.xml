@@ -16,10 +16,25 @@
     <suffixPattern>%-5level %logger %msg</suffixPattern>
   </appender>
 
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/outtake.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/outtake.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%date{ISO8601} %-5level %logger{36} - %msg %n</pattern>
+    </encoder>
+  </appender>
+
   <logger name="org.apache.http" level="error" additivity="false">
   </logger>
 
   <root level="info">
+    <appender-ref ref="FILE"/>
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="SYSLOG"/>
   </root>

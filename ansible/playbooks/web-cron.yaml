@@ -15,7 +15,7 @@
 
     - name: Update users
       cron:
-        name: Update feeds
+        name: Update users
         user: "{{ user }}"
         hour: "*/1"
         minute: "30"
