@@ -89,18 +89,21 @@
 
 (defn san-html
   [html page-url]
-  (let [src (Jsoup/parse html page-url)]
-    (process-iframes src)
-    (let [out (.clean cl-html src)]
-      (.. out outputSettings (escapeMode xhtml))
-      (.. out body html))))
+  (when html
+    (let [page-url (or page-url "")
+          src (Jsoup/parse html page-url)]
+      (process-iframes src)
+      (let [out (.clean cl-html src)]
+        (.. out outputSettings (escapeMode xhtml))
+        (.. out body html)))))
 
 
 (def wl-none (Whitelist/none))
 
 (defn san-none
   [html]
-  (Jsoup/clean html wl-none))
+  (when html
+    (Jsoup/clean html wl-none)))
 
 
 (def sample
