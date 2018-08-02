@@ -44,3 +44,9 @@
       become_method: su
       become_user: postgres
       shell: psql -c "CREATE DATABASE {{ db_name }} WITH OWNER '{{ db_user }}';"
+
+    - name: Extension TRGM
+      become: true
+      become_method: su
+      become_user: postgres
+      shell: psql -d "{{ db_name }}" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
