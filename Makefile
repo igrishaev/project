@@ -2,16 +2,18 @@
 project := project
 resources := $(CURDIR)/resources
 
+all: build
+
 .PHONY: clean
 clean:
 	lein clean
 
 uberjar-build:
+	rm -rf target
 	lein uberjar
 
 uberjar-run:
 	java -jar ./target/$(project).jar
-
 
 build: clean cljsbuild-prod uberjar-build
 

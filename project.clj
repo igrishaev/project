@@ -1,4 +1,6 @@
-(defproject project "0.1.0-SNAPSHOT"
+(def VERSION (.trim (slurp "VERSION")))
+
+(defproject project VERSION
   :description "project"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -10,7 +12,7 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
 
-                 ;logging
+                                        ;logging
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [org.clojure/tools.logging "0.4.0"]
 
