@@ -1,25 +1,25 @@
 (def VERSION (.trim (slurp "VERSION")))
 
-(defproject project VERSION
+(defproject outtake VERSION
   :description "project"
-  :url "http://example.com/FIXME"
+  :url "https://outtake.io/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :plugins [[migratus-lein "0.5.7"]
+  :plugins [[migratus-lein "0.5.9"]
             [lein-figwheel "0.5.15"]
             [lein-cljsbuild "1.1.7"]]
 
   :dependencies [[org.clojure/clojure "1.9.0"]
 
-                                        ;logging
+                 ;; logging
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [org.clojure/tools.logging "0.4.0"]
 
                  ;; db
                  [org.clojure/java.jdbc "0.6.1"]
                  [org.postgresql/postgresql "42.1.3"]
-                 [migratus "0.9.8"]
+                 [migratus "1.0.8"]
                  [conman "0.8.1"]
 
                  ;; http
@@ -71,7 +71,7 @@
                  ]
 
   :main project.core
-  :uberjar-name "project.jar"
+  :uberjar-name "outtake.jar"
 
   :migratus {:store :database
              :db ~(let [env (-> "config.edn" slurp read-string)]

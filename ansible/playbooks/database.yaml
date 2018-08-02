@@ -9,18 +9,6 @@
       apt:
         name: postgresql
 
-    - name: Prepare PG user
-      become: true
-      become_method: su
-      become_user: postgres
-      shell: psql -c "CREATE USER {{ db_user }} WITH PASSWORD '{{ db_pass }}';"
-
-    - name: Prepare PG database
-      become: true
-      become_method: su
-      become_user: postgres
-      shell: psql -c "CREATE DATABASE {{ db_name }} WITH OWNER '{{ db_user }}';"
-
     - name: Postgres Host Auth
       lineinfile:
         path: /etc/postgresql/10/main/pg_hba.conf
@@ -35,5 +23,24 @@
         insertbefore: BOF
         backup: yes
 
+    - name: Postgres listen all addresses
+      lineinfile:
+        path: /etc/postgresql/10/main/postgresql.conf
+        line: "listen_addresses = '*'"
+        insertbefore: BOF
+        backup: yes
+
     - name: Restart Postgres
       shell: "systemctl restart postgresql"
+
+    - name: Prepare PG user
+      become: true
+      become_method: su
+      become_user: postgres
+      shell: psql -c "CREATE USER {{ db_user }} WITH PASSWORD '{{ db_pass }}';"
+
+    - name: Prepare PG database
+      become: true
+      become_method: su
+      become_user: postgres
+      shell: psql -c "CREATE DATABASE {{ db_name }} WITH OWNER '{{ db_user }}';"

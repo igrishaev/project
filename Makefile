@@ -59,3 +59,6 @@ deps-tree:
 
 ansible-common:
 	ansible-playbook -i ansible/inventory ansible/playbooks/common.yaml
+
+ansible-deploy:
+	ansible-playbook -i ansible/inventory ansible/playbooks/node-deploy.yaml
