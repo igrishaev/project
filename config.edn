@@ -17,6 +17,10 @@
  :email-login-expire 6000
  :google-analytics "UA-xxxxxxxxx-x"
  :google-api-key "......................"
+ :redis-host "127.0.0.1"
+ :redis-password nil
+ :redis-port 6379
+ :redis-user nil
  :server-base-url "http://127.0.0.1:8888"
  :server-port 8888
  :smtp-host "127.0.0.1"

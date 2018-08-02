@@ -1,5 +1,6 @@
 (ns project.queue
   (:require [project.error :as e]
+            [project.env :refer [env]]
 
             [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as car-mq]
@@ -21,10 +22,10 @@
 
 
 (def conn {:pool {}
-           :spec {:host "127.0.0.1"
-                  :port 6379
-                  :user nil
-                  :password nil}})
+           :spec {:host (:redis-host env)
+                  :port (:redis-port env)
+                  :user (:redis-user env)
+                  :password (:redis-password env)}})
 
 
 (def queue "queue")

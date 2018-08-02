@@ -7,12 +7,12 @@
 
     - name: Upload jar
       copy:
-        src: "{{ local_dir }}/target/qrfd.jar"
+        src: "{{ local_dir }}/target/{{ service_name }}.jar"
         dest: "{{ remote_dir }}/"
         owner: "{{ user }}"
         group: "{{ user }}"
 
-    - name: Upload ENV
+    - name: Upload config
       copy:
         src: "{{ local_dir }}/config.prod.edn"
         dest: "{{ remote_dir }}/config.edn"
