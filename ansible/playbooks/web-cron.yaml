@@ -8,6 +8,7 @@
     - name: Update feeds
       cron:
         name: Update feeds
+        user: "{{ user }}"
         hour: "*/1"
         minute: "0"
         job: curl "https://{{ domain }}/__cron/sync-feeds-batch"
@@ -15,6 +16,7 @@
     - name: Update users
       cron:
         name: Update feeds
+        user: "{{ user }}"
         hour: "*/1"
         minute: "30"
         job: curl "https://{{ domain }}/__cron/sync-users-batch"

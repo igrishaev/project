@@ -65,3 +65,6 @@ ansible-deploy:
 
 ansible-node-stop:
 	ansible-playbook -i ansible/inventory ansible/playbooks/node-stop.yaml
+
+ansible-cron:
+	ansible-playbook -i ansible/inventory ansible/playbooks/web-cron.yaml

@@ -109,7 +109,6 @@ create table subs (
     title       text,
 
     layout      text,
-    ordering    text,
     auto_read   boolean not null default true,
     unread_only boolean not null default true,
 
