@@ -7,7 +7,6 @@
 
             [clojure.tools.logging :as log]))
 
-
 ;;
 ;; Actions
 ;;
@@ -16,12 +15,12 @@
 (defmulti action
   (fn [data]
     (when (map? data)
-      (:action data))))
+      (-> data :action keyword))))
 
 
 (defmethod action :default
   [data]
-  (log/errorf "MQ warn: unknown data, %s" data))
+  (log/errorf "Queue WARNING: unknown data, %s" data))
 
 
 ;;
@@ -60,14 +59,29 @@
    :message-deduplication-id (-> data hash str)})
 
 
+(defn purge!
+  []
+  (sqs/purge-queue aws-cred :queue-url queue-url))
+
+
+(def msg-limit 10)
+
+(def chunk-messages
+  (partial partition msg-limit msg-limit []))
+
+
 (defn send-messages
-  [group data-list]
-  (log/infof "Sending messages, group: %s, data: %s" group data-list)
-  (let [res (sqs/send-message-batch
-             aws-cred
-             :queue-url queue-url
-             :entries (mapv (partial ->message group) data-list))]
-    (log/infof "Sent response: %s" res)))
+  [group message-list]
+  (doseq [messages (chunk-messages message-list)]
+
+    (log/infof "Sending messages, group: %s, data: %s" group messages)
+
+    (let [res (sqs/send-message-batch
+               aws-cred
+               :queue-url queue-url
+               :entries (mapv (partial ->message group) messages))]
+
+      (log/infof "Sent response: %s" res))))
 
 
 ;;
@@ -75,11 +89,24 @@
 ;;
 
 
-(def beat-sleep-time 30)
+(def beat-sleep-time 10)
 
 (def beat-wait-time 20)
 
 (def beat-message-count 10)
+
+
+(defn process-message
+  [{:keys [message-id body]}]
+  (try
+    (log/infof "Processing message, id: %s, body: %s"
+               message-id body)
+
+    (action (json/parse-string body true))
+
+    (catch Throwable e
+      (log/infof "Message failed, error: %s, data: %s"
+                 (e/exc-msg e) body))))
 
 
 (defn worker
@@ -100,18 +127,9 @@
 
         (log/infof "Worker beat, %s messages received" (count messages))
 
-        (doseq [{:keys [message-id body]} messages]
-
+        (doseq [message messages]
           (future
-            (try
-              (log/infof "Processing message, id: %s, body:  %s "
-                         message-id body)
-
-              (action (json/parse-string body true))
-
-              (catch Throwable e
-                (log/infof "Message failed, error: %s, data: %s"
-                           (e/exc-msg e) body))))))
+            (process-message message))))
 
       (catch Throwable e
         (log/errorf "Worker beat error: %s" (e/exc-msg e)))
@@ -151,7 +169,7 @@
     (let [res (sqs/create-queue
                aws-cred
                :queue-name queue-name
-               :attributes {:fifo-queue true})
+               :attributes {:FifoQueue true})
           {url :queue-url} res]
       (set-queue-url! url))))
 

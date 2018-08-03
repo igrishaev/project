@@ -7,7 +7,7 @@
   (:gen-class))
 
 
-(defn init []
+(defn start []
   (env/init)
   (db/init)
   (tpl/init)
@@ -15,6 +15,11 @@
   (server/init))
 
 
+(defn stop []
+  (server/stop)
+  (queue/stop))
+
+
 (defn -main
   [& args]
-  (init))
+  (start))
