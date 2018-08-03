@@ -2,6 +2,10 @@
  :auth-google-back-url "http://127.0.0.1:8888/auth/google/back"
  :auth-google-client-id "....................."
  :auth-google-client-secret "...................."
+ :aws-access-key "............."
+ :aws-queue-name "test.fifo"
+ :aws-region "eu-west-1"
+ :aws-secret-key "............."
  :cookie-http-only false
  :cookie-max-age 31536000
  :cookie-secure false

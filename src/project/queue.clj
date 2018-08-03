@@ -2,12 +2,15 @@
   (:require [project.error :as e]
             [project.env :refer [env]]
 
-            [taoensso.carmine :as car :refer (wcar)]
-            [taoensso.carmine.message-queue :as car-mq]
+            [amazonica.aws.sqs :as sqs]
+            [cheshire.core :as json]
 
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]))
 
-  (:refer-clojure :exclude [send]))
+
+;;
+;; Actions
+;;
 
 
 (defmulti action
@@ -21,61 +24,139 @@
   (log/errorf "MQ warn: unknown data, %s" data))
 
 
-(def conn {:pool {}
-           :spec {:host (:redis-host env)
-                  :port (:redis-port env)
-                  :user (:redis-user env)
-                  :password (:redis-password env)}})
+;;
+;; Wrappers
+;;
 
 
-(def queue "queue")
+(def aws-cred
+  {:access-key (:aws-access-key env)
+   :secret-key (:aws-secret-key env)
+   :endpoint (:aws-region env)})
 
 
-(defn worker-handler
-  [{:keys [message mid attempt]}]
-
-  (try
-    (action message)
-    (log/infof "MQ: mid %s processed, attempt: %s"
-               mid attempt)
-    {:status :success}
-
-    (catch Throwable e
-      (log/errorf "MQ error: %s, mid: %s, message: %s, attempt: %s"
-                  (e/exc-msg e) mid message attempt)
-
-      {:status :error :throwable e})))
+(def queue-name
+  (:aws-queue-name env))
 
 
-(defonce worker
-  (car-mq/worker
-   conn queue
-   {:auto-start false
-    :handler worker-handler}))
+(def queue-url)
 
 
-(defmacro wcar*
-  [& body]
-  `(car/wcar conn ~@body))
+(defn set-queue-url!
+  [url]
+  (log/infof "Setting queue URL to %s" url)
+  (alter-var-root #'queue-url (constantly url)))
 
 
-(defn send
-  [data]
-  (wcar* (car-mq/enqueue queue data)))
+(defn uuid []
+  (str (java.util.UUID/randomUUID)))
+
+
+(defn ->message
+  [group data]
+  {:id (uuid)
+   :message-body (json/generate-string data)
+   :message-group-id group
+   :message-deduplication-id (-> data hash str)})
+
+
+(defn send-messages
+  [group data-list]
+  (log/infof "Sending messages, group: %s, data: %s" group data-list)
+  (let [res (sqs/send-message-batch
+             aws-cred
+             :queue-url queue-url
+             :entries (mapv (partial ->message group) data-list))]
+    (log/infof "Sent response: %s" res)))
+
+
+;;
+;; Worker
+;;
+
+
+(def beat-sleep-time 30)
+
+(def beat-wait-time 20)
+
+(def beat-message-count 10)
+
+
+(defn worker
+  []
+
+  (while true
+
+    (try
+
+      (let [res (sqs/receive-message
+                 aws-cred
+                 :queue-url queue-url
+                 :wait-time-seconds beat-wait-time
+                 :max-number-of-messages beat-message-count
+                 :delete true)
+
+            {:keys [messages]} res]
+
+        (log/infof "Worker beat, %s messages received" (count messages))
+
+        (doseq [{:keys [message-id body]} messages]
+
+          (future
+            (try
+              (log/infof "Processing message, id: %s, body:  %s "
+                         message-id body)
+
+              (action (json/parse-string body true))
+
+              (catch Throwable e
+                (log/infof "Message failed, error: %s, data: %s"
+                           (e/exc-msg e) body))))))
+
+      (catch Throwable e
+        (log/errorf "Worker beat error: %s" (e/exc-msg e)))
+
+      (finally
+        (Thread/sleep (* 1000 beat-sleep-time))))))
+
+
+(defonce __state (atom nil))
+
+(def set-state! (partial reset! __state))
 
 
 (defn start
   []
-  (car-mq/start worker))
+  (set-state!
+   (future
+     (worker))))
+
 
 (defn stop
   []
-  (car-mq/stop worker))
+  (when-let [f @__state]
+    (while (not (realized? f))
+      (future-cancel f))
+    (set-state! nil)))
 
 ;;
 ;; Init
 ;;
 
+
+(defn init-queue
+  []
+  (if-let [url (sqs/find-queue aws-cred queue-name)]
+    (set-queue-url! url)
+    (let [res (sqs/create-queue
+               aws-cred
+               :queue-name queue-name
+               :attributes {:fifo-queue true})
+          {url :queue-url} res]
+      (set-queue-url! url))))
+
+
 (defn init
   []
+  (init-queue)
   (start))

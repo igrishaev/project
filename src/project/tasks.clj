@@ -10,6 +10,8 @@
 
 (def users-limit 1000)
 
+(def group "outtake.tasks")
+
 ;;
 ;; Tasks
 ;;
@@ -20,10 +22,13 @@
     (let [feeds (db/rotate-feeds-to-update
                  {:limit feeds-limit})]
 
-      (doseq [feed feeds]
-        (queue/send {:action :sync-feed
-                     :feed-id (:id feed)
-                     :feed-url (:url_source feed)})))))
+      (log/infof "%s feeds found to update" (count feeds))
+
+      (queue/send-messages
+       group (for [feed feeds]
+               {:action :sync-feed
+                :feed-id (:id feed)
+                :feed-url (:url_source feed)})))))
 
 
 (defn sync-users-batch
@@ -32,9 +37,12 @@
     (let [users (db/rotate-users-to-update
                  {:limit users-limit})]
 
-      (doseq [user users]
-        (queue/send {:action :sync-user
-                     :user-id (:id user)})))))
+      (log/infof "%s users found to update" (count users))
+
+      (queue/send-messages
+       group (for [user users]
+               {:action :sync-user
+                :user-id (:id user)})))))
 
 
 ;;

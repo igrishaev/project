@@ -12,6 +12,15 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
 
+                 ;; todo add to spec?
+                 [amazonica "0.3.123" :exclusions
+                  [com.amazonaws/aws-java-sdk
+                   com.amazonaws/amazon-kinesis-client]]
+
+                 [com.amazonaws/aws-java-sdk-core "1.11.327"]
+                 [com.amazonaws/aws-java-sdk-s3 "1.11.327"]
+                 [com.amazonaws/aws-java-sdk-sqs "1.11.378"]
+
                  ;; logging
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [org.clojure/tools.logging "0.4.0"]
@@ -42,6 +51,7 @@
                  [markdown-clj "1.0.2"]
 
                  ;; cache and mq
+                 ;; todo drop?
                  [com.taoensso/carmine "2.18.1"]
 
                  ;; HTML sanitaze

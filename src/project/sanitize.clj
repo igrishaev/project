@@ -77,7 +77,6 @@
   [soup]
   (doseq [el (.select soup "iframe")]
     (let [src (.absUrl el "src")]
-      (prn src)
       (if (or (re-find re-youtube src)
               (re-find re-vk src)
               (re-find re-coube src))
