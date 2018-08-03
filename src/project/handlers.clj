@@ -10,7 +10,7 @@
             [project.search :as search]
             [project.opml :as opml]
             [project.resp :refer [ok] :as r]
-            [project.queue :as mq]
+            [project.queue :as queue]
 
             [clojure.tools.logging :as log]))
 
@@ -230,11 +230,14 @@
 
               (sync/sync-user user_id)
 
-              (doseq [feed feeds]
-                (mq/send {:action :sync-feed-and-sub
-                          :user-id user_id
-                          :feed-id (:id feed)
-                          :feed-url (:url_source feed)}))
+              (queue/send-messages
+               ;; todo remove that
+               "outtake.tasks"
+               (for [feed feeds]
+                 {:action :sync-feed-and-sub
+                  :user-id user_id
+                  :feed-id (:id feed)
+                  :feed-url (:url_source feed)}))
 
               (ok {:ok true})))
 
