@@ -13,7 +13,7 @@ uberjar-build:
 	lein uberjar
 
 uberjar-run:
-	java -jar ./target/$(project).jar
+	java -jar ./target/outtake.jar
 
 build: clean cljsbuild-prod uberjar-build
 

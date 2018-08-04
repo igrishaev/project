@@ -12,6 +12,10 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
 
+                 ;; for remote debugging
+                 [cider/cider-nrepl "0.17.0"]
+                 [org.clojure/tools.nrepl "0.2.13"]
+
                  ;; todo add to spec?
                  [amazonica "0.3.123" :exclusions
                   [com.amazonaws/aws-java-sdk

@@ -3,6 +3,7 @@
             [project.db :as db]
             [project.template :as tpl]
             [project.queue :as queue]
+            [project.nrepl :as nrepl]
             [project.server :as server])
   (:gen-class))
 
@@ -12,10 +13,12 @@
   (db/init)
   (tpl/init)
   (queue/init)
+  (nrepl/init)
   (server/init))
 
 
 (defn stop []
+  (server/stop)
   (server/stop)
   (queue/stop))
 
