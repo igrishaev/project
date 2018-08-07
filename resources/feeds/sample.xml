@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+  <title>Sample</title>
+  <link>http://sample.com</link>
+  <description>Sample feed for experimenting</description>
+
+  <item>
+    <title>Soundcloud test</title>
+    <link>http://sample.com/1</link>
+    <description>
+
+<![CDATA[
+
+<p>test</p>
+
+<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/users/1956989&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+
+separator
+
+<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/453143118&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+
+
+separator
+
+<br>
+
+test
+
+]]>
+
+</description>
+  </item>
+
+
+
+  <item>
+    <title>Youtube test</title>
+    <link>http://sample.com/2</link>
+    <description>
+
+<![CDATA[
+
+<iframe width="882" height="496" src="https://www.youtube.com/embed/uxs9kMqa2Ls" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+separator
+
+
+<br>
+
+test
+
+]]>
+
+</description>
+  </item>
+
+
+  <item>
+    <title>Coub test</title>
+    <link>http://sample.com/3</link>
+    <description>
+
+<![CDATA[
+
+
+<iframe src="//coub.com/embed/5oy44?muted=false&autostart=false&originalSize=false&startWithHD=false" allowfullscreen frameborder="0" width="626" height="480" allow="autoplay"></iframe>
+
+separator
+
+
+<br>
+
+test
+
+]]>
+
+</description>
+  </item>
+
+
+  <item>
+    <title>VK video test</title>
+    <link>http://sample.com/4</link>
+    <description>
+
+<![CDATA[
+
+
+<iframe src="//vk.com/video_ext.php?oid=-30493961&id=456241043&hash=a3148de1cd04c77b&hd=2" width="853" height="480" frameborder="0" allowfullscreen></iframe>
+
+separator
+
+
+<br>
+
+test
+
+]]>
+
+</description>
+  </item>
+
+
+  <item>
+    <title>Vimeo test</title>
+    <link>http://sample.com/5</link>
+    <description>
+
+<![CDATA[
+
+<iframe src="https://player.vimeo.com/video/41189708" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<p><a href="https://vimeo.com/41189708">Отношения с клиентами: принципы &laquo;Ружьё всегда заряжено&raquo; и &laquo;Анду&raquo;</a> from <a href="https://vimeo.com/user11032313">Максим Ильяхов</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
+separator
+
+
+<br>
+
+test
+
+]]>
+
+</description>
+  </item>
+
+
+
+</channel>
+
+</rss>

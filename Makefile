@@ -71,3 +71,6 @@ ansible-node-restart:
 
 ansible-cron:
 	ansible-playbook -i ansible/inventory ansible/playbooks/web-cron.yaml
+
+py-feeds:
+	cd $(resources)/feeds && python -m SimpleHTTPServer 9999

@@ -72,14 +72,27 @@
 (def re-coube
   #"(?i)coub.com/embed")
 
+(def re-soundcloud
+  #"(?i)soundcloud.com/player")
+
+(def re-vimeo
+  #"(?i)player.vimeo.com/video")
+
+
+(defn media-src?
+  [src]
+  (or (re-find re-youtube src)
+      (re-find re-vk src)
+      (re-find re-coube src)
+      (re-find re-soundcloud src)
+      (re-find re-vimeo src)))
+
 
 (defn process-iframes
   [soup]
   (doseq [el (.select soup "iframe")]
     (let [src (.absUrl el "src")]
-      (if (or (re-find re-youtube src)
-              (re-find re-vk src)
-              (re-find re-coube src))
+      (if (media-src? src)
         (.text el "")
         (.remove el)))))
 
