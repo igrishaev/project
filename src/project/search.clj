@@ -44,7 +44,9 @@
 (def feed-queries
   ["link[rel='alternate'][type='application/rss+xml']"
    "link[rel='alternate'][type='application/atom+xml']"
-   "link[rel='alternate'][type='application/json']"])
+
+   ;; "link[rel='alternate'][type='application/json']"
+   ])
 
 
 (defn html-find-links
