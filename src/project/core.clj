@@ -19,8 +19,8 @@
 
 (defn stop []
   (server/stop)
-  (server/stop)
-  (queue/stop))
+  (queue/stop)
+  (db/stop))
 
 
 (defn -main

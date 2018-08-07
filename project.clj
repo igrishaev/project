@@ -35,6 +35,9 @@
                  [migratus "1.0.8"]
                  [conman "0.8.1"]
 
+                 ;; state
+                 [mount "0.1.12"]
+
                  ;; http
                  [compojure "1.6.0"]
                  [ring/ring-jetty-adapter "1.6.2"]
@@ -78,11 +81,7 @@
                  [reagent-forms "0.5.42"]
 
                  [cljsjs/timeago "3.0.0-0"]
-                 [cljsjs/pluralize "3.0.0-0"]
-
-                 ;; deps issue
-                 ;; [com.google.guava/guava "25.1-jre"]
-                 ]
+                 [cljsjs/pluralize "3.0.0-0"]]
 
   :main project.core
   :uberjar-name "outtake.jar"

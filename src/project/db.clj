@@ -2,6 +2,7 @@
   (:require [project.env :refer [env]]
 
             [hugsql.core :as hug]
+            [mount.core :as mount]
             [conman.core :as conman]
             [clojure.java.jdbc :as jdbc]
             [clj-time.jdbc]
@@ -12,14 +13,25 @@
 
   (:import org.postgresql.util.PGobject))
 
-(def ^:dynamic
+
+(def pool-spec
+  {:jdbc-url
+   (format "jdbc:postgresql://%s:%s/%s?user=%s&password=%s"
+           (:db-host env)
+           (:db-port env)
+           (:db-database env)
+           (:db-user env)
+           (:db-password env))})
+
+
+(mount/defstate ^:dynamic
   *db*
-  {:dbtype   "postgresql"
-   :host     (:db-host env)
-   :port     (:db-port env)
-   :dbname   (:db-database env)
-   :user     (:db-user env)
-   :password (:db-password env)})
+  :start (conman/connect! pool-spec)
+  :stop (conman/disconnect! *db*))
+
+(def start (partial mount/start #'*db*))
+
+(def stop (partial mount/stop #'*db*))
 
 ;;
 ;; DB types
@@ -120,14 +132,15 @@
 ;; Migrations
 ;;
 
-(def ^:private
-  mg-cfg {:store :database
-          :migration-dir "migrations"
-          :db *db*})
+(defn mg-cfg
+  []
+  {:store :database
+   :migration-dir "migrations"
+   :db *db*})
 
 (defn migrate []
   (log/info "Running migrations...")
-  (migratus/migrate mg-cfg)
+  (migratus/migrate (mg-cfg))
   (log/info "Migrations done."))
 
 
@@ -214,6 +227,7 @@
 ;;
 
 (defn init []
+  (start)
   (migrate))
 
 ;;
@@ -222,7 +236,5 @@
 
 (conman/bind-connection *db* "sql/queries.sql")
 (conman/bind-connection *db* "sql/sync.sql")
-
-(hug/def-sqlvec-fns "sql/queries.sql")
 
 nil
