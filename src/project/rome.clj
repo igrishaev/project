@@ -2,6 +2,8 @@
   (:require [project.http :as http])
   (:import java.net.URL
 
+           [java.io InputStream]
+
            [org.jdom2
             Element
             Attribute]
@@ -26,25 +28,23 @@
 
 
 (defn parse-internal
-  [source]
-  (let [reader (new XmlReader source)
+  [^InputStream stream ^String content-type]
+  (let [reader (new XmlReader stream content-type)
         input (new SyndFeedInput)
         feed (.build input reader)]
     (->clj feed)))
 
 
-;; TODO pass encoding
-;; TODO pass content type
-
-
 (defn parse-http-resp
   [http-resp]
-  (parse-internal (:body http-resp)))
+  (let [{:keys [body headers]} http-resp
+        {:keys [content-type]} headers]
+    (parse-internal body content-type)))
 
 
 (defn parse-url
-  [url]
-  (let [resp (http/get url {:as :stream})]
+  [url & [opt]]
+  (let [resp (http/get url (merge opt {:as :stream}))]
     (parse-http-resp resp)))
 
 
