@@ -104,11 +104,11 @@
 (def ->xml (partial struct clojure.xml/element))
 
 
-(defn entry-extra
-  [^SyndEntry e]
+(defn rome-extra
+  [obj]
   (->xml :rome/extra
          nil
-         (map ->clj (.getForeignMarkup e))))
+         (map ->clj (.getForeignMarkup obj))))
 
 
 (extend-type SyndEntry
@@ -129,7 +129,7 @@
      :uri            (.getUri e)
      :comments       (.getComments e)
 
-     :extra          (entry-extra e)}))
+     :extra          (rome-extra e)}))
 
 
 (extend-type SyndFeed
@@ -157,7 +157,9 @@
      :docs           (.getDocs f)
      :generator      (.getGenerator f)
      :editor         (.getManagingEditor f)
-     :webmaster      (.getWebMaster f)}))
+     :webmaster      (.getWebMaster f)
+
+     :extra          (rome-extra f)}))
 
 
 (defn xml-full-name
