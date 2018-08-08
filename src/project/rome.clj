@@ -2,6 +2,10 @@
   (:require [project.http :as http])
   (:import java.net.URL
 
+           [org.jdom2
+            Element
+            Attribute]
+
            [com.rometools.rome.feed.synd
             SyndFeed
             SyndEntry
@@ -113,7 +117,10 @@
      :title          (.getTitle e)
      :updated-date   (.getUpdatedDate e)
      :uri            (.getUri e)
-     :comments       (.getComments e)}))
+     :comments       (.getComments e)
+
+     :foreign-markup (map ->clj (.getForeignMarkup e))}))
+
 
 (extend-type SyndFeed
   ToClojure
@@ -141,3 +148,27 @@
      :generator      (.getGenerator f)
      :editor         (.getManagingEditor f)
      :webmaster      (.getWebMaster f)}))
+
+
+;; http://www.jdom.org/docs/apidocs/org/jdom2/Element.html
+(extend-type Element
+  ToClojure
+  (->clj [e]
+    {:tag (-> e .getQualifiedName keyword)
+
+     :attrs
+     (not-empty
+      (into {}
+            (map (juxt :name :value)
+                 (map ->clj (.getAttributes e)))))
+
+     :content (or (not-empty (map ->clj (.getChildren e)))
+                  (not-empty (.getText e)))}))
+
+
+;; http://www.jdom.org/docs/apidocs/org/jdom2/Attribute.html
+(extend-type Attribute
+  ToClojure
+  (->clj [a]
+    {:name (-> a .getQualifiedName keyword)
+     :value (.getValue a)}))
