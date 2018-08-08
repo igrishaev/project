@@ -13,8 +13,9 @@
 
 (defn zip-seq
   [loc]
-  (when-not (zip/end? loc)
-    (cons loc (zip-seq (zip/next loc)))))
+  (->> loc
+       (iterate zip/next)
+       (take-while (complement zip/end?))))
 
 
 (defn get-tag

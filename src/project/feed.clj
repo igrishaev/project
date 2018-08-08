@@ -5,6 +5,8 @@
             [project.sanitize :as san]
 
             [clojure.string :as str]
+            [clojure.zip :as zip]
+
             [medley.core :refer [distinct-by]])
   (:import java.net.URL))
 
@@ -73,6 +75,34 @@
      }))
 
 
+(defn zip-seq
+  [loc]
+  (->> loc
+       (iterate zip/next)
+       (take-while (complement zip/end?))))
+
+
+(defn yandex:full-text
+  [extra]
+  (letfn [(find-loc [loc]
+            (-> loc zip/node :tag (= :yandex/full-text)))]
+    (let [loc-seq (-> extra zip/xml-zip zip-seq)]
+      (some->> loc-seq
+               (filter find-loc)
+               first
+               zip/node
+               :content
+               not-empty))))
+
+
+(defn get-summary
+  [entry]
+  (let [{:keys [description contents extra]} entry]
+    (or (some-> contents first :value not-empty)
+        (some-> description :value not-empty)
+        (yandex:full-text extra))))
+
+
 (defn data->entry
   [entry]
 
@@ -95,7 +125,7 @@
 
                 ]} entry
 
-        summary (:value description)
+        summary (get-summary entry)
 
         enclosure (first enclosures)
 
@@ -106,22 +136,18 @@
 
         enclosure_url
         (when enclosure_url
-          (to-abs-url page-url enclosure_url))
-
-        content (or (some-> contents first :value)
-                    summary)]
+          (to-abs-url page-url enclosure_url))]
 
     {:guid (or (clean-str uri)
                (clean-str link)
                (clean-str title)
-               (clean-str summary)
                (u/uuid))
 
      :link link
      :author (clean-str author)
      :title (san/san-none title)
 
-     :summary (san/san-html content page-url)
+     :summary (san/san-html summary page-url)
 
      :enclosure_url enclosure_url
      :enclosure_mime enclosure_mime

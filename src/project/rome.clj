@@ -101,6 +101,16 @@
      :description (.getDescription i)}))
 
 
+(def ->xml (partial struct clojure.xml/element))
+
+
+(defn entry-extra
+  [^SyndEntry e]
+  (->xml :rome/extra
+         nil
+         (map ->clj (.getForeignMarkup e))))
+
+
 (extend-type SyndEntry
   ToClojure
   (->clj [e]
@@ -119,7 +129,7 @@
      :uri            (.getUri e)
      :comments       (.getComments e)
 
-     :foreign-markup (map ->clj (.getForeignMarkup e))}))
+     :extra          (entry-extra e)}))
 
 
 (extend-type SyndFeed
@@ -150,25 +160,33 @@
      :webmaster      (.getWebMaster f)}))
 
 
+(defn xml-full-name
+  [obj]
+  (keyword (.getNamespacePrefix obj)
+           (.getName obj)))
+
+
 ;; http://www.jdom.org/docs/apidocs/org/jdom2/Element.html
 (extend-type Element
   ToClojure
   (->clj [e]
-    {:tag (-> e .getQualifiedName keyword)
 
-     :attrs
+    (->xml
+
+     (xml-full-name e)
+
      (not-empty
       (into {}
             (map (juxt :name :value)
                  (map ->clj (.getAttributes e)))))
 
-     :content (or (not-empty (map ->clj (.getChildren e)))
-                  (not-empty (.getText e)))}))
+     (or (not-empty (map ->clj (.getChildren e)))
+         (not-empty (.getText e))))))
 
 
 ;; http://www.jdom.org/docs/apidocs/org/jdom2/Attribute.html
 (extend-type Attribute
   ToClojure
   (->clj [a]
-    {:name (-> a .getQualifiedName keyword)
+    {:name (xml-full-name a)
      :value (.getValue a)}))
