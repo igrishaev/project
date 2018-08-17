@@ -1,5 +1,8 @@
 (ns project.rome
-  (:require [project.http :as http])
+  (:require [project.http :as http]
+
+            [clojure.xml :as xml])
+
   (:import java.net.URL
 
            [java.io InputStream]
@@ -101,7 +104,7 @@
      :description (.getDescription i)}))
 
 
-(def ->xml (partial struct clojure.xml/element))
+(def ->xml (partial struct xml/element))
 
 
 (defn rome-extra
